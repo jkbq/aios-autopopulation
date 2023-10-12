@@ -1,8 +1,8 @@
 <?php 
 
-namespace AiosAutoPopulate\AiosPopulationMenu;
+namespace AiosAutoPopulate\Routes;
 
-class AiosPopulationMenu {
+class Menu {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_endpoints'));
     }
@@ -35,5 +35,3 @@ class AiosPopulationMenu {
         return rest_ensure_response($response);
     }
 }
-
-$AiosPopulationMenu = new AiosPopulationMenu();

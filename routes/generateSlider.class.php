@@ -2,13 +2,13 @@
 
 namespace AiosAutoPopulate\Routes;
 
-class Page {
+class AiosSlider {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_endpoints'));
     }
 
     public function register_endpoints() {
-        register_rest_route('aios-populate/v1', '/page', array(
+        register_rest_route('aios-populate/v1', '/slider', array(
             'methods'   => 'POST',
             'callback'  => array($this, 'aios_populate_default_settings'),
         ));

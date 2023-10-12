@@ -1,14 +1,14 @@
 <?php 
 
-namespace AiosAutoPopulate\AiosPopulationForm;
+namespace AiosAutoPopulate\Routes;
 
-class AiosPopulationForm {
+class Form {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_endpoints'));
     }
 
     public function register_endpoints() {
-        register_rest_route('aios-populate/v1', '/menu', array(
+        register_rest_route('aios-populate/v1', '/form', array(
             'methods'   => 'POST',
             'callback'  => array($this, 'aios_populate_default_settings'),
         ));
@@ -35,5 +35,3 @@ class AiosPopulationForm {
         return rest_ensure_response($response);
     }
 }
-
-$AiosPopulationForm = new AiosPopulationForm();

@@ -1,8 +1,8 @@
 <?php 
 
-namespace AiosAutoPopulate\AiosPopulationPost;
+namespace AiosAutoPopulate\Routes;
 
-class AiosPopulationPost {
+class Post {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_endpoints'));
     }
@@ -35,5 +35,3 @@ class AiosPopulationPost {
         return rest_ensure_response($response);
     }
 }
-
-$AiosPopulationPost = new AiosPopulationPost();
