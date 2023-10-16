@@ -10,7 +10,7 @@ class AiosRoadmaps {
     public function register_endpoints() {
         register_rest_route('aios-populate/v1', '/roadmaps', array(
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
+            'callback'  => array($this, 'aios_populate_aios_roadmaps'),
         ));
     }
 
@@ -72,7 +72,7 @@ class AiosRoadmaps {
         set_post_thumbnail( $post_id, $id);
     }
 
-    public function aios_populate_default_settings($data) {
+    public function aios_populate_aios_roadmaps($data) {
 
         
 

@@ -10,11 +10,11 @@ class AiosSlider {
     public function register_endpoints() {
         register_rest_route('aios-populate/v1', '/slider', array(
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
+            'callback'  => array($this, 'aios_populate_aios_slider'),
         ));
     }
 
-    public function aios_populate_default_settings($data) {
+    public function aios_populate_aios_slider($data) {
 
             $imagesPath = get_stylesheet_directory_uri() . '/images';
 			$slider_data = array(

@@ -10,11 +10,11 @@ class Menu {
     public function register_endpoints() {
         register_rest_route('aios-populate/v1', '/menu', array(
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
+            'callback'  => array($this, 'aios_populate_menu'),
         ));
     }
 
-    public function aios_populate_default_settings($data) {
+    public function aios_populate_menu($data) {
 
         // Your logic to generate a page goes here
         $post_data = array(

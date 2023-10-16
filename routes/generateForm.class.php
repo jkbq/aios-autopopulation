@@ -10,11 +10,11 @@ class Form {
     public function register_endpoints() {
         register_rest_route('aios-populate/v1', '/form', array(
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
+            'callback'  => array($this, 'aios_populate_form'),
         ));
     }
 
-    public function aios_populate_default_settings($data) {
+    public function aios_populate_form($data) {
 
 
         foreach ($sample_posts as $value) {

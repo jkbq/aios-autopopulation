@@ -10,11 +10,11 @@ class Contents {
     public function register_endpoints() {
         register_rest_route('aios-populate/v1', '/contents', array(
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
+            'callback'  => array($this, 'aios_populate_contents'),
         ));
     }
 
-    public function aios_populate_default_settings($data) {
+    public function aios_populate_contents($data) {
 
         // Check if pages have already been generated
         $pages_generated = get_option('pages_generated', false);
