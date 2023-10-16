@@ -88,12 +88,23 @@ class Settings {
             update_option( 'wpseo_titles', $wpseo_titles );
 
             update_option('activate_initial_setup_assets', 'loaded');
+
+
+            
+            $response = array(
+                'success' => true, 
+                'message' => 'Settings Successfully Generated', 
+                'status' =>  $activate_initial_setup_assets
+            );
+
+
            
+        }else{
+              $response = array(
+                'success' => true, 
+                'message' => 'Settings Already Generated', 
+            );
         }
-
-        $response = array('success' => true, 'message' => 'Page generated successfully.', 'post_id' =>  $activate_initial_setup_assets);
-
-
 
         return rest_ensure_response($response);
     }
