@@ -101,21 +101,47 @@
     "menu":[
         {
             "primary_menu": [
-                {
-                    "title": "Home",
-                    "id": 1,
-                    "parent": 0,
-                    "post_type": "custom-navigation",
-                    "content": "/"
+                {   
+                    "menu_name": "Test1",
+                    "location": "primary-menu",
+                    "nav" : [
+                        {
+                            "title": "Home",
+                            "id": 1,
+                            "parent": 0,
+                            "post_type": "custom-navigation",
+                            "url": "/"
+                        },
+                        {
+                            "title": "About",
+                            "id": 2,
+                            "parent": 0,
+                            "post_type": "custom-navigation",
+                            "url": "/about/"
+                        }
+                    ]
                 }
             ],
-            "secondary_menu" : [
+            "secondary_menu": [
                 {
-                    "title": "Home",
-                    "id": 1,
-                    "parent": 0,
-                    "post_type": "custom-navigation",
-                    "content": "/"
+                    "menu_name": "Test2",
+                    "location": "secondary-menu",
+                    "nav": [
+                        {
+                            "title": "Home",
+                            "id": 1,
+                            "parent": 0,
+                            "post_type": "custom-navigation",
+                            "url": "/"
+                        },
+                        {
+                            "title": "About",
+                            "id": 2,
+                            "parent": 0,
+                            "post_type": "custom-navigation",
+                            "url": "/about/"
+                        }
+                    ]
                 }
             ]
         } 
