@@ -19,10 +19,11 @@ class Contents {
         // Check if pages have already been generated
         $pages_generated = get_option('pages_generated', false);
         $response_data = array();
-
         if (!$pages_generated) {
-            $json_data = AIOS_AUTOPOPULATE_URL . '/routes/ap-post.json';
-            $response = wp_remote_get($json_data, array(
+
+            $jsonData = AIOS_AUTOPOPULATE_JSON . 'contents.json';
+
+            $response = wp_remote_get($jsonData, array(
                 'timeout' => 45,
                 'blocking' => true,
                 'cookies' => array()
@@ -37,14 +38,6 @@ class Contents {
 
                 foreach ($contents as $content) {
                     foreach ($content as $value) {
-                        // Check if a post with the same title already exists
-                        $existing_post = get_page_by_title($value->post_title, OBJECT, $value->post_type);
-
-                        if ($existing_post) {
-                            // If the post already exists, log a message or handle as needed
-                            error_log('Page with title ' . $value->post_title . ' already exists.');
-                            continue; // Skip to the next iteration of the loop
-                        }
 
                         $post_data = array(
                             'post_type'    => $value->post_type,
@@ -60,7 +53,7 @@ class Contents {
                         }
 
                         $insert_post = wp_insert_post($post_data);
-
+                        
                         if ($insert_post) {
                             // Post inserted successfully
 

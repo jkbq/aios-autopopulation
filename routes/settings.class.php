@@ -15,23 +15,33 @@ class Settings {
     }
 
     public function aios_populate_default_settings($data) {
-
-
         
         $activate_initial_setup_assets = get_option( 'activate_initial_setup_assets' );
 
+        $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+
+        $response = wp_remote_get($jsonData, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
+
+        $data =  json_decode($response['body']);
+
         if($activate_initial_setup_assets != 'loaded'){
 
-            /// Default Libraries
+            // Default Libraries
+            $libraries = $data->config[0]->libraries;
+
             $aios_enqueue_cdn = get_option( 'aios-enqueue-cdn' );
-            $aios_enqueue_cdn['aos'] = '1';
-            $aios_enqueue_cdn['slick'] = '1';
-            $aios_enqueue_cdn['splitNav'] = '1';
-            $aios_enqueue_cdn['videoPlyr'] = '1';
+
+            foreach (  $libraries as $key=>$value){
+                $aios_enqueue_cdn[$key] = $value;
+            }
+
             update_option( 'aios-enqueue-cdn', $aios_enqueue_cdn );
 
             update_option( 'aios-metaboxes-banner-not-found', '404 Pages' );
-
             $aios_banner_post_types = get_option( 'aios-metaboxes-banner-post-types');
             $aios_banner_post_types['banner']['post']  = 'post';
             $aios_banner_post_types['banner']['page']  = 'page';
@@ -48,11 +58,12 @@ class Settings {
 
 
             // Client Info
+            $client_info = $data->config[0]->site_info;
             $aios_client_info = get_option( 'aiis_ci' );
-            $aios_client_info[ 'name' ] = $aios_client_info[ 'name' ] != '' ? $aios_client_info[ 'name' ] : 'Eric Davis';
-            $aios_client_info[ 'email' ] = $aios_client_info[ 'email' ] != '' ? $aios_client_info[ 'email' ] : 'agent@agentimage.com';
-            $aios_client_info[ 'phone' ] = $aios_client_info[ 'phone' ] != '' ? $aios_client_info[ 'phone' ] : '123.456.7890';
-            $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : '1700 East Walnut Avenue, Suite 400, El Segundo, CA 90245';
+            $aios_client_info[ 'name' ] = $aios_client_info[ 'name' ] != '' ? $aios_client_info[ 'name' ] : $client_info->name;
+            $aios_client_info[ 'email' ] = $aios_client_info[ 'email' ] != '' ? $aios_client_info[ 'email' ] : $client_info->email;
+            $aios_client_info[ 'phone' ] = $aios_client_info[ 'phone' ] != '' ? $aios_client_info[ 'phone' ] : $client_info->phone;
+            $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : $client_info->address;
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
                 "twitter" => 'https://www.twitter.com/agentimage',
@@ -67,7 +78,7 @@ class Settings {
             }
             update_option( 'aiis_ci', $aios_client_info );
 
-            
+                
             // Modules
             $aios_initial_setup_modules = get_option( 'aios_initial_setup_modules' );
             $aios_initial_setup_modules[ 'classic-editor' ] = 'yes';
@@ -88,7 +99,6 @@ class Settings {
             update_option( 'wpseo_titles', $wpseo_titles );
 
             update_option('activate_initial_setup_assets', 'loaded');
-
 
             
             $response = array(

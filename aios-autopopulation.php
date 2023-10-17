@@ -11,6 +11,7 @@
 namespace AiosAutoPopulate;
 
 define('AIOS_AUTOPOPULATE_URL', plugin_dir_url( __FILE__ ));
+define('AIOS_AUTOPOPULATE_JSON', plugin_dir_url( __FILE__ ) . 'routes/json/' );
 define('AIOS_AUTOPOPULATE_DIR', realpath( plugin_dir_path( __FILE__ ) ) . DIRECTORY_SEPARATOR);
 define('AIOS_AUTOPOPULATE_RESOURCES', AIOS_AUTOPOPULATE_URL . 'resources/');
 define('AIOS_AUTOPOPULATE_VIEWS', AIOS_AUTOPOPULATE_DIR . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR);
