@@ -57,15 +57,50 @@ class Contents {
                         if ($insert_post) {
                             // Post inserted successfully
 
+                            $imagesPath = get_stylesheet_directory_uri() . $image->extension . '/images/';
+                            $image_data = media_sideload_image(  $imagesPath . $value->featured_image, null, null, 'id' );
+
+
                             // Set featured image using media_sideload_image
                             if (isset($value->featured_image)) {
-                                // ... (code to set the featured image)
+                                // Download the image and attach it to the media library
+                                // Check if there is an error in sideloading the image
+                                if (is_wp_error($image_data)) {
+                                    error_log('Error sideloading featured image: ' . $image_data->get_error_message());
+                                } else {
+                                    // Get the attachment ID from the image data
+                                    $image_id = $image_data;
 
-                                // Set thumbnail
-                                if (!is_wp_error($image_id)) {
+                                    // Set the featured image
                                     set_post_thumbnail($insert_post, $image_id);
+
+                                    // Debugging: Log the success
+                                    error_log('Featured image set for post ID: ' . $insert_post);
                                 }
                             }
+
+
+                            if ($value->post_type === 'aios-listings') {
+                                // Additional code specific to 'aios-listings' post type
+
+                                if (property_exists($value, 'meta_input')) {
+                                    $meta_input = $array = json_decode(json_encode($value->meta_input), true);
+                                    $meta_input = $meta_input[0];
+                                    $meta_input['featured_image_id'] = $image_data;
+                                    $meta_input['listing-gallery'][] = $image_data;
+
+                                    foreach ($meta_input as $meta_key => $meta_value) {
+                                        update_post_meta($insert_post, $meta_key, $meta_value);
+                                    }
+
+                                    update_post_meta($insert_post, '_listing_details', $meta_input);
+                                    wp_set_post_terms($insert_post, [$tax_status->term_id], 'property-statuses');
+                                    wp_set_post_terms($insert_post, [$tax_type->term_id], 'property-types');
+                                }
+
+                                // Continue with other actions specific to 'aios-listings' post type
+                            }
+
 
                             // Debugging: Check if post is inserted successfully
                             error_log('Post inserted with ID: ' . $insert_post);

@@ -17,34 +17,67 @@ class Form {
     public function aios_populate_form($data) {
 
 
-        foreach ($sample_posts as $value) {
-            $post_data = array(
-                'post_type'    => $value->post_type,
-                'post_title'   => $value->post_title,
-                'post_content' => $value->post_content,
-                'post_status'  => 'publish',
-                'post_author'  => 1,
-            );
+        $form_generated = get_option('form_generated', false);
+        $response_data = array();
 
-            // Check post type and set category accordingly
-            if ($value->post_type == 'post' && isset($value->post_category_id)) {
-                $post_data['post_category'] = array($value->post_category_id); // Use the specified category ID for 'post'
-            }
+        if (!$form_generated) {
+            $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
 
-            $insert_post = wp_insert_post($post_data);
+            $response = wp_remote_get($jsonData, array(
+                'timeout' => 45,
+                'blocking' => true,
+                'cookies' => array()
+            ));
 
-            // Set featured image using media_sideload_image
-            if ($insert_post && isset($value->image_name)) {
+            if (is_wp_error($response)) {
+                error_log(print_r($response->get_error_message(), true));
+                $response_data['status'] = 'error';
+                $response_data['message'] = 'Error fetching JSON data';
+            } else {
 
-                $base_url = get_stylesheet_directory_uri();
-                $image_url =  $base_url . '/' . $value->image_name; // Construct the image URL
-                $image_id = media_sideload_image($image_url, $insert_post, null, 'id');
+                $data =  json_decode($response['body']);
+                $formsData = $data->contact_form[0];
+                $cf7_current_post_type = 'wpcf7_contact_form';
+                foreach($formsData as $form){
 
-                if (!is_wp_error($image_id)) {
-                    set_post_thumbnail($insert_post, $image_id);
+                    $form = $form[0];
+
+                    $data_to_add = array(
+                        'post_title'    => $form->title,
+                        'post_content'  => $form->content,
+                        'post_type'		=> $cf7_current_post_type,	
+                        'post_status'   => 'publish',
+                        'post_author'   => get_current_user_id()
+                    );
+
+                    //Insert the post into the database
+                    $contact_form_id = wp_insert_post( $data_to_add );
+
+                    if ( !empty( $contact_form_id ) ) {
+                        update_post_meta($contact_form_id, '_messages',(array)$form->message); 
+                        update_post_meta($contact_form_id, '_mail',(array)$form->mail); 
+                        update_post_meta($contact_form_id, '_form', $form->form);
+                        
+                        $count_cf7++;
+                    }
+
                 }
             }
+
+            // Set the option to indicate that pages have been generated
+            update_option('form_generated', true);
+
+
+            $response_data['status'] = 'success';
+            $response_data['message'] = 'Form generated successfully';
+
+        }else{
+            $response_data['status'] = 'success';
+            $response_data['message'] = 'Form already generated';
         }
-        return rest_ensure_response($response);
+
+        return rest_ensure_response($response_data);
     }
 }
+
+new Form();

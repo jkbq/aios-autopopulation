@@ -54,11 +54,11 @@ class AiosSlider {
 				foreach ( $images as $index => $image ) {
 
 					$imagesPath = get_stylesheet_directory_uri() . $image->extension . '/images/';
-					$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'src' );
+					$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'id' );
 
 					$slider_meta[] = array(
 						'type'    => 'image',
-						'image'	  => attachment_url_to_postid( $src ),
+						'image'	  => $src,
 						'tagline' => array(
 							'title' 	  => '',
 							'description' => '',
@@ -67,7 +67,7 @@ class AiosSlider {
 
 					// for innerpage image banner
 					if ( !$ip_banner_uploaded ) {
-						update_option( 'aios-metaboxes-default-banner-image', attachment_url_to_postid( $src ) );
+						update_option( 'aios-metaboxes-default-banner-image', $src );
 						$ip_banner_uploaded = true;
 					}
 				}

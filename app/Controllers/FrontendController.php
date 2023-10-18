@@ -18,7 +18,9 @@ class FrontendController
 
         add_action('query_vars', [$this, 'aios_install_set_query_var']);
         add_action('init', [$this, 'aios_install_custom_add_rewrite_rule']);
-        // add_action('wp_enqueue_scripts', [$this, 'aios_install_virtual_enqueue_scripts'], 15);
+
+
+        add_action('wp_enqueue_scripts', [$this, 'aios_install_virtual_enqueue_scripts'], 15);
 
         add_filter('template_include', [$this, 'aios_install_virtual_include_template']);
 
@@ -143,10 +145,14 @@ class FrontendController
     /**
      * Enqueue Assets
      */
-    public function assets()
+    public function aios_install_virtual_enqueue_scripts()
     {
-        wp_enqueue_style(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
-        wp_enqueue_script(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
+
+        $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
+        if ( $current_slug[1] == $this->virtual_page_slug ) {
+            wp_enqueue_style(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
+            wp_enqueue_script(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
+        }
     }
 }
 

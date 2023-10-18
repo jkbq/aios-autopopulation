@@ -10,7 +10,7 @@ class AdminController
    */
   public function __construct()
   {
-    add_action('admin_menu', [$this, 'page']);
+    // add_action('admin_menu', [$this, 'page']);
     add_action('admin_enqueue_scripts', [$this, 'assets']);
   }
 
