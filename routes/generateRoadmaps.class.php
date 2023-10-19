@@ -74,7 +74,11 @@ class AiosRoadmaps {
 
     public function aios_populate_aios_roadmaps($data) {
 
-        
+    
+        $currentDateTime = date('m/d/Y, g:i:s A');
+        $dateComplete = get_option('aios_roadmaps_date_complete');
+        $response_data = array();
+        $response_data['date'] = $dateComplete;
 
         $buyers = get_option('aios-rm-buyers');
         $sellers = get_option('aios-rm-sellers');
@@ -88,7 +92,7 @@ class AiosRoadmaps {
     
             $aios_roadmaps_settings = get_option('aios_roadmaps_settings');
 
-            $date = $date = date('Y-m-d H:i:s');
+            $date = date('Y-m-d H:i:s');
             // Get Sellers, Buyers, Financing json data
             $buyers_data        = AIOS_ROADMAPS_RESOURCES . '/json/aios-roadmaps-buyers-data.json';
             $financing_data       = AIOS_ROADMAPS_RESOURCES . '/json/aios-roadmaps-financing-data.json';
@@ -237,20 +241,19 @@ class AiosRoadmaps {
                 update_option('aios-roadmaps', 'freshly-installed');
             }
 
+            update_option('aios_roadmaps_date_complete', $currentDateTime );
 
-            $response = array(
-                'success' => true, 
-                'message' => 'Roadmaps generated successfully.', 
-            );
+
+            $response_data['status'] = true;
+            $response_data['message'] = 'Roadmaps generated successfully.';
 
         }else{
-            $response = array(
-                'success' => false, 
-                'message' => 'Roadmaps Already Generated', 
-            );
+   
+            $response_data['status'] = false;
+            $response_data['message'] = 'Roadmaps already successfully.';
         }
 
-        return rest_ensure_response($response);
+        return rest_ensure_response($response_data);
     }
 }
 new AiosRoadmaps();

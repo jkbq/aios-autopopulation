@@ -16,6 +16,12 @@ class Settings {
 
     public function aios_populate_default_settings($data) {
         
+
+
+        $dateComplete = get_option('activate_initial_setup_assets_date_complete');
+        $currentDateTime = date('m/d/Y, g:i:s A');
+        update_option('activate_initial_setup_assets_date_complete',  $currentDateTime);
+
         $activate_initial_setup_assets = get_option( 'activate_initial_setup_assets' );
 
         $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
@@ -98,21 +104,21 @@ class Settings {
             $wpseo_titles[ 'post_types-post-maintax' ] = 'category';
             update_option( 'wpseo_titles', $wpseo_titles );
 
+           
             update_option('activate_initial_setup_assets', 'loaded');
 
-            
             $response = array(
                 'success' => true, 
                 'message' => 'Settings Successfully Generated', 
-                'status' =>  $activate_initial_setup_assets
+                'date' => $dateComplete
             );
 
-
-           
         }else{
-              $response = array(
-                'success' => true, 
+    
+            $response = array(
+                'success' => false, 
                 'message' => 'Settings Already Generated', 
+                'date' => $dateComplete
             );
         }
 

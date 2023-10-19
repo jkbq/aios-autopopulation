@@ -1,22 +1,16 @@
-// JavaScript code here
 const requestQueue = [];
 let queueIsRunning = false;
+let isProcessing = false; // New flag to track processing status
 
 const currentDomain = window.location.origin;
 const wordpressApiBaseUrl = `${currentDomain}/wp-json/aios-populate/v1`;
-
-// const apiCredentials = {
-//     apiKey: 'your_api_key', // Replace with your actual API key
-//     // Add any other authentication details here
-// };
-
 
 function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
     const request = {
         apiName,
         apiUrl,
         data,
-        status: 'Pending',
+        status: 'On Queue',
         dateComplete: '',
         showReRunButton
     };
@@ -24,6 +18,7 @@ function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
 
     if (!queueIsRunning) {
         queueIsRunning = true;
+        isProcessing = true; // Set processing flag
         processQueue();
     }
 }
@@ -38,7 +33,6 @@ function processQueue() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-Custom-API-Key': apiCredentials.apiKey,
             },
             body: JSON.stringify(data),
         })
@@ -46,8 +40,8 @@ function processQueue() {
             .then(result => {
                 console.log(result);
 
-                updateStatus(apiName, 'Complete');
-                updateDateComplete(apiName, new Date().toLocaleString());
+                updateStatus(apiName, result.message);
+                updateDateComplete(apiName, result.date);
 
                 requestQueue.shift();
                 processQueue();
@@ -62,7 +56,8 @@ function processQueue() {
             });
     } else {
         queueIsRunning = false;
-        showElementAfterAllRequestsComplete(); // New addition
+        isProcessing = false; // Reset processing flag
+        showElementAfterAllRequestsComplete();
     }
 }
 
@@ -88,13 +83,11 @@ function showElementAfterAllRequestsComplete() {
     }
 }
 
-
 // Function to manually trigger re-run for a specific API
 function reRun(apiName, apiUrl, data) {
     addToQueue(apiName, apiUrl, data);
     updateTable(); // Update the table after re-run
 }
-
 
 function updateTable() {
     const tableBody = document.getElementById('apiTableBody');
@@ -104,35 +97,35 @@ function updateTable() {
 
         if (!existingRow) {
             const newRow = document.createElement('div');
-            newRow.className = 'table-row';
+            newRow.className = 'aios-installation__table--row';
             newRow.id = `row_${apiName}`;
 
             const cell1 = document.createElement('div');
-            cell1.className = 'table-cell';
+            cell1.className = 'aios-installation__table--cell';
             cell1.textContent = apiName;
             newRow.appendChild(cell1);
 
             const cell2 = document.createElement('div');
-            cell2.className = 'table-cell';
+            cell2.className = 'aios-installation__table--cell';
             cell2.id = `status_${apiName}`;
             cell2.textContent = status;
             newRow.appendChild(cell2);
 
             const cell3 = document.createElement('div');
-            cell3.className = 'table-cell';
+            cell3.className = 'aios-installation__table--cell';
             cell3.id = `dateComplete_${apiName}`;
             cell3.textContent = dateComplete;
             newRow.appendChild(cell3);
-            
-            const cell4 = document.createElement('div');
-            cell4.className = 'table-button';
-            if (showReRunButton) {
-                const reRunButton = document.createElement('button');
-                reRunButton.textContent = 'Re-run';
-                reRunButton.onclick = () => reRun(apiName, apiUrl, data);
-                cell4.appendChild(reRunButton);
-            }
-            newRow.appendChild(cell4);
+
+            // const cell4 = document.createElement('div');
+            // cell4.className = 'aios-installation__table--button';
+            // if (showReRunButton) {
+            //     const reRunButton = document.createElement('button');
+            //     reRunButton.textContent = 'Re-run';
+            //     reRunButton.onclick = () => reRun(apiName, apiUrl, data);
+            //     cell4.appendChild(reRunButton);
+            // }
+            // newRow.appendChild(cell4);
 
             tableBody.appendChild(newRow);
         } else {
@@ -149,17 +142,22 @@ function updateTable() {
         }
     });
 
-    showElementAfterAllRequestsComplete(); // New addition
+    showElementAfterAllRequestsComplete();
 }
 
-// Trigger initial requests on page load
-addToQueue('Settings', `${wordpressApiBaseUrl}/settings`, { key: 'value1' }, false);
-addToQueue('Forms', `${wordpressApiBaseUrl}/settings`, { key: 'value2' }, false);
-addToQueue('Pages', `${wordpressApiBaseUrl}/settings`, { key: 'value3' }, false);
-addToQueue('Roadmaps', `${wordpressApiBaseUrl}/settings`, { key: 'value4' }, false);
-addToQueue('Slideshow', `${wordpressApiBaseUrl}/settings`, { key: 'value5' }, false);
-addToQueue('Menu', `${wordpressApiBaseUrl}/settings`, { key: 'value6' }, false);
-addToQueue('Widgets', `${wordpressApiBaseUrl}/settings`, { key: 'value7' }, true);
+const apiRequests = [
+    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: { key: 'value1' }, showReRunButton: false },
+    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: { key: 'value2' }, showReRunButton: false },
+    { name: 'Pages', url: `${wordpressApiBaseUrl}/contents`, data: { key: 'value3' }, showReRunButton: false },
+    { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: { key: 'value4' }, showReRunButton: false },
+    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: { key: 'value5' }, showReRunButton: false },
+    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: { key: 'value6' }, showReRunButton: false },
+    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: { key: 'value7' }, showReRunButton: true },
+];
+
+apiRequests.forEach(request => {
+    addToQueue(request.name, request.url, request.data, request.showReRunButton);
+});
 
 // Call updateTable after the initial requests are added
 updateTable();

@@ -21,19 +21,19 @@
            "images" : [
                 {
                     "image" :  "slide-1.jpg",
-                    "extension" : "",
+                    "extension" : "assets",
                     "title" : "",
                     "description" : ""    
                 },
                 {
                     "image": "slide-2.jpg",
-                    "extension": "",
+                    "extension": "assets",
                     "title": "",
                     "description": ""
                 },
                 {
-                    "image": "slide-2.jpg",
-                    "extension": "",
+                    "image": "slide-3.jpg",
+                    "extension": "assets",
                     "title": "",
                     "description": ""
                 }

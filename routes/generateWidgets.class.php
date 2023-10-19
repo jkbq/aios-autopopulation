@@ -16,6 +16,10 @@ class Widgets {
 
     public function aios_populate_contents($data) {
         
+        
+        $currentDateTime = date('m/d/Y, g:i:s A');
+        $dateComplete = get_option('wigets_generated_date_complete');
+        
         $wigets_generated = get_option('wigets_generated', false);
 
         // this  block is to empty sidebar always before placing the new sidebar 
@@ -109,15 +113,18 @@ class Widgets {
                 update_option('sidebars_widgets', $sidebars);
                 update_option("widget_$type", $widget_opts);
             }
-            
             // Set the option to indicate that pages have been generated
             update_option('wigets_generated', true);
-            $response_data['status'] = 'success';
-            $response_data['message'] = 'Form generated successfully';
+            update_option('wigets_generated_date_complete',  $currentDateTime);
+
+            $response_data['status'] = true;
+            $response_data['message'] = 'Widgets generated successfully';
+            $response_data['date'] = $dateComplete;
 
         }else{
-            $response_data['status'] = 'success';
-            $response_data['message'] = 'Form already generated';
+            $response_data['status'] = false;
+            $response_data['message'] = 'Widgets already generated';
+            $response_data['date'] = $dateComplete;
         }
 
         return rest_ensure_response($response_data);

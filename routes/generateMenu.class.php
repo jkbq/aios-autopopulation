@@ -17,7 +17,13 @@ class Menu {
     public function aios_populate_menu($data) {
 
         
+        $currentDateTime = date('m/d/Y, g:i:s A');
+        $dateComplete = get_option('menu_date_complete');
         $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+
+
+        $response_data = array();
+        $response_data['date'] = $dateComplete;
 
         $response = wp_remote_get($jsonData, array(
             'timeout' => 45,
@@ -28,6 +34,7 @@ class Menu {
         $data =  json_decode($response['body']);
 
         $menus = $data->menu[0];
+
 
         foreach ($menus as $menu) {
             foreach ($menu as $menu_data) {
@@ -67,15 +74,21 @@ class Menu {
                             $parent_id_arr[$json_data->id] = $parent_id;
                         }
                     }
-                    $response = array( 'message' => 'Menu and items generated successfully.');
+                    
+                    update_option('menu_date_complete', $currentDateTime );
+
+                    $response_data['status'] = 'success';
+                    $response_data['message'] = 'Menu generated successfully';
+
 
                 }else{
-                    $response = array( 'message' => 'Menu already exists.');
+                    $response_data['status'] = 'success';
+                    $response_data['message'] = 'Menu generated successfully';
                 }
             }
         }
 
-        return rest_ensure_response($response);
+        return rest_ensure_response($response_data);
     }
 }
 new Menu();

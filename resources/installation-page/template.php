@@ -11,39 +11,43 @@
 </head>
 <body <?php body_class(); ?>>
 
+    <main id="aios-installation" class="aios-installation">
 
-
-
-
-
-    <main id="aios-thankyou-wrap" class="aios-thankyou-wrap">
-        <div class="aios-thankyou-inner">
-            <h1 class="aios-thankyou-title">Thank You!</h1>
-            <i class="ai-font-check aios-thankyou-icon" aria-hidden="true"></i>
-            <div class="aios-thankyou-content">
-                <p>Thank you very much for choosing <br> <strong>Descartes AgentPro Wordpress Theme.</strong></p><br>
+        <div class="aios-installation__info">
+			<div class="aios-installation__logo">
+				<i class="ai-font-agentimage-logo"></i>
+			</div>
+            <h1 class="aios-installation__title">Thank you for choosing Agent Image!</h1>
+            <div class="aios-installation__content">
+                <p>Please wait for<strong> as we setup your theme files...</strong></p><br>
                 
-				<div class="table table-header">
-					<div class="table-cell">API Name</div>
-					<div class="table-cell">Status</div>
-					<div class="table-cell">Date Complete</div>
-					<div class="table-cell">Action</div>
+				<div class="aios-installation__table">
+					<div class="aios-installation__table--header">
+						<div class="aios-installation__table--cell">API Name</div>
+						<div class="aios-installation__table--cell">Status</div>
+						<div class="aios-installation__table--cell">Date Complete</div>
+					</div>
+
+					<div id="apiTableBody"></div>
 				</div>
-
-				<div id="apiTableBody"></div>
 	
-				<a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage" style="display:none">Visit homepage</a>
-                
-            </div>
-            <div class="aios-thankyou-copyright">
-                Copyright&copy; <?= date( 'Y' ) ?>. All rights reserved. <br class="hidden-md hidden-lg">Real Estate Website Design by <a href="https://www.agentimage.com/" target="_blank" class="aios-thankyou-agentimage">Agent Image</a>
+				<a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage">Visit homepage</a>
             </div>
         </div>
-    </main>
-    
-
-
-    
+		<div class="aios-installation__footer">
+			<h3 class="aios-installation__footer--title">Connect with us</h3>
+			<div class="aios-installation__footer--smi">
+				<a href="https://www.facebook.com/AgentImage/" target="_blank" class="cws-facebook"><i class="ai-font-facebook"></i></a>
+				<a href="https://twitter.com/agentimage/" target="_blank" class="cws-twitter"><i class="ai-font-twitter"></i></a>
+				<a href="https://www.instagram.com/agentimage/" target="_blank" class="cws-instagram"><i class="ai-font-instagram"></i></a>
+				<a href="https://www.linkedin.com/company/agent-image/" target="_blank" class="cws-linkedin"><i class="ai-font-linkedin"></i></a>
+				<a href="https://www.youtube.com/channel/UCi61s5-PpJSTqVMy-ed92XA" target="_blank" class="cws-youtube"><i class="ai-font-youtube"></i></a>
+				<a href="https://www.pinterest.com/agentimage/" target="_blank" class="cws-pinterest"><i class="ai-font-pinterest"></i></a>
+				<a href="https://www.yelp.com/biz/agent-image-el-segundo" target="_blank" class="cws-yelp"><i class="ai-font-yelp"></i></a>
+			</div>
+			<p>Copyright <?php echo date('Y')?> <a href="https://agentimage.com/" target="_blank">Agent Image</a> All Rights Reserved.</p>
+		</div>
+    </main>    
 	<?php wp_footer(); ?>
 	
 </body>

@@ -18,6 +18,7 @@ define('AIOS_AUTOPOPULATE_VIEWS', AIOS_AUTOPOPULATE_DIR . DIRECTORY_SEPARATOR . 
 define('AIOS_AUTOPOPULATE_NAME', 'AIOS Webpack Basic');
 define('AIOS_AUTOPOPULATE_SLUG', 'aios-webpack-basic');
 
+
 require 'FileLoader.php';
 
 $fileLoader = new FileLoader();

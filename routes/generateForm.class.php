@@ -17,9 +17,12 @@ class Form {
     public function aios_populate_form($data) {
 
 
+        $currentDateTime = date('m/d/Y, g:i:s A');
+        $dateComplete = get_option('form_generated_date_complete');
         $form_generated = get_option('form_generated', false);
         $response_data = array();
-
+        $response_data['date'] = $dateComplete;
+        
         if (!$form_generated) {
             $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
 
@@ -66,10 +69,12 @@ class Form {
 
             // Set the option to indicate that pages have been generated
             update_option('form_generated', true);
+            update_option('form_generated_date_complete', $currentDateTime );
 
 
             $response_data['status'] = 'success';
             $response_data['message'] = 'Form generated successfully';
+           
 
         }else{
             $response_data['status'] = 'success';
