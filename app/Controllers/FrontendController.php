@@ -152,6 +152,12 @@ class FrontendController
         if ( $current_slug[1] == $this->virtual_page_slug ) {
             wp_enqueue_style(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
             wp_enqueue_script(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
+
+
+            //dequeue
+
+            wp_dequeue_script('aios-starter-theme-script');
+
         }
     }
 }

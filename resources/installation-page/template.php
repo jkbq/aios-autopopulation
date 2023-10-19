@@ -29,6 +29,7 @@
 					</div>
 
 					<div id="apiTableBody"></div>
+					
 				</div>
 	
 				<a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage">Visit homepage</a>

@@ -153,3 +153,32 @@
         justify-content: flex-start;
     }
 }
+
+   .loader-bar {
+       width: 100%;
+       height: 4px;
+       background-color: #ddd;
+       position: relative;
+   }
+
+   .loader-bar span {
+       display: block;
+       height: 100%;
+       background-color: #4CAF50;
+       position: absolute;
+       animation: progress 2s ease-in-out infinite;
+   }
+
+   @keyframes progress {
+       0% {
+           width: 0;
+       }
+
+       50% {
+           width: 100%;
+       }
+
+       100% {
+           width: 0;
+       }
+   }

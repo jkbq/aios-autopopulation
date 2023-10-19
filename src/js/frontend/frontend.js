@@ -92,7 +92,11 @@ function reRun(apiName, apiUrl, data) {
 function updateTable() {
     const tableBody = document.getElementById('apiTableBody');
 
+    
     requestQueue.forEach(({ apiName, status, dateComplete, showReRunButton, apiUrl, data }) => {
+
+
+     
         let existingRow = document.getElementById(`row_${apiName}`);
 
         if (!existingRow) {
