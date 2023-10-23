@@ -69,7 +69,15 @@ class Settings {
             $aios_client_info[ 'name' ] = $aios_client_info[ 'name' ] != '' ? $aios_client_info[ 'name' ] : $client_info->name;
             $aios_client_info[ 'email' ] = $aios_client_info[ 'email' ] != '' ? $aios_client_info[ 'email' ] : $client_info->email;
             $aios_client_info[ 'phone' ] = $aios_client_info[ 'phone' ] != '' ? $aios_client_info[ 'phone' ] : $client_info->phone;
+
             $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : $client_info->address;
+            $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
+            $aios_client_info[ 'address_city' ] = $aios_client_info[ 'address_city' ] != '' ? $aios_client_info[ 'address_city' ] : $client_info->address_city;
+            $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
+            $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
+
+            
+
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
                 "twitter" => 'https://www.twitter.com/agentimage',
@@ -104,7 +112,6 @@ class Settings {
             $wpseo_titles[ 'post_types-post-maintax' ] = 'category';
             update_option( 'wpseo_titles', $wpseo_titles );
 
-           
             update_option('activate_initial_setup_assets', 'loaded');
 
             $response = array(

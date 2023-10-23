@@ -48,11 +48,40 @@
 	],
     "aios-communities": [
         {
+            "post_type": "aios-communities",
             "post_title": "Auburn",
             "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
-            "featured_image": "fc-1.jpg",
-            "extension": "",
-            "post_type": "aios-communities"
+            "featured_image": "community1.jpg"
+        },
+        {
+            "post_type": "aios-communities",
+            "post_title": "Cameron Park",
+            "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
+            "featured_image": "community2.jpg"
+        },
+        {
+            "post_type": "aios-communities",
+            "post_title": "Citrus Heights",
+            "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
+            "featured_image": "community3.jpg"
+        },
+        {
+            "post_type": "aios-communities",
+            "post_title": "Discovery Bay",
+            "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
+            "featured_image": "community4.jpg"
+        },
+        {
+            "post_type": "aios-communities",
+            "post_title": "El Dorado",
+            "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
+            "featured_image": "community5.jpg"
+        },
+        {
+            "post_type": "aios-communities",
+            "post_title": "El Dorado Hills",
+            "post_content": "Step inside and take a virtual stroll through your new neighborhood! Learn about the best places to visit in town for shopping, dining, entertainment and lifestyle. Browse through best local amenities and establishments, and learn about best local schools and community parks. There are plenty of different sights to see that cater to your various hobbies and interests. Discover all the charming local attractions and fun activities you might be interested in to enjoy with your family and friends. Explore the community through the eyes of a local and see what living in this neighborhood is really like. Find the best properties in this community that are perfect just for you.",
+            "featured_image": "community6.jpg"
         }
     ],
     "aios-testimonials": [

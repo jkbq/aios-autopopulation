@@ -14,39 +14,83 @@ class Widgets {
         ));
     }
 
+    public function widgetGenerator( $sidebar, $name, $args = array() ) {
+
+
+        
+			if ( ! $sidebars = get_option( 'sidebars_widgets') )
+
+				$sidebars = array();
+
+			// Create the sidebar if it doesn't exist.
+			if ( ! isset( $sidebars[ $sidebar ] ) ){
+				$sidebars[ $sidebar ] = array();
+			}
+
+			// Check for existing saved widgets.
+			$widget_opts = get_option( "widget_$name" );
+			$still_empty = false;
+
+			// Make sure that the widget array is really empty
+			if ( is_array( $widget_opts ) ) {
+				$still_empty = count( $widget_opts ) === 1 && array_key_exists('_multiwidget',$widget_opts);
+			}
+
+			if ( $widget_opts && !$still_empty ) {
+				// Get next insert id.
+				ksort( $widget_opts );
+				end( $widget_opts );
+				$insert_id = key( $widget_opts );
+
+			} else {
+				// None existing, start fresh.
+				$widget_opts = array( '_multiwidget' => 1 );
+				$insert_id = 0;
+			}
+
+			// Add our settings to the stack.
+			$widget_opts[ ++$insert_id ] = $args;
+
+			// Add our widget!
+			$sidebars[ $sidebar ][] = "$name-$insert_id";
+
+			update_option( 'sidebars_widgets', $sidebars );
+			update_option( "widget_$name", $widget_opts );
+    }
+
+
+
+
     public function aios_populate_contents($data) {
         
         
+
         $currentDateTime = date('m/d/Y, g:i:s A');
         $dateComplete = get_option('wigets_generated_date_complete');
         
         $wigets_generated = get_option('wigets_generated', false);
 
-        // this  block is to empty sidebar always before placing the new sidebar 
-        // Get all registered sidebars
-        $registered_sidebars = wp_get_sidebars_widgets();
-
-        $sidebars_widgets = get_option('sidebars_widgets');
+        $widget_install = new widgets();
 
         if (!$wigets_generated) {
+
+            $registered_sidebars = wp_get_sidebars_widgets();
+            $sidebars_widgets = get_option('sidebars_widgets');
+
             foreach ($registered_sidebars as $sidebar_id => $widgets) {
                 // Remove all widgets from the current sidebar
                 $sidebars_widgets[$sidebar_id] = array();
                 
+                // Update the sidebars_widgets option to reflect the changes
+                update_option('sidebars_widgets', $sidebars_widgets);
+
                 // Optionally, you can update other options to indicate that the sidebar is deregistered
                 update_option($sidebar_id . '-deregistered', 'yes');
                 update_option($sidebar_id . '-deregistered-timestamp', time()); // You can store a timestamp if needed
             }
 
-            // Clear all widgets from inactive sidebars
-            $inactive_sidebars = array_diff_key($sidebars_widgets, $registered_sidebars);
 
-            foreach ($inactive_sidebars as $inactive_sidebar_id => $inactive_widgets) {
-                $sidebars_widgets[$inactive_sidebar_id] = array();
-            }
-
-
-            $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+            $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
             $response = wp_remote_get($jsonData, array(
                 'timeout' => 45,
@@ -58,61 +102,23 @@ class Widgets {
 
             $widgets  = $data->widgets;
 
-            // Loop through each widget in the array
-            foreach ($widgets  as $widget_info) {
-                $id = $widget_info->id;
-                $type = $widget_info->type;
-                $args = $widget_info->args;
+        
+            foreach ( $widgets as $widget_info ) {
+                $widget_args = [];
 
-
-                // Replace specific content in the $args array
-                if (isset($args->pbcw_category)) {
-
-                    // for blog
-                    $args->pbcw_category = get_cat_ID( 'Blog' );
+                foreach ( $widget_info->args as $arg_key => $arg_value ) {
+                
+                    $widget_args[ $arg_key ]  = $arg_value;
                 }
-
-
-                // Check if the sidebars_widgets option exists
-                if (! sidebars_widgets ) {
-                    $sidebars = array();
-                }
-
-                // Create the sidebar if it doesn't exist
-                if (! isset($sidebars[$id])) {
-                    $sidebars[$id] = array();
-                }
-
-                // Check for existing saved widgets
-                $widget_opts = get_option("widget_$type");
-                $still_empty = false;
-
-                // Make sure that the widget array is really empty
-                if (is_array($widget_opts)) {
-                    $still_empty = count($widget_opts) === 1 && array_key_exists('_multiwidget', $widget_opts);
-                }
-
-                if ($widget_opts && ! $still_empty) {
-                    // Get the next insert id
-                    ksort($widget_opts);
-                    end($widget_opts);
-                    $insert_id = key($widget_opts);
-                } else {
-                    // None existing, start fresh
-                    $widget_opts = array('_multiwidget' => 1);
-                    $insert_id = 0;
-                }
-
-                // Add the widget data to the stack
-                $widget_opts[++$insert_id] = $args;
-
-                // Add the widget to the sidebar
-                $sidebars[$id][] = "$type-$insert_id";
-
-                // Update the options
-                update_option('sidebars_widgets', $sidebars);
-                update_option("widget_$type", $widget_opts);
+                
+                $widget_install->widgetGenerator(
+                    $widget_info->id,
+                    $widget_info->type,
+                    $widget_args
+                );
             }
+
+
             // Set the option to indicate that pages have been generated
             update_option('wigets_generated', true);
             update_option('wigets_generated_date_complete',  $currentDateTime);

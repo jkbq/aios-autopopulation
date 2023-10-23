@@ -24,7 +24,7 @@ class Form {
         $response_data['date'] = $dateComplete;
         
         if (!$form_generated) {
-            $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+            $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
             $response = wp_remote_get($jsonData, array(
                 'timeout' => 45,

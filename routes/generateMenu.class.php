@@ -19,11 +19,9 @@ class Menu {
         
         $currentDateTime = date('m/d/Y, g:i:s A');
         $dateComplete = get_option('menu_date_complete');
-        $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+        $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
 
-        $response_data = array();
-        $response_data['date'] = $dateComplete;
 
         $response = wp_remote_get($jsonData, array(
             'timeout' => 45,
@@ -36,6 +34,10 @@ class Menu {
         $menus = $data->menu[0];
 
 
+        $response_data = array();
+        $response_data['date'] = $dateComplete;
+        
+    
         foreach ($menus as $menu) {
             foreach ($menu as $menu_data) {
 
@@ -65,7 +67,8 @@ class Menu {
                                         'menu-item-title' => __($json_data->title),
                                         'menu-item-url' => home_url($json_data->url),
                                         'menu-item-status' => 'publish',
-                                        'menu-item-parent-id' => $parent_id_arr[$json_data->parent]
+                                        'menu-item-parent-id' => $parent_id_arr[$json_data->parent],
+                                        'menu-item-classes' => $json_data->class,
                                     )
                                 );
                                 $count_menu++;
