@@ -126,6 +126,25 @@ class Widgets {
             }
 
 
+            /// Plugins Settings
+            $testimonials_options = get_option('aios_testimonials_settings');
+            $testimonial_page = get_page_by_title('Testimonials');
+            $testimonials_options['main_page'] = $testimonial_page->ID ;
+
+            $communties_default_page = get_option('aios_communities_settings');
+            $get_communities_page = get_page_by_title('Communities');
+            $communties_default_page['main_page'] = $get_communities_page->ID;
+
+            $listings = get_option('listings_settings');
+            $get_properties_page = get_page_by_title('Properties');
+            $listings['main_page'] = $get_properties_page->ID;
+            
+
+
+            update_option( 'aios_testimonials_settings', $testimonials_options );
+            update_option('aios_communities_settings', $communties_default_page );
+            update_option('listings_settings', $listings );
+
             // Set the option to indicate that pages have been generated
             update_option('wigets_generated', true);
             update_option('wigets_generated_date_complete',  $currentDateTime);

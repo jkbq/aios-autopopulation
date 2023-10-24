@@ -99,6 +99,8 @@ class Settings {
             update_option( 'aios_initial_setup_modules', $aios_initial_setup_modules );
 
             // updates blog name and description
+            update_option('blogname', '');
+            update_option('blogdescription', '');
             update_option( 'blogname', $aios_client_info[ 'name' ] );
             update_option( 'blogdescription', 'Responsive Real Estate WordPress Theme from Agent Image' );
 
@@ -110,6 +112,9 @@ class Settings {
             $wpseo_titles[ 'breadcrumbs-enable' ] = true;
             $wpseo_titles[ 'post_types-post-maintax' ] = 'category';
             update_option( 'wpseo_titles', $wpseo_titles );
+
+            // aios-communities
+			update_option( 'communities-themes', 'galaxy-core' );
 
             update_option('activate_initial_setup_assets', 'loaded');
 

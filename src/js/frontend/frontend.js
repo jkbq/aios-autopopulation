@@ -166,8 +166,7 @@ const apiRequests = [
     { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
     { name: 'Contents', url: `${wordpressApiBaseUrl}/contents`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
     { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Communities', url: `${wordpressApiBaseUrl}/communities`, data: { date: new Date().toLocaleString()  }, showReRunButton: false },
-    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: { key: 'value5' }, showReRunButton: false },
+    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
     { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
     { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: { date: new Date().toLocaleString() }, showReRunButton: true },
 ];

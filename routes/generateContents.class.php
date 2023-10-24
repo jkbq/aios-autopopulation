@@ -26,16 +26,16 @@ class Contents {
         $response_data['date'] = $dateComplete;
 
 
-        $cid = wp_insert_term(
-            'Blog', 'category',
-            array( 'slug' => 'blog'
-        ) );
-
         
 
         if (!$pages_generated) {
+            
+            $cid = wp_insert_term(
+                'Blog', 'category',
+                array( 'slug' => 'blog'
+            ) );
 
-            $jsonData = AIOS_AUTOPOPULATE_JSON . 'contents.json';
+            $jsonData =  get_stylesheet_directory_uri() . '/contents.json';
 
             $response = wp_remote_get($jsonData, array(
                 'timeout' => 45,
@@ -59,6 +59,7 @@ class Contents {
                             'post_content' => $value->post_content,
                             'post_status'  => 'publish',
                             'post_author'  => 1,
+                            'page_template' => $value->page_template
                         );
 
                         // Check post type and set category accordingly
@@ -125,7 +126,7 @@ class Contents {
                             // Debugging: Check if post is inserted successfully
                             error_log('Post inserted with ID: ' . $insert_post);
                             $response_data['status'] = 'success';
-                            $response_data['message'] = 'Pages generated successfully';
+                            $response_data['message'] = 'Contents generated successfully';
                         } else {
                             // Debugging: Check if there is an error during post insertion
                             error_log('Error inserting post: ' . $insert_post->get_error_message());
@@ -141,7 +142,7 @@ class Contents {
             }
         } else {
             $response_data['status'] = 'success';
-            $response_data['message'] = 'Pages already generated';
+            $response_data['message'] = 'Contents already generated';
 
         }
         
