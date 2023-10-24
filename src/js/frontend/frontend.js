@@ -11,8 +11,7 @@ function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
         apiUrl,
         data,
         status: 'On Queue',
-        dateComplete: '',
-        showReRunButton
+        showReRunButton,
     };
     requestQueue.push(request);
 
@@ -27,7 +26,7 @@ function processQueue() {
     if (requestQueue.length > 0) {
         const { apiName, apiUrl, data } = requestQueue[0];
 
-        updateStatus(apiName, 'Running');
+        updateStatus(apiName, 'Generating Please Wait...');
 
         fetch(apiUrl, {
             method: 'POST',
@@ -39,9 +38,16 @@ function processQueue() {
             .then(response => response.json())
             .then(result => {
                 console.log(result);
+                $date = '';
 
+                if (result.date != false) {
+                    $date = result.date;
+
+                } else {
+                    $date = new Date().toLocaleString();
+                }
                 updateStatus(apiName, result.message);
-                updateDateComplete(apiName, result.date);
+                updateDateComplete(apiName, $date);
 
                 requestQueue.shift();
                 processQueue();
@@ -76,11 +82,16 @@ function updateDateComplete(apiName, date) {
 }
 
 function showElementAfterAllRequestsComplete() {
-    const elementToShow = document.getElementById('visit-homepage'); // Replace with the actual ID of your element
-
+    const elementToShow = document.getElementById('visit-homepage');
+    const elemetText = document.getElementById('new-element');
+ 
+    console.log(elemetText.length);
     if (requestQueue.length === 0) {
-        elementToShow.style.display = 'block'; // Change 'block' to your desired display property
+        elementToShow.style.display = 'block';
+        elemetText.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
+ 
     }
+    
 }
 
 // Function to manually trigger re-run for a specific API
@@ -150,13 +161,15 @@ function updateTable() {
 }
 
 const apiRequests = [
-    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: { key: 'value1' }, showReRunButton: false },
-    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: { key: 'value2' }, showReRunButton: false },
-    { name: 'Pages', url: `${wordpressApiBaseUrl}/contents`, data: { key: 'value3' }, showReRunButton: false },
-    { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: { key: 'value4' }, showReRunButton: false },
+    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Default Pages', url: `${wordpressApiBaseUrl}/initial-setup-pages`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Contents', url: `${wordpressApiBaseUrl}/contents`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Communities', url: `${wordpressApiBaseUrl}/communities`, data: { date: new Date().toLocaleString()  }, showReRunButton: false },
     { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: { key: 'value5' }, showReRunButton: false },
-    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: { key: 'value6' }, showReRunButton: false },
-    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: { key: 'value7' }, showReRunButton: true },
+    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
+    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: { date: new Date().toLocaleString() }, showReRunButton: true },
 ];
 
 apiRequests.forEach(request => {

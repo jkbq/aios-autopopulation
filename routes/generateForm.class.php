@@ -18,7 +18,7 @@ class Form {
 
 
         $currentDateTime = date('m/d/Y, g:i:s A');
-        $dateComplete = get_option('form_generated_date_complete');
+        $dateComplete = get_option('form_generated_date_complete', $data['date']);
         $form_generated = get_option('form_generated', false);
         $response_data = array();
         $response_data['date'] = $dateComplete;

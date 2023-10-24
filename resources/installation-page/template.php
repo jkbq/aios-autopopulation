@@ -19,8 +19,8 @@
 			</div>
             <h1 class="aios-installation__title">Thank you for choosing Agent Image!</h1>
             <div class="aios-installation__content">
-                <p>Please wait for<strong> as we setup your theme files...</strong></p><br>
-                
+                <p id="new-element">Please wait for<strong> as we setup your theme files...</strong></p><br>
+                <a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage">Visit homepage</a>
 				<div class="aios-installation__table">
 					<div class="aios-installation__table--header">
 						<div class="aios-installation__table--cell">API Name</div>
@@ -32,7 +32,7 @@
 					
 				</div>
 	
-				<a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage">Visit homepage</a>
+				
             </div>
         </div>
 		<div class="aios-installation__footer">

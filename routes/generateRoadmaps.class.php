@@ -76,7 +76,7 @@ class AiosRoadmaps {
 
     
         $currentDateTime = date('m/d/Y, g:i:s A');
-        $dateComplete = get_option('aios_roadmaps_date_complete');
+        $dateComplete = get_option('aios_roadmaps_date_complete', $data['date']);
         $response_data = array();
         $response_data['date'] = $dateComplete;
 
@@ -250,7 +250,7 @@ class AiosRoadmaps {
         }else{
    
             $response_data['status'] = false;
-            $response_data['message'] = 'Roadmaps already successfully.';
+            $response_data['message'] = 'Roadmaps already generated.';
         }
 
         return rest_ensure_response($response_data);

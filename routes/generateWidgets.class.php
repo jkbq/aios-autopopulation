@@ -66,7 +66,7 @@ class Widgets {
         
 
         $currentDateTime = date('m/d/Y, g:i:s A');
-        $dateComplete = get_option('wigets_generated_date_complete');
+        $dateComplete = get_option('wigets_generated_date_complete', $data['date']);
         
         $wigets_generated = get_option('wigets_generated', false);
 
@@ -104,10 +104,17 @@ class Widgets {
 
         
             foreach ( $widgets as $widget_info ) {
+
+        
+                // Replace specific content in the $args array
+                if (isset( $widget_info->args->pbcw_category)) {
+                    // for blog
+                    $widget_info->args->pbcw_category = get_cat_ID( 'Blog' );
+                }
+
                 $widget_args = [];
 
-                foreach ( $widget_info->args as $arg_key => $arg_value ) {
-                
+                foreach ( $widget_info->args as $arg_key => $arg_value ) {                
                     $widget_args[ $arg_key ]  = $arg_value;
                 }
                 

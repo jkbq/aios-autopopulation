@@ -17,7 +17,7 @@ class Contents {
     public function aios_populate_contents($data) {
 
         $currentDateTime = date('m/d/Y, g:i:s A');
-        $dateComplete = get_option('pages_generated_date_complete');
+        $dateComplete = get_option('pages_generated_date_complete', $data['date']);
 
         // Check if pages have already been generated
         $pages_generated = get_option('pages_generated', false);
@@ -31,6 +31,7 @@ class Contents {
             array( 'slug' => 'blog'
         ) );
 
+        
 
         if (!$pages_generated) {
 
@@ -62,7 +63,7 @@ class Contents {
 
                         // Check post type and set category accordingly
                         if ($value->post_type == 'post' && isset($value->post_category_id)) {
-                            $post_data['post_category'] = array($value->post_category_id);
+                            $post_data['post_category'] = array(get_cat_ID( 'Blog' ));
                         }
 
                         $insert_post = wp_insert_post($post_data);
@@ -70,7 +71,9 @@ class Contents {
                         if ($insert_post) {
                             // Post inserted successfully
 
-                            $image_url = $value->featured_image;
+       
+                            $extension = !empty($value->extension) ? ''.$value->extension.'/' : '';
+                            $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $value->featured_image;
                             $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
 
                             // Set featured image using media_sideload_image

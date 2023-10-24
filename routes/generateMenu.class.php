@@ -18,7 +18,7 @@ class Menu {
 
         
         $currentDateTime = date('m/d/Y, g:i:s A');
-        $dateComplete = get_option('menu_date_complete');
+        $dateComplete = get_option('menu_date_complete', $data['date']);
         $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
 

@@ -16,15 +16,14 @@ class Settings {
 
     public function aios_populate_default_settings($data) {
         
+        $dateComplete = get_option('activate_initial_setup_assets_date_complete', $data['date']);
 
-
-        $dateComplete = get_option('activate_initial_setup_assets_date_complete');
         $currentDateTime = date('m/d/Y, g:i:s A');
         update_option('activate_initial_setup_assets_date_complete',  $currentDateTime);
 
         $activate_initial_setup_assets = get_option( 'activate_initial_setup_assets' );
 
-        $jsonData = AIOS_AUTOPOPULATE_JSON . 'config.json';
+        $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
         $response = wp_remote_get($jsonData, array(
             'timeout' => 45,

@@ -2,9 +2,9 @@
     "config": [
         {
             "site_info" : {
-                "name": "Test",
-                "email": "test.com",
-                "phone": "1231231314",
+                "name": "",
+                "email": "",
+                "phone": "",
                 "address": "page"
             },
             "libraries" : {
