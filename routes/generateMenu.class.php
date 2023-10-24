@@ -1,6 +1,6 @@
 <?php 
 
-namespace AiosAutoPopulate\Routes;
+namespace AIOS\AUTOPOPULATE\Routes;
 
 class Menu {
     public function __construct() {

@@ -1,8 +1,8 @@
 <?php
 
-namespace AiosAutoPopulate\App\Controllers;
+namespace AIOS\AUTOPOPULATE\App\Controllers;
 
-class FrontendController
+class autopopulateFrontePage
 {
     private $virtual_page_slug;
 
@@ -162,4 +162,4 @@ class FrontendController
     }
 }
 
-new FrontendController();
+new autopopulateFrontePage();

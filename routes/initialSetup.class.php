@@ -29,7 +29,7 @@ class InitialSetupPage {
             $initial_required = AIOS_INITIAL_SETUP_DIR . DIRECTORY_SEPARATOR . 'backward-compatibility' . DIRECTORY_SEPARATOR . 'generate-default-pages.php';
 
             if (file_exists($initial_required) && include_once $initial_required) {
-                $ids = [0, 1, 2, 3, 4, 5]; // Default IDs
+                $ids = [0, 1, 2, 4, 5]; // Default IDs
 
                 $aios_initial_setup_generate_default_pages = new aios_initial_setup_generate_default_pages();
                 $aios_initial_setup_generate_default_pages->generate_default_pages($ids);

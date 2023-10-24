@@ -1,6 +1,6 @@
 <?php 
 
-namespace AiosAutoPopulate\Routes;
+namespace AIOS\AUTOPOPULATE\Routes;
 
 class Contents {
     public function __construct() {
@@ -53,10 +53,14 @@ class Contents {
                 foreach ($contents as $content) {
                     foreach ($content as $value) {
 
+                        $aios_client_info = get_option( 'aiis_ci' );
+                        
+                        $contentData = str_replace("ai_client_name", $aios_client_info[ 'name' ] , $value->post_content); 
+                    
                         $post_data = array(
                             'post_type'    => $value->post_type,
                             'post_title'   => $value->post_title,
-                            'post_content' => $value->post_content,
+                            'post_content' => $contentData,
                             'post_status'  => 'publish',
                             'post_author'  => 1,
                             'page_template' => $value->page_template

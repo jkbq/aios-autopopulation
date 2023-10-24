@@ -1,6 +1,6 @@
 <?php
 
-namespace AiosAutoPopulate;
+namespace AIOS\AUTOPOPULATE;
 
 class FileLoader
 {
@@ -14,6 +14,7 @@ class FileLoader
     $path = trailingslashit(AIOS_AUTOPOPULATE_DIR . $directory_name);
     $file_names = glob($path . '*.php');
     foreach ($file_names as $filename) {
+      
       if (file_exists($filename)) {
         require_once $filename;
       }

@@ -1,6 +1,6 @@
 <?php 
 
-namespace AiosAutoPopulate\Routes;
+namespace AIOS\AUTOPOPULATE\Routes;
 
 class Widgets {
     public function __construct() {
@@ -104,7 +104,6 @@ class Widgets {
 
         
             foreach ( $widgets as $widget_info ) {
-
         
                 // Replace specific content in the $args array
                 if (isset( $widget_info->args->pbcw_category)) {
@@ -125,24 +124,29 @@ class Widgets {
                 );
             }
 
+            $communitiesConfig = $data->config[0]->plugins->aios_communities;
+
+
 
             /// Plugins Settings
             $testimonials_options = get_option('aios_testimonials_settings');
             $testimonial_page = get_page_by_title('Testimonials');
             $testimonials_options['main_page'] = $testimonial_page->ID ;
 
-            $communties_default_page = get_option('aios_communities_settings');
+            $aiosCommunities = get_option('aios_communities_settings');
             $get_communities_page = get_page_by_title('Communities');
-            $communties_default_page['main_page'] = $get_communities_page->ID;
+            $aiosCommunities['main_page'] = $get_communities_page->ID;
+            $aiosCommunities['show_overlay'] = $communitiesConfig->show_overlay_overlay;
+            $aiosCommunities['overlay_color'] = $communitiesConfig->opacity_percentage;
+            $aiosCommunities['opacity_percentage'] = $communitiesConfig->overlay_color;
 
             $listings = get_option('listings_settings');
             $get_properties_page = get_page_by_title('Properties');
             $listings['main_page'] = $get_properties_page->ID;
             
 
-
             update_option( 'aios_testimonials_settings', $testimonials_options );
-            update_option('aios_communities_settings', $communties_default_page );
+            update_option('aios_communities_settings', $aiosCommunities );
             update_option('listings_settings', $listings );
 
             // Set the option to indicate that pages have been generated

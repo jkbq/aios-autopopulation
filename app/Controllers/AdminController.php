@@ -1,8 +1,8 @@
 <?php
 
-namespace AiosAutoPopulate\App\Controllers;
+namespace AIOS\AUTOPOPULATE\App\Controllers;
 
-class AdminController
+class autopopulateAdmin
 {
 
   /**
@@ -59,4 +59,4 @@ class AdminController
   }
 }
 
-new AdminController();
+new autopopulateAdmin();

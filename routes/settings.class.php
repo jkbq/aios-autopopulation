@@ -1,6 +1,6 @@
 <?php 
 
-namespace AiosAutoPopulate\Routes;
+namespace AIOS\AUTOPOPULATE\Routes;
 
 class Settings {
     public function __construct() {
@@ -112,6 +112,28 @@ class Settings {
             $wpseo_titles[ 'breadcrumbs-enable' ] = true;
             $wpseo_titles[ 'post_types-post-maintax' ] = 'category';
             update_option( 'wpseo_titles', $wpseo_titles );
+
+            // Plugins Color Overwride 
+            $aiosTestimonials = get_option('aios_testimonials_settings');
+            $aiosTestimonials['primary_color'] = $client_info->primary_color;
+
+            $aiosCommunities = get_option('aios_communities_settings');
+            $aiosCommunities['primary_color'] = $client_info->primary_color;
+
+            $aiosRoadmaps = get_option('aios_roadmaps_settings');
+            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
+
+
+            $aiosListings = get_option('listings_settings');
+            $listings['main_page'] = $get_properties_page->ID;
+            
+
+            update_option( 'aios_testimonials_settings', $aiosTestimonials );
+            update_option('aios_communities_settings', $aiosCommunities );
+            update_option('aios_roadmaps_settings', $aiosRoadmaps );
+            update_option('listings_results_page_primary_color', $client_info->primary_color);
+            update_option('listings_settings', $aiosListings );
+
 
             // aios-communities
 			update_option( 'communities-themes', 'galaxy-core' );

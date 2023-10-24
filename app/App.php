@@ -1,6 +1,6 @@
 <?php
 
-namespace AiosAutoPopulate\App;
+namespace AIOS\AUTOPOPULATE\App;
 
 class App
 {
