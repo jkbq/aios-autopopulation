@@ -137,12 +137,14 @@ class Widgets {
             $get_communities_page = get_page_by_title('Communities');
             $aiosCommunities['main_page'] = $get_communities_page->ID;
             $aiosCommunities['show_overlay'] = $communitiesConfig->show_overlay_overlay;
-            $aiosCommunities['overlay_color'] = $communitiesConfig->opacity_percentage;
-            $aiosCommunities['opacity_percentage'] = $communitiesConfig->overlay_color;
+            $aiosCommunities['overlay_color'] = $communitiesConfig->overlay_color;
+            $aiosCommunities['opacity_percentage'] = $communitiesConfig->opacity_percentage;
 
             $listings = get_option('listings_settings');
             $get_properties_page = get_page_by_title('Properties');
+            $get_properties_featured = get_page_by_title('Featured Listings');
             $listings['main_page'] = $get_properties_page->ID;
+            $listings['featured_property_page'] = $get_properties_featured->ID;
             
 
             update_option( 'aios_testimonials_settings', $testimonials_options );

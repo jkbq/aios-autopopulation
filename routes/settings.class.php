@@ -135,8 +135,11 @@ class Settings {
             update_option('listings_settings', $aiosListings );
 
 
+
+            $communitiesConfig = $data->config[0]->plugins->aios_communities;
+
             // aios-communities
-			update_option( 'communities-themes', 'galaxy-core' );
+			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
             update_option('activate_initial_setup_assets', 'loaded');
 

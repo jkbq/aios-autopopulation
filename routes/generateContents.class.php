@@ -35,6 +35,7 @@ class Contents {
                 array( 'slug' => 'blog'
             ) );
 
+
             $jsonData =  get_stylesheet_directory_uri() . '/contents.json';
 
             $response = wp_remote_get($jsonData, array(
@@ -53,10 +54,15 @@ class Contents {
                 foreach ($contents as $content) {
                     foreach ($content as $value) {
 
-                        $aios_client_info = get_option( 'aiis_ci' );
+                        $contentData = '';
+                        if ($value->post_type === 'aios-testimonials') {
+                            $aios_client_info = get_option( 'aiis_ci' );
+                            $contentData = str_replace("ai_client_name", $aios_client_info[ 'name' ] , $value->post_content); 
+                        }else{
+                            $contentData = $value->post_content;
+                        }
                         
-                        $contentData = str_replace("ai_client_name", $aios_client_info[ 'name' ] , $value->post_content); 
-                    
+                        
                         $post_data = array(
                             'post_type'    => $value->post_type,
                             'post_title'   => $value->post_title,
@@ -110,6 +116,12 @@ class Contents {
                                 // Additional code specific to 'aios-listings' post type
 
                                 if (property_exists($value, 'meta_input')) {
+
+                                    
+                                    $tax_status = get_term_by('slug', 'for-sale', 'property-statuses');
+                                    $tax_type = get_term_by('slug', 'residential', 'property-types');
+
+
                                     $meta_input = $array = json_decode(json_encode($value->meta_input), true);
                                     $meta_input = $meta_input[0];
                                     $meta_input['featured_image_id'] = $image_data;
