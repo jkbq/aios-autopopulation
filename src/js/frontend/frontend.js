@@ -46,6 +46,7 @@ function processQueue() {
                 } else {
                     $date = new Date().toLocaleString();
                 }
+
                 updateStatus(apiName, result.message);
                 updateDateComplete(apiName, $date);
 
@@ -75,6 +76,7 @@ function updateStatus(apiName, newStatus) {
 }
 
 function updateDateComplete(apiName, date) {
+
     const dateCompleteElement = document.getElementById(`dateComplete_${apiName}`);
     if (dateCompleteElement) {
         dateCompleteElement.textContent = date;
@@ -83,15 +85,12 @@ function updateDateComplete(apiName, date) {
 
 function showElementAfterAllRequestsComplete() {
     const elementToShow = document.getElementById('visit-homepage');
-    const elemetText = document.getElementById('new-element');
+    const elementText = document.getElementById('new-element');
  
-    console.log(elemetText.length);
     if (requestQueue.length === 0) {
         elementToShow.style.display = 'block';
-        elemetText.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
- 
+        elementText.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
     }
-    
 }
 
 // Function to manually trigger re-run for a specific API
@@ -161,14 +160,14 @@ function updateTable() {
 }
 
 const apiRequests = [
-    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Default Pages', url: `${wordpressApiBaseUrl}/initial-setup-pages`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Contents', url: `${wordpressApiBaseUrl}/contents`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: { date: new Date().toLocaleString() }, showReRunButton: false },
-    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: { date: new Date().toLocaleString() }, showReRunButton: true },
+    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: {date: "" }, showReRunButton: false },
+    { name: 'Default Pages', url: `${wordpressApiBaseUrl}/initial-setup-pages`, data: {date: "" }, showReRunButton: false },
+    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: {date: "" }, showReRunButton: false },
+    { name: 'Contents', url: `${wordpressApiBaseUrl}/contents`, data: {date: "" }, showReRunButton: false },
+    { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: {date: "" }, showReRunButton: false },
+    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: {date: "" }, showReRunButton: false },
+    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: {date: "" }, showReRunButton: false },
+    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: {date: "" }, showReRunButton: true },
 ];
 
 apiRequests.forEach(request => {

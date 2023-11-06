@@ -18,8 +18,7 @@ class InitialSetupPage {
 
         $dateComplete = get_option('initial_setup_pages', $data['date']);
 
-        $currentDateTime = date('m/d/Y, g:i:s A');
-        update_option('initial_setup_pages',  $data['date']);
+        update_option('initial_setup_pages',  $dateComplete);
 
 
         $initialSetupPages = get_option( 'initial_setup_pages' );

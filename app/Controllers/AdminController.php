@@ -20,14 +20,14 @@ class autopopulateAdmin
   public function assets()
   {
 
-    if (strpos(get_current_screen()->id, AIOS_AUTOPOPULATE_SLUG) !== false) {
+    if (strpos(get_current_screen()->id, AIOS_AUTOPOPULATE_URL) !== false) {
       wp_enqueue_media();
 
       wp_enqueue_style('aios-sweetalert2-style', 'https://resources.agentimage.com/admin/css/swal.css');
       wp_enqueue_script('aios-sweetalert2-script', 'https://resources.agentimage.com/admin/js/sweetalert2.min.js');
-      wp_enqueue_style(AIOS_AUTOPOPULATE_SLUG, AIOS_WEBPACKBASIC_RESOURCES . 'css/app.min.css', [], time());
-      wp_enqueue_script(AIOS_AUTOPOPULATE_SLUG, AIOS_WEBPACKBASIC_RESOURCES . 'js/app.min.js', [], time(), true);
-      wp_localize_script(AIOS_AUTOPOPULATE_SLUG, 'data', [
+      wp_enqueue_style(AIOS_AUTOPOPULATE_URL, AIOS_WEBPACKBASIC_RESOURCES . 'css/app.min.css', [], time());
+      wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_WEBPACKBASIC_RESOURCES . 'js/app.min.js', [], time(), true);
+      wp_localize_script(AIOS_AUTOPOPULATE_URL, 'data', [
         'nonce' => wp_create_nonce('wp_rest'),
         'baseUrl' => get_home_url()
       ]);

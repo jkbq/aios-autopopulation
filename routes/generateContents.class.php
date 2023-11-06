@@ -16,7 +16,6 @@ class Contents {
 
     public function aios_populate_contents($data) {
 
-        $currentDateTime = date('m/d/Y, g:i:s A');
         $dateComplete = get_option('pages_generated_date_complete', $data['date']);
 
         // Check if pages have already been generated
@@ -154,7 +153,7 @@ class Contents {
 
                 // Set the option to indicate that pages have been generated
                 update_option('pages_generated', true);
-                update_option('pages_generated_date_complete',  $currentDateTime);
+                update_option('pages_generated_date_complete',  $dateComplete);
             }
         } else {
             $response_data['status'] = 'success';

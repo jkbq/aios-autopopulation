@@ -17,7 +17,6 @@ class Form {
     public function aios_populate_form($data) {
 
 
-        $currentDateTime = date('m/d/Y, g:i:s A');
         $dateComplete = get_option('form_generated_date_complete', $data['date']);
         $form_generated = get_option('form_generated', false);
         $response_data = array();
@@ -69,7 +68,7 @@ class Form {
 
             // Set the option to indicate that pages have been generated
             update_option('form_generated', true);
-            update_option('form_generated_date_complete', $currentDateTime );
+            update_option('form_generated_date_complete', $dateComplete );
 
 
             $response_data['status'] = 'success';

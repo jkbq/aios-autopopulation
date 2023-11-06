@@ -18,8 +18,7 @@ class Settings {
         
         $dateComplete = get_option('activate_initial_setup_assets_date_complete', $data['date']);
 
-        $currentDateTime = date('m/d/Y, g:i:s A');
-        update_option('activate_initial_setup_assets_date_complete',  $currentDateTime);
+        update_option('activate_initial_setup_assets_date_complete',  $dateComplete);
 
         $activate_initial_setup_assets = get_option( 'activate_initial_setup_assets' );
 

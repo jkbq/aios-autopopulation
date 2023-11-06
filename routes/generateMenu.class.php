@@ -17,7 +17,6 @@ class Menu {
     public function aios_populate_menu($data) {
 
         
-        $currentDateTime = date('m/d/Y, g:i:s A');
         $dateComplete = get_option('menu_date_complete', $data['date']);
         $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
@@ -78,7 +77,7 @@ class Menu {
                         }
                     }
                     
-                    update_option('menu_date_complete', $currentDateTime );
+                    update_option('menu_date_complete', $dateComplete );
 
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Menu generated successfully';
