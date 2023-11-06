@@ -13,6 +13,8 @@ class autopopulateFrontePage
         // Hook into switch_theme to handle theme activation
         add_action('after_switch_theme', [$this, 'handleThemeActivation']);
 
+        add_action('init', [$this, 'wp_cli_redirect']);
+
         // Hook into after_switch_theme for additional actions after theme switch
         add_action('after_switch_theme', [$this, 'handleAfterSwitchTheme']);
 
@@ -24,6 +26,21 @@ class autopopulateFrontePage
 
         add_filter('template_include', [$this, 'aios_install_virtual_include_template']);
 
+    }
+
+
+    public function wp_cli_redirect(){
+
+        if (!is_admin()) {
+            // If theme activation happens on WP-CLI, this will redirect the users to the installation message page
+            $aios_install_setup_visited = get_option('aios_install_setup_visited');
+            if (!$aios_install_setup_visited) {
+                update_option('aios_install_setup_visited', 'visited');
+                $redirect = home_url() . '/' . $this->virtual_page_slug;
+                $this->ap_redirect($redirect);
+                exit;
+            }
+        }
     }
 
     /**
@@ -39,14 +56,7 @@ class autopopulateFrontePage
             exit;
         }
 
-        // If theme activation happens on WP-CLI, this will redirect the users to the installation message page
-        $aios_install_setup_visited = get_option('aios_install_setup_visited');
-        if (!$aios_install_setup_visited) {
-            update_option('aios_install_setup_visited', 'visited');
-            $redirect = home_url() . '/' . $this->virtual_page_slug;
-            $this->ap_redirect($redirect);
-            exit;
-        }
+
     }
 
     /**
@@ -150,12 +160,11 @@ class autopopulateFrontePage
 
         $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
         if ( $current_slug[1] == $this->virtual_page_slug ) {
-            wp_enqueue_style(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
-            wp_enqueue_script(AIOS_AUTOPOPULATE_SLUG, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
+            wp_enqueue_style(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
+            wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
 
 
             //dequeue
-
             wp_dequeue_script('aios-starter-theme-script');
 
         }
