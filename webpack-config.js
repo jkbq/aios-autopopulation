@@ -16,6 +16,7 @@ const config = {
 		// This will compile into one file if is not
 		'app': ['./src/js/app/app.js'],
 		'frontend': ['./src/js/frontend/frontend.js'],
+		'redirection': ['./src/js/frontend/redirection.js'],
 		
 		// Styles should be separated by comma
 		'styles': [

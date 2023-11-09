@@ -1,7 +1,7 @@
 <?php 
 
 namespace AIOS\AUTOPOPULATE\Routes;
-
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
 class Form {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_endpoints'));
@@ -17,20 +17,16 @@ class Form {
     public function aios_populate_form($data) {
 
 
-        $dateComplete = get_option('form_generated_date_complete', $data['date']);
-        $form_generated = get_option('form_generated', false);
+        $dateComplete = get_option('aios_auto_population_form_date', $data['date']);
+        $form_generated = get_option('aios_auto_population_form', false);
         $response_data = array();
         $response_data['date'] = $dateComplete;
         
         if (!$form_generated) {
-            $jsonData = get_stylesheet_directory_uri() . '/config.json';
 
-            $response = wp_remote_get($jsonData, array(
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => array()
-            ));
-
+            $response = Helpers::data('config.json');
+        
+            $contact_form_id_arr = [];
             if (is_wp_error($response)) {
                 error_log(print_r($response->get_error_message(), true));
                 $response_data['status'] = 'error';
@@ -54,7 +50,7 @@ class Form {
 
                     //Insert the post into the database
                     $contact_form_id = wp_insert_post( $data_to_add );
-
+                    $contact_form_id_arr[] = wp_insert_post( $data_to_add );
                     if ( !empty( $contact_form_id ) ) {
                         update_post_meta($contact_form_id, '_messages',(array)$form->message); 
                         update_post_meta($contact_form_id, '_mail',(array)$form->mail); 
@@ -67,8 +63,9 @@ class Form {
             }
 
             // Set the option to indicate that pages have been generated
-            update_option('form_generated', true);
-            update_option('form_generated_date_complete', $dateComplete );
+            update_option('aios_auto_population_form_id', $contact_form_id_arr);
+            update_option('aios_auto_population_form', true);
+            update_option('aios_auto_population_form_date', $dateComplete );
 
 
             $response_data['status'] = 'success';

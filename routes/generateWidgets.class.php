@@ -1,6 +1,7 @@
 <?php 
 
 namespace AIOS\AUTOPOPULATE\Routes;
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
 class Widgets {
     public function __construct() {
@@ -64,10 +65,16 @@ class Widgets {
     public function aios_populate_contents($data) {
         
         
+        /// if repopulate button was hit 
 
-        $dateComplete = get_option('wigets_generated_date_complete', $data['date']);
+        if ($data['repopulate']){
+            delete_option('aios_auto_population_widgets');
+            delete_option('aios_auto_population_widgets_date');
+        }
+
+        $dateComplete = get_option('aios_auto_population_widgets_date', $data['date']);
         
-        $wigets_generated = get_option('wigets_generated', false);
+        $wigets_generated = get_option('aios_auto_population_widgets', false);
 
         $widget_install = new widgets();
 
@@ -89,13 +96,7 @@ class Widgets {
             }
 
 
-            $jsonData = get_stylesheet_directory_uri() . '/config.json';
-
-            $response = wp_remote_get($jsonData, array(
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => array()
-            ));
+            $response = Helpers::data('config.json');
 
             $data =  json_decode($response['body']);
 
@@ -151,8 +152,8 @@ class Widgets {
             update_option('listings_settings', $listings );
 
             // Set the option to indicate that pages have been generated
-            update_option('wigets_generated', true);
-            update_option('wigets_generated_date_complete',  $dateComplete);
+            update_option('aios_auto_population_widgets', true);
+            update_option('aios_auto_population_widgets_date',  $dateComplete);
 
             $response_data['status'] = true;
             $response_data['message'] = 'Widgets generated successfully';

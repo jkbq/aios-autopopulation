@@ -16,14 +16,11 @@ class InitialSetupPage {
     public function aios_populate_default_settings($data) {
         
 
-        $dateComplete = get_option('initial_setup_pages', $data['date']);
+        $dateComplete = get_option('aios_auto_population_default_pages_date', $data['date']);
 
-        update_option('initial_setup_pages',  $dateComplete);
+        $initialSetupPages = get_option( 'aios_auto_population_default_pages', false );
 
-
-        $initialSetupPages = get_option( 'initial_setup_pages' );
-
-        if (!$widgets_generated) {
+        if (!$initialSetupPages) {
             // Initial setup required pages
             $initial_required = AIOS_INITIAL_SETUP_DIR . DIRECTORY_SEPARATOR . 'backward-compatibility' . DIRECTORY_SEPARATOR . 'generate-default-pages.php';
 
@@ -50,6 +47,11 @@ class InitialSetupPage {
                     // Add other error response data here
                 ];
             }
+
+            update_option('aios_auto_population_default_pages', true);
+            update_option('aios_auto_population_default_pages_date',  $dateComplete);
+
+
         } else {
             $response_data = [
                 'message' => 'Default already generated successfully',

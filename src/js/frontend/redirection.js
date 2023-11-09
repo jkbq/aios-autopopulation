@@ -1,0 +1,4 @@
+
+const currentDomain = window.location.origin;
+
+window.location.replace(currentDomain + "/aios-installation/");

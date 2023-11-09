@@ -1,6 +1,7 @@
 <?php 
 
 namespace AIOS\AUTOPOPULATE\Routes;
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
 class Contents {
     public function __construct() {
@@ -16,38 +17,30 @@ class Contents {
 
     public function aios_populate_contents($data) {
 
-        $dateComplete = get_option('pages_generated_date_complete', $data['date']);
-
-        // Check if pages have already been generated
-        $pages_generated = get_option('pages_generated', false);
+        $dateComplete = get_option('aios_auto_population_default_contents_date', $data['date']);
+        
+        $pages_generated = get_option('aios_auto_population_default_contents', false);
+        
         $response_data = array();
 
         $response_data['date'] = $dateComplete;
 
-
-        
-
         if (!$pages_generated) {
-            
+        
+            $response = Helpers::data('contents.json');
+
             $cid = wp_insert_term(
                 'Blog', 'category',
                 array( 'slug' => 'blog'
             ) );
-
-
-            $jsonData =  get_stylesheet_directory_uri() . '/contents.json';
-
-            $response = wp_remote_get($jsonData, array(
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => array()
-            ));
 
             if (is_wp_error($response)) {
                 error_log(print_r($response->get_error_message(), true));
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
+               
+
                 $contents = json_decode($response['body']);
 
                 foreach ($contents as $content) {
@@ -60,7 +53,6 @@ class Contents {
                         }else{
                             $contentData = $value->post_content;
                         }
-                        
                         
                         $post_data = array(
                             'post_type'    => $value->post_type,
@@ -134,7 +126,6 @@ class Contents {
                                     wp_set_post_terms($insert_post, [$tax_status->term_id], 'property-statuses');
                                     wp_set_post_terms($insert_post, [$tax_type->term_id], 'property-types');
                                 }
-
                                 // Continue with other actions specific to 'aios-listings' post type
                             }
 
@@ -150,18 +141,14 @@ class Contents {
                         }
                     }
                 }
-
                 // Set the option to indicate that pages have been generated
-                update_option('pages_generated', true);
-                update_option('pages_generated_date_complete',  $dateComplete);
+                update_option('aios_auto_population_default_contents', true);
+                update_option('aios_auto_population_default_contents_date',  $dateComplete);
             }
         } else {
             $response_data['status'] = 'success';
             $response_data['message'] = 'Contents already generated';
-
         }
-        
-
         return rest_ensure_response($response_data);
     }
 }

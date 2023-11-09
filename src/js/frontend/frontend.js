@@ -5,7 +5,9 @@ let isProcessing = false; // New flag to track processing status
 const currentDomain = window.location.origin;
 const wordpressApiBaseUrl = `${currentDomain}/wp-json/aios-populate/v1`;
 
+
 function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
+
     const request = {
         apiName,
         apiUrl,
@@ -20,11 +22,20 @@ function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
         isProcessing = true; // Set processing flag
         processQueue();
     }
+
 }
 
 function processQueue() {
     if (requestQueue.length > 0) {
         const { apiName, apiUrl, data } = requestQueue[0];
+
+
+        let currentDate = new Date().toLocaleString();
+
+        const request = requestQueue.find(req => req.apiName === apiName);
+        if (request) {
+            request.data.date = currentDate;
+        }
 
         updateStatus(apiName, 'Generating Please Wait...');
 
@@ -37,7 +48,7 @@ function processQueue() {
         })
             .then(response => response.json())
             .then(result => {
-                console.log(result);
+                // console.log(result);
                 $date = '';
 
                 if (result.date != false) {
@@ -80,6 +91,12 @@ function updateDateComplete(apiName, date) {
     const dateCompleteElement = document.getElementById(`dateComplete_${apiName}`);
     if (dateCompleteElement) {
         dateCompleteElement.textContent = date;
+
+        // Update the request data with the completion date
+        const request = requestQueue.find(req => req.apiName === apiName);
+        if (request) {
+            request.data.date = date;
+        }
     }
 }
 
@@ -92,6 +109,17 @@ function showElementAfterAllRequestsComplete() {
         elementText.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
     }
 }
+
+
+
+// Add an event listener for beforeunload
+window.addEventListener('beforeunload', function (e) {
+    if (isProcessing) {
+
+        e.preventDefault();
+        e.returnValue = 'There are pending requests. Are you sure you want to leave this page?';
+    }
+});
 
 // Function to manually trigger re-run for a specific API
 function reRun(apiName, apiUrl, data) {
@@ -171,6 +199,7 @@ const apiRequests = [
 ];
 
 apiRequests.forEach(request => {
+
     addToQueue(request.name, request.url, request.data, request.showReRunButton);
 });
 

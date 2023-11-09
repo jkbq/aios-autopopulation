@@ -75,7 +75,10 @@ class AiosRoadmaps {
     public function aios_populate_aios_roadmaps($data) {
 
     
-        $dateComplete = get_option('aios_roadmaps_date_complete', $data['date']);
+        $dateComplete = get_option('aios_auto_population_roadmaps_date', $data['date']);
+
+        $roadmapsStatus = get_option('aios_auto_population_roadmaps', false);
+
         $response_data = array();
         $response_data['date'] = $dateComplete;
 
@@ -240,7 +243,9 @@ class AiosRoadmaps {
                 update_option('aios-roadmaps', 'freshly-installed');
             }
 
-            update_option('aios_roadmaps_date_complete', $dateComplete );
+
+            update_option('aios_auto_population_roadmaps', true);
+            update_option('aios_auto_population_roadmaps_date', $dateComplete );
 
 
             $response_data['status'] = true;

@@ -1,6 +1,7 @@
 <?php 
 
 namespace AIOS\AUTOPOPULATE\Routes;
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
 class Menu {
     public function __construct() {
@@ -17,17 +18,11 @@ class Menu {
     public function aios_populate_menu($data) {
 
         
-        $dateComplete = get_option('menu_date_complete', $data['date']);
-        $jsonData = get_stylesheet_directory_uri() . '/config.json';
-
-
-
-        $response = wp_remote_get($jsonData, array(
-            'timeout' => 45,
-            'blocking' => true,
-            'cookies' => array()
-        ));
-
+        $dateComplete = get_option('aios_auto_population_menu_date', $data['date']);
+        $menuStatus         =  get_option('aios_auto_population_menu', false);
+        
+        $response = Helpers::data('config.json');
+        
         $data =  json_decode($response['body']);
 
         $menus = $data->menu[0];
@@ -77,7 +72,8 @@ class Menu {
                         }
                     }
                     
-                    update_option('menu_date_complete', $dateComplete );
+                    update_option('aios_auto_population_menu', true );
+                    update_option('aios_auto_population_menu_date', $dateComplete );
 
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Menu generated successfully';

@@ -1,6 +1,7 @@
 <?php 
 
 namespace AIOS\AUTOPOPULATE\Routes;
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
 class Settings {
     public function __construct() {
@@ -16,24 +17,15 @@ class Settings {
 
     public function aios_populate_default_settings($data) {
         
-        $dateComplete = get_option('activate_initial_setup_assets_date_complete', $data['date']);
-
-        update_option('activate_initial_setup_assets_date_complete',  $dateComplete);
-
-        $activate_initial_setup_assets = get_option( 'activate_initial_setup_assets' );
-
-        $jsonData = get_stylesheet_directory_uri() . '/config.json';
-
-        $response = wp_remote_get($jsonData, array(
-            'timeout' => 45,
-            'blocking' => true,
-            'cookies' => array()
-        ));
-
+        
+        $dateComplete = get_option('aios_auto_population_initial_setup_assets_date', $data['date']);
+        update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
+        $activate_initial_setup_assets = get_option( 'aios_auto_population_initial_setup_assets', false );
+        
+        $response = Helpers::data('config.json');
         $data =  json_decode($response['body']);
 
-        if($activate_initial_setup_assets != 'loaded'){
-
+        if($activate_initial_setup_assets != true){
             // Default Libraries
             $libraries = $data->config[0]->libraries;
 
@@ -140,7 +132,7 @@ class Settings {
             // aios-communities
 			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
-            update_option('activate_initial_setup_assets', 'loaded');
+            update_option('aios_auto_population_initial_setup_assets', true);
 
             $response = array(
                 'success' => true, 

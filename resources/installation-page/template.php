@@ -7,7 +7,7 @@
 	<title><?php wp_title( '|', true, 'right' ); ?></title>
 	<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
 	<meta name="robots" content="noindex,follow" />
-	<?php wp_head(); ?>
+	<?php wp_head();?>
 </head>
 <body <?php body_class(); ?>>
 
@@ -29,10 +29,7 @@
 					</div>
 
 					<div id="apiTableBody"></div>
-					
-				</div>
-	
-				
+				</div>				
             </div>
         </div>
 		<div class="aios-installation__footer">
