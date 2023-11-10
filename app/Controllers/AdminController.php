@@ -57,7 +57,7 @@ class autopopulateAdmin
 			'<span style="font-weight: 400;">Auto Population</span>',
 			"manage_options",
 			"aios-autopopulation",
-      [$this, 'render'],
+      [$this, 'render']
 		);
 
 
