@@ -20,6 +20,9 @@ class RegenerateContents {
 
         $response = Helpers::data('config.json');
         $config =  json_decode($response['body']);
+        $beforeTheme = get_option('aios_autopopulation_theme');
+
+
         // Default Libraries
         $libraries = $config->config[0]->libraries;
 
@@ -36,9 +39,25 @@ class RegenerateContents {
 
 
         $about =  get_page_by_title('About');
-        wp_delete_post($about->ID, true);
+        $about_data = array(
+            'ID'           => $about->ID,
+            'post_title'   => 'About (Old) - '.$beforeTheme.'',
+            'post_status'  => 'draft', // Set the status to draft
+            'post_name' => 'about-old'
+        );
+        // Update the post in the database
+        wp_update_post($about_data);
         $contact =  get_page_by_title('Contact');
-        wp_delete_post($contact->ID, true);
+        $contact_data = array(
+            'ID'           => $contact->ID,
+            'post_title'   => 'Contact(Old) - '.$beforeTheme.'',
+            'post_status'  => 'draft', // Set the status to draft
+            'post_name' => 'contact-old'
+
+        );
+        // Update the post in the database
+        wp_update_post($contact_data);
+        
 
         $response = Helpers::data('contents.json');
         $contents = json_decode($response['body']);
@@ -99,7 +118,7 @@ class RegenerateContents {
                     // Debugging: Check if post is inserted successfully
                     error_log('Post inserted with ID: ' . $insert_post);
                     $response_data['status'] = 'success';
-                    $response_data['message'] = 'Contents generated successfully';
+                    $response_data['message'] = 'Pages generated successfully';
                 } else {
                     // Debugging: Check if there is an error during post insertion
                     error_log('Error inserting post: ' . $insert_post->get_error_message());

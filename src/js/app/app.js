@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     allowOutsideClick: false,
                     didOpen: () => {
 
+                        // Add an event listener for beforeunload
+                        window.addEventListener('beforeunload', function (e) {
+                            e.preventDefault();
+                            e.returnValue = 'There are pending requests. Are you sure you want to leave this page?';
+                        });
+
 
                         const fetchData = async () => {
                             const url1 = `${currentDomain}/wp-json/aios-populate/v1/widgets`;
