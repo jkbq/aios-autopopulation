@@ -18,6 +18,19 @@ class Menu {
     public function aios_populate_menu($data) {
 
         
+
+        if ($data['repopulate']){
+
+            delete_option('aios_auto_population_menu_date');
+            delete_option('aios_auto_population_menu');
+
+            $menu_ids = get_option('aios_auto_population_menu_ids');
+
+            foreach( $menu_ids as $ids){
+                wp_delete_nav_menu($ids);
+            }
+        }
+
         $dateComplete = get_option('aios_auto_population_menu_date', $data['date']);
         $menuStatus         =  get_option('aios_auto_population_menu', false);
         
@@ -31,9 +44,10 @@ class Menu {
         $response_data = array();
         $response_data['date'] = $dateComplete;
         
+        $menuIds = [];
     
         foreach ($menus as $menu) {
-            foreach ($menu as $menu_data) {
+            foreach ($menu as $menu_data) { 
 
                 $location = $menu_data->location;
                 $menu_name = $menu_data->menu_name;
@@ -69,9 +83,14 @@ class Menu {
                             }
                             // Set parent and child
                             $parent_id_arr[$json_data->id] = $parent_id;
+
                         }
                     }
                     
+
+                    $menuIds[] = $menu_id;
+                    
+  
                     update_option('aios_auto_population_menu', true );
                     update_option('aios_auto_population_menu_date', $dateComplete );
 
@@ -85,6 +104,8 @@ class Menu {
                 }
             }
         }
+
+        update_option('aios_auto_population_menu_ids', $menuIds);
 
         return rest_ensure_response($response_data);
     }

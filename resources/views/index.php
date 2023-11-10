@@ -31,7 +31,7 @@
                   <div class="wpui-row wpui-row-box">
                      <div class="wpui-col-md-3">
                         <div class="form-group">
-                           <select name="aios_population_settings[theme]" id="">
+                           <select id="selectedTheme" name="aios_population_settings[theme]" id="">
                               <option value="#">Theme Not Supported</option>
                               <?php 
                                  $active_theme = get_option('template');
@@ -44,10 +44,11 @@
                               ?>
                               
                            </select>
+                           <label for="selectedTheme">Current Theme Activated</label>
                         </div>
                      </div>
                      <div class="wpui-col-md-9">
-                        <a href="#" class="wpui-secondary-button text-uppercase aios-repopulate-widgets">Generate</a>
+                        <a href="#" class="wpui-default-button text-uppercase aios-repopulate-widgets">Generate</a>
                      </div>
                   </div>
                   <!-- END: Row Box -->
@@ -70,10 +71,7 @@
                         <p><strong>Date Populated</strong></p>
                      </div>
                   </div>
-
                   <?php 
-
-              
                      foreach($apiStatus as $key=>$api){
                         $status = !empty($api['status']) ? 'Generated' : '';
                         echo '<div class="wpui-row wpui-row-box">
@@ -87,15 +85,8 @@
                               <p><strong>'.$api['date'].'</strong></p>
                            </div>
                         </div>';
-          
-                     
-                       
-                     }
-                                    
+                     }     
                   ?>
-                
-
-
                </div>
             </div>
          </div>

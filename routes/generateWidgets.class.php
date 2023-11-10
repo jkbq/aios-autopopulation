@@ -65,8 +65,7 @@ class Widgets {
     public function aios_populate_contents($data) {
         
         
-        /// if repopulate button was hit 
-
+        /// Repopulation
         if ($data['repopulate']){
             delete_option('aios_auto_population_widgets');
             delete_option('aios_auto_population_widgets_date');

@@ -16,6 +16,16 @@ class Form {
 
     public function aios_populate_form($data) {
 
+        /// Repopulation
+        if ($data['repopulate']){
+            $formIds = get_option('aios_auto_population_form_id');
+            foreach($formIds as $id){
+                wp_delete_post($id);
+            }
+            delete_option('aios_auto_population_form');
+            delete_option('aios_auto_population_form_date');
+        }
+
 
         $dateComplete = get_option('aios_auto_population_form_date', $data['date']);
         $form_generated = get_option('aios_auto_population_form', false);
@@ -50,7 +60,7 @@ class Form {
 
                     //Insert the post into the database
                     $contact_form_id = wp_insert_post( $data_to_add );
-                    $contact_form_id_arr[] = wp_insert_post( $data_to_add );
+                    $contact_form_id_arr[] = $contact_form_id;
                     if ( !empty( $contact_form_id ) ) {
                         update_post_meta($contact_form_id, '_messages',(array)$form->message); 
                         update_post_meta($contact_form_id, '_mail',(array)$form->mail); 
