@@ -36,8 +36,6 @@ class autopopulateFrontePage
             update_option('aios_install_setup_visited', 'visited');
             update_option('aios_autopopulation_theme', $active_theme );
         }
-
-
     }
     
     /**
