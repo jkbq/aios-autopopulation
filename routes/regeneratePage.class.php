@@ -21,7 +21,7 @@ class RegenerateContents {
         $response = Helpers::data('config.json');
         $config =  json_decode($response['body']);
         $beforeTheme = get_option('aios_autopopulation_theme');
-
+        $active_theme = get_option('template');
 
         // Default Libraries
         $libraries = $config->config[0]->libraries;
@@ -36,27 +36,37 @@ class RegenerateContents {
 
 
         $data =  json_decode($response['body']);
-
-
         $about =  get_page_by_title('About');
-        $about_data = array(
-            'ID'           => $about->ID,
-            'post_title'   => 'About (Old) - '.$beforeTheme.'',
-            'post_status'  => 'draft', // Set the status to draft
-            'post_name' => 'about-old'
-        );
-        // Update the post in the database
-        wp_update_post($about_data);
         $contact =  get_page_by_title('Contact');
-        $contact_data = array(
-            'ID'           => $contact->ID,
-            'post_title'   => 'Contact(Old) - '.$beforeTheme.'',
-            'post_status'  => 'draft', // Set the status to draft
-            'post_name' => 'contact-old'
 
-        );
-        // Update the post in the database
-        wp_update_post($contact_data);
+        if($beforeTheme != $active_theme ){
+            
+            $about_data = array(
+                'ID'           => $about->ID,
+                'post_title'   => 'About (Old) - '.$beforeTheme.'',
+                'post_status'  => 'draft', // Set the status to draft
+                'post_name' => 'about-old'
+            );
+            // Update the post in the database
+            wp_update_post($about_data);
+           
+            $contact_data = array(
+                'ID'           => $contact->ID,
+                'post_title'   => 'Contact(Old) - '.$beforeTheme.'',
+                'post_status'  => 'draft', // Set the status to draft
+                'post_name' => 'contact-old'
+
+            );
+            // Update the post in the database
+            wp_update_post($contact_data);
+
+            
+            update_option('aios_autopopulation_theme', $active_theme);
+
+        }else{
+            wp_delete_post($about->ID);
+            wp_delete_post($contact->ID);
+        }
         
 
         $response = Helpers::data('contents.json');
@@ -119,6 +129,9 @@ class RegenerateContents {
                     error_log('Post inserted with ID: ' . $insert_post);
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Pages generated successfully';
+
+                   
+
                 } else {
                     // Debugging: Check if there is an error during post insertion
                     error_log('Error inserting post: ' . $insert_post->get_error_message());

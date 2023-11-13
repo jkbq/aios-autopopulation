@@ -81,8 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 const dataPromises = responses.map(response => response.json());
                                 const data = await Promise.all(dataPromises);
 
-                                // Now 'data' is an array containing the data from each URL
-                                console.log(data);
 
                                 $buttonStatus = Swal.getPopup().querySelector(".auto-populate-api-status");
                                 $loader = Swal.getPopup().querySelector(".lds-facebook");
