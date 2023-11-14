@@ -52,6 +52,8 @@ class Settings {
             update_option( 'aios_custom_login_screen', 'agentpro' );
             update_option( 'aios_auto_p_metabox', '1' );
 
+            // Initial Setup - Quick Search
+            update_option( 'aios-quick-search', ['enabled' => 1] );
 
             // Client Info
             $client_info = $data->config[0]->site_info;
