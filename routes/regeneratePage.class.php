@@ -27,7 +27,7 @@ class RegenerateContents {
         $libraries = $config->config[0]->libraries;
 
         
-        $communitiesConfig = $data->config[0]->plugins->aios_communities;
+        $communitiesConfig = $config->config[0]->plugins->aios_communities;
         // aios-communities
         update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
