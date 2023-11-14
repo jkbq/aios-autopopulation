@@ -31,24 +31,30 @@
                   <div class="wpui-row wpui-row-box">
                      <div class="wpui-col-md-3">
                         <div class="form-group">
-                           <select id="selectedTheme" name="aios_population_settings[theme]" id="">
-                              <option value="#">Theme Not Supported</option>
-                              <?php 
-                                 $active_theme = get_option('template');
-                                 foreach ($themes as $theme){  
-                                    $themeName = sanitize_title($theme);
-                                    $seleted = $active_theme == $themeName ? 'selected' : '';
 
-                                    echo '<option value="'.$themeName.'" '.$seleted.'>'.$theme.'</option>';
-                                 }
-                              ?>
-                              
+                           <?php
+                              $beforeTheme = get_option('aios_autopopulation_theme');
+                              $active_theme = get_option('template');
+                              $currentThenme = '';
+                              foreach ($themes as $theme){  
+
+                                 $themeName = sanitize_title($theme);
+                                 $currentThenme .= $active_theme == $themeName ? $theme : '';
+                              }
+
+                           ?>
+                           <input type="text" disabled id="selectedTheme" name="aios_population_settings[theme]" value="<?= $currentThenme ?>">
+                           
                            </select>
-                           <label for="selectedTheme">Current Theme Activated</label>
+                           <label for="selectedTheme">Current Active Theme</label>
                         </div>
                      </div>
                      <div class="wpui-col-md-9">
+                        <?php if($active_theme != $beforeTheme) : ?>
                         <a href="#" class="wpui-default-button text-uppercase aios-repopulate-widgets">Generate</a>
+                        <?php else :?>
+                           <p>Please Download or Activate your new theme <a href="/wp-admin/themes.php">here</a></p>
+                        <?php endif; ?>
                      </div>
                   </div>
                   <!-- END: Row Box -->

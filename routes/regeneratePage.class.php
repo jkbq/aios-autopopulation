@@ -26,6 +26,12 @@ class RegenerateContents {
         // Default Libraries
         $libraries = $config->config[0]->libraries;
 
+        
+        $communitiesConfig = $data->config[0]->plugins->aios_communities;
+        // aios-communities
+        update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
+
+
         $aios_enqueue_cdn = get_option( 'aios-enqueue-cdn' );
 
         foreach (  $libraries as $key=>$value){
