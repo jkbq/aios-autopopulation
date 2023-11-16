@@ -98,7 +98,7 @@ class AiosSlider {
 			}
 
 			
-			$aios_slider_options['enqueue'] = $settings->random;
+			$aios_slider_options['enqueue'] = $settings->enqueue;
 			update_option( 'aios_slider', $aios_slider_options );
 
 
