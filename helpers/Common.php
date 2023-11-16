@@ -14,7 +14,10 @@ class Helpers {
     $themes = [
        "AgentPro Galaxy",
        "AgentPro Beacon",
-       "AgentPro Panorama"
+       "AgentPro Panorama",
+       "AgentPro Radiance",
+       "AgentPro Purist",
+       "AgentPro Endeavor"
     ];
 
     return $themes;
