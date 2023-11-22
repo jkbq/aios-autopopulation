@@ -165,7 +165,7 @@ class Widgets {
             update_option('aios_communities_settings', $aiosCommunities );
             update_option('listings_settings', $listings );
             update_option('listings_results_page_primary_color', $client_info->primary_color);
-            update_option('listings_results_page_secondary_color', $client_info->primary_color);
+            update_option('listings_results_page_secondary_color', '#ffffff');
             update_option('agents_settings', $agents );
             update_option('aios_roadmaps_settings', $aiosRoadmaps );
 
