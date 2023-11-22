@@ -124,31 +124,59 @@ class Widgets {
             }
 
             $communitiesConfig = $data->config[0]->plugins->aios_communities;
-
-
-
+            $agentsConfig = $data->config[0]->plugins->aios_agents;
+            $client_info = $data->config[0]->site_info;
+            
             /// Plugins Settings
+            // Testimonials
             $testimonials_options = get_option('aios_testimonials_settings');
             $testimonial_page = get_page_by_title('Testimonials');
             $testimonials_options['main_page'] = $testimonial_page->ID ;
+            $testimonials_options['primary_color'] = $client_info->primary_color;
 
+            // Communities
             $aiosCommunities = get_option('aios_communities_settings');
             $get_communities_page = get_page_by_title('Communities');
             $aiosCommunities['main_page'] = $get_communities_page->ID;
             $aiosCommunities['show_overlay'] = $communitiesConfig->show_overlay_overlay;
             $aiosCommunities['overlay_color'] = $communitiesConfig->overlay_color;
             $aiosCommunities['opacity_percentage'] = $communitiesConfig->opacity_percentage;
+            $aiosCommunities['primary_color'] = $client_info->primary_color;
 
+            // Listings
             $listings = get_option('listings_settings');
             $get_properties_page = get_page_by_title('Properties');
             $get_properties_featured = get_page_by_title('Featured Listings');
             $listings['main_page'] = $get_properties_page->ID;
             $listings['featured_property_page'] = $get_properties_featured->ID;
-            
+            $listings['main_page'] = $get_properties_page->ID;
+
+            // Agents
+            $agents = get_option('agents_settings');
+            $get_agents_page = get_page_by_title('Meet The Team');
+            $agents['main_page'] = $get_agents_page->ID;
+            $agents['primary_color'] = $client_info->primary_color;
+            $agents['hover_color'] = $client_info->primary_color;
+
+            /// Roadmaps 
+            $aiosRoadmaps = get_option('aios_roadmaps_settings');
+            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
             update_option('listings_settings', $listings );
+            update_option('listings_results_page_primary_color', $client_info->primary_color);
+            update_option('agents_settings', $agents );
+            update_option('aios_roadmaps_settings', $aiosRoadmaps );
+
+            
+            // aios-communities
+			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
+
+            // aios-testimonials
+			update_option( 'agent-main-page', ''.$agentsConfig->theme.'-core' );
+			update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
+
 
             // Set the option to indicate that pages have been generated
             update_option('aios_auto_population_widgets', true);

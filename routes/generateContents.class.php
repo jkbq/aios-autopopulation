@@ -113,7 +113,7 @@ class Contents {
                                     $tax_type = get_term_by('slug', 'residential', 'property-types');
 
 
-                                    $meta_input = $array = json_decode(json_encode($value->meta_input), true);
+                                    $meta_input = json_decode(json_encode($value->meta_input), true);
                                     $meta_input = $meta_input[0];
                                     $meta_input['featured_image_id'] = $image_data;
                                     $meta_input['listing-gallery'][] = $image_data;
@@ -127,6 +127,15 @@ class Contents {
                                     wp_set_post_terms($insert_post, [$tax_type->term_id], 'property-types');
                                 }
                                 // Continue with other actions specific to 'aios-listings' post type
+                            }
+
+                            if ($value->post_type === 'aios-agents') {
+                                
+                                $meta_input = json_decode(json_encode($value->meta_input), true);
+                                $meta_input = $meta_input[0];
+                                $meta_input['agentimage_id'] = $image_data;
+
+                                update_post_meta($insert_post, '_agent_details', $meta_input);
                             }
 
                             // Debugging: Check if post is inserted successfully
