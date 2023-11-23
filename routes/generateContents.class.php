@@ -136,6 +136,15 @@ class Contents {
                                 $meta_input['agentimage_id'] = $image_data;
 
                                 update_post_meta($insert_post, '_agent_details', $meta_input);
+
+                                update_post_meta( $insert_post, 'first_name', $value->meta_input->first_name );
+                                update_post_meta( $insert_post, 'last_name', $value->meta_input->last_name );
+                                update_post_meta( $insert_post, 'full_name', $value->meta_input->first_name .' '. $value->meta_input->last_name );
+                                update_post_meta( $insert_post, 'position', $value->meta_input->position );
+                                update_post_meta( $insert_post, 'license', $value->meta_input->license );
+                                update_post_meta( $insert_post, 'email', $value->meta_input->email_address );
+
+
                             }
 
                             // Debugging: Check if post is inserted successfully
