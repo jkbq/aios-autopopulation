@@ -159,7 +159,7 @@ class Widgets {
 
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
-            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
+            $aiosRoadmaps['primary_color'] = "#000000";
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
