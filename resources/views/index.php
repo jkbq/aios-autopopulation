@@ -35,10 +35,18 @@
                            <?php
                               $beforeTheme = get_option('aios_autopopulation_theme');
                               $active_theme = get_option('template');
+                              $active_child_theme = get_option('stylesheet');
+
+                              $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
+                              
                               $currentThenme = '';
                               foreach ($themes as $theme){  
 
+                               
                                  $themeName = sanitize_title($theme);
+
+                             
+
                                  $currentThenme .= $active_theme == $themeName ? $theme : '';
                               }
 

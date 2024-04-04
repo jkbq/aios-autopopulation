@@ -18,7 +18,14 @@ class RegenerateContents {
     public function aios_repopulate_page($data) {
             
 
-        $response = Helpers::data('config.json');
+        $url =  get_stylesheet_directory_uri() .'/config.json';
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
+
         $config =  json_decode($response['body']);
         $beforeTheme = get_option('aios_autopopulation_theme');
         $active_theme = get_option('template');

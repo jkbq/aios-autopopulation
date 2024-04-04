@@ -24,7 +24,13 @@ class AiosSlider {
 		if (!$generatedSlideshow) {
 
 
-			$response = Helpers::data('config.json');
+			$url =  get_stylesheet_directory_uri() .'/config.json';
+
+			$response = wp_remote_get($url, array(
+				'timeout' => 45,
+				'blocking' => true,
+				'cookies' => array()
+			));
 
 			$data =  json_decode($response['body']);
 

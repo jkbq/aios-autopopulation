@@ -34,7 +34,15 @@ class Menu {
         $dateComplete = get_option('aios_auto_population_menu_date', $data['date']);
         $menuStatus         =  get_option('aios_auto_population_menu', false);
         
-        $response = Helpers::data('config.json');
+
+
+        $url =  get_stylesheet_directory_uri() .'/config.json';
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
         
         $data =  json_decode($response['body']);
 

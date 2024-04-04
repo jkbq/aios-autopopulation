@@ -27,7 +27,15 @@ class Contents {
 
         if (!$pages_generated) {
         
-            $response = Helpers::data('contents.json');
+
+            $url =  get_stylesheet_directory_uri() .'/contents.json';
+
+			$response = wp_remote_get($url, array(
+				'timeout' => 45,
+				'blocking' => true,
+				'cookies' => array()
+			));
+
 
             $cid = wp_insert_term(
                 'Blog', 'category',

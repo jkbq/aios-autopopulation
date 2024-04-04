@@ -22,7 +22,15 @@ class Settings {
         update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
         $activate_initial_setup_assets = get_option( 'aios_auto_population_initial_setup_assets', false );
         
-        $response = Helpers::data('config.json');
+
+        $url =  get_stylesheet_directory_uri() .'/config.json';
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
+
         $data =  json_decode($response['body']);
 
         if($activate_initial_setup_assets != true){
