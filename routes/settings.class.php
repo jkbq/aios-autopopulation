@@ -22,7 +22,15 @@ class Settings {
         update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
         $activate_initial_setup_assets = get_option( 'aios_auto_population_initial_setup_assets', false );
         
-        $response = Helpers::data('config.json');
+
+        $url =  get_stylesheet_directory_uri() .'/config.json';
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
+
         $data =  json_decode($response['body']);
 
         if($activate_initial_setup_assets != true){
@@ -64,7 +72,8 @@ class Settings {
             $aios_client_info[ 'company_name' ] = $aios_client_info[ 'company_name' ] != '' ? $aios_client_info[ 'company_name' ] : $client_info->company_name;
 
             $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : $client_info->address;
-            $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
+            $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_street' ] : $client_info->address_street;
+            $aios_client_info[ 'address_unit' ] = $aios_client_info[ 'address_unit' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
             $aios_client_info[ 'address_city' ] = $aios_client_info[ 'address_city' ] != '' ? $aios_client_info[ 'address_city' ] : $client_info->address_city;
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;

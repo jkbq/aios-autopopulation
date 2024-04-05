@@ -16,47 +16,47 @@ class Widgets {
     }
 
     public function widgetGenerator( $sidebar, $name, $args = array() ) {
+        // Get the existing sidebars and widgets
+        $sidebars = get_option('sidebars_widgets');
 
+        // Initialize the sidebars array if it's not set
+        if (!$sidebars) {
+            $sidebars = array();
+        }
 
-        
-			if ( ! $sidebars = get_option( 'sidebars_widgets') )
+        // Initialize the sidebar if it doesn't exist
+        if (!isset($sidebars[$sidebar])) {
+            $sidebars[$sidebar] = array();
+        }
 
-				$sidebars = array();
+        // Get existing widget options
+        $widget_opts = get_option("widget_$name");
 
-			// Create the sidebar if it doesn't exist.
-			if ( ! isset( $sidebars[ $sidebar ] ) ){
-				$sidebars[ $sidebar ] = array();
-			}
+        // Check if the widget options are empty
+        if (!$widget_opts || (count($widget_opts) === 1 && isset($widget_opts['_multiwidget']))) {
+            // Start fresh if no widget options exist
+            $widget_opts = array('_multiwidget' => 1);
+        }
 
-			// Check for existing saved widgets.
-			$widget_opts = get_option( "widget_$name" );
-			$still_empty = false;
+        // Get the next insert id
+        $insert_id = 1;
+        if ($widget_opts) {
+            // Convert array keys to integers
+            $keys = array_map('intval', array_keys($widget_opts));
 
-			// Make sure that the widget array is really empty
-			if ( is_array( $widget_opts ) ) {
-				$still_empty = count( $widget_opts ) === 1 && array_key_exists('_multiwidget',$widget_opts);
-			}
+            // Find the maximum key
+            $insert_id = max($keys) + 1;
+        }
 
-			if ( $widget_opts && !$still_empty ) {
-				// Get next insert id.
-				ksort( $widget_opts );
-				end( $widget_opts );
-				$insert_id = key( $widget_opts );
+        // Add the new widget settings to the stack
+        $widget_opts[$insert_id] = $args;
 
-			} else {
-				// None existing, start fresh.
-				$widget_opts = array( '_multiwidget' => 1 );
-				$insert_id = 0;
-			}
+        // Add the widget to the sidebar
+        $sidebars[$sidebar][] = $name . '-' . strval($insert_id);
 
-			// Add our settings to the stack.
-			$widget_opts[ ++$insert_id ] = $args;
-
-			// Add our widget!
-			$sidebars[ $sidebar ][] = "$name-$insert_id";
-
-			update_option( 'sidebars_widgets', $sidebars );
-			update_option( "widget_$name", $widget_opts );
+        // Update the options
+        update_option('sidebars_widgets', $sidebars);
+        update_option("widget_$name", $widget_opts);
     }
 
 
@@ -95,7 +95,14 @@ class Widgets {
             }
 
 
-            $response = Helpers::data('config.json');
+
+            $url =  get_stylesheet_directory_uri() .'/config.json';
+
+            $response = wp_remote_get($url, array(
+                'timeout' => 45,
+                'blocking' => true,
+                'cookies' => array()
+            ));
 
             $data =  json_decode($response['body']);
 

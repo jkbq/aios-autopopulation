@@ -32,9 +32,13 @@ class autopopulateFrontePage
 
         $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
         $active_theme = get_option('template');
-        if( $current_slug[1] === $this->virtual_page_slug ){
-            update_option('aios_install_setup_visited', 'visited');
-            update_option('aios_autopopulation_theme', $active_theme );
+        
+
+        if(!empty($current_slug[1])){
+            if( $current_slug[1] === $this->virtual_page_slug ){
+                update_option('aios_install_setup_visited', 'visited');
+                update_option('aios_autopopulation_theme', $active_theme );
+            }
         }
     }
     
