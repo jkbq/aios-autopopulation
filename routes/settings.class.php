@@ -72,7 +72,8 @@ class Settings {
             $aios_client_info[ 'company_name' ] = $aios_client_info[ 'company_name' ] != '' ? $aios_client_info[ 'company_name' ] : $client_info->company_name;
 
             $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : $client_info->address;
-            $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
+            $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_street' ] : $client_info->address_street;
+            $aios_client_info[ 'address_unit' ] = $aios_client_info[ 'address_unit' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
             $aios_client_info[ 'address_city' ] = $aios_client_info[ 'address_city' ] != '' ? $aios_client_info[ 'address_city' ] : $client_info->address_city;
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
