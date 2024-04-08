@@ -20,6 +20,11 @@ class Helpers {
        "AgentPro Endeavor",
        "AgentPro Legacy",
        "AgentPro Amante II",
+       "AgentPro Element",
+       "AgentPro Iconic",
+       "AgentPro Vega",
+       "AgentPro Maven",
+       "AgentPro Metropolitan",
     ];
 
     return $themes;
