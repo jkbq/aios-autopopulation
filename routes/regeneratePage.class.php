@@ -29,6 +29,8 @@ class RegenerateContents {
         $config =  json_decode($response['body']);
         $beforeTheme = get_option('aios_autopopulation_theme');
         $active_theme = get_option('template');
+        $active_child_theme = get_option('stylesheet');
+        $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
 
         // Default Libraries
         $libraries = $config->config[0]->libraries;
@@ -49,8 +51,25 @@ class RegenerateContents {
 
 
         $data =  json_decode($response['body']);
-        $about =  get_page_by_title('About');
-        $contact =  get_page_by_title('Contact');
+
+        $aboutArgs = array(
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'title' => 'About',
+        );
+        $aboutArrs = new \WP_Query($aboutArgs);
+        $about =  $aboutArrs->posts[0];
+
+
+        $contactArgs = array(
+            'post_type' => 'page', 
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'title' => 'Contact',
+        );
+        $contactArrs = new \WP_Query($contactArgs);
+        $contact =  $contactArrs->posts[0];
 
         if($beforeTheme != $active_theme ){
             
@@ -82,7 +101,14 @@ class RegenerateContents {
         }
         
 
-        $response = Helpers::data('contents.json');
+        $url =  get_stylesheet_directory_uri() .'/contents.json';
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 45,
+            'blocking' => true,
+            'cookies' => array()
+        ));
+        
         $contents = json_decode($response['body']);
 
         foreach ($contents as $content) {
