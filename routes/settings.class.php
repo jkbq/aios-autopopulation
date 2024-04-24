@@ -17,6 +17,9 @@ class Settings {
 
     public function aios_populate_default_settings($data) {
         
+
+
+
         
         $dateComplete = get_option('aios_auto_population_initial_setup_assets_date', $data['date']);
         update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
@@ -79,6 +82,43 @@ class Settings {
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
             
+            
+
+            if (isset($client_info->banner_title_inside)){
+
+
+                $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
+                $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
+
+                $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
+                $taxonomy_title_option['title']['category'] = 'category';
+                $taxonomy_title_option['title']['community-group'] = 'community-group';
+                $taxonomy_title_option['title']['property-features'] = 'property-features';
+                $taxonomy_title_option['title']['property-types'] = 'property-types';
+                $taxonomy_title_option['title']['property-statuses'] = 'property-statuses';
+                $taxonomy_title_option['title']['property-states'] = 'property-states';
+
+
+                $post_title_option['title']['post'] = 'post';
+                $post_title_option['title']['page'] = 'page';
+                $post_title_option['title']['aios-neighborhood'] = 'aios-neighborhood';
+                $post_title_option['title']['aios-agents'] = 'aios-agents';
+                $post_title_option['title']['aios-communities'] = 'aios-communities';
+                $post_title_option['title']['aios-concierge'] = 'aios-concierge';
+                $post_title_option['title']['aios-rm-buyers'] = 'aios-rm-buyers';
+                $post_title_option['title']['aios-rm-financing'] = 'aios-rm-financing';
+                $post_title_option['title']['aios-rm-sellers'] = 'aios-rm-sellers';
+                $post_title_option['title']['aios-testimonials'] = 'aios-testimonials';
+
+
+                $inside_banner = get_option('aios-metaboxes-banner-title-layout');
+                $inside_banner[1] = 1;
+                update_option('aios-metaboxes-banner-title-layout', $inside_banner);
+
+                
+                update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
+                update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
+            }
 
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
@@ -117,6 +157,7 @@ class Settings {
             update_option( 'wpseo_titles', $wpseo_titles );
 
             update_option('aios_auto_population_initial_setup_assets', true);
+
 
             $response = array(
                 'success' => true, 
