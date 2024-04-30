@@ -17,10 +17,6 @@ class Settings {
 
     public function aios_populate_default_settings($data) {
         
-
-
-
-        
         $dateComplete = get_option('aios_auto_population_initial_setup_assets_date', $data['date']);
         update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
         $activate_initial_setup_assets = get_option( 'aios_auto_population_initial_setup_assets', false );
