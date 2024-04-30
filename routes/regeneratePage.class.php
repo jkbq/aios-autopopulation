@@ -15,8 +15,7 @@ class RegenerateContents {
         ));
     }
 
-    public function aios_repopulate_page($data) {
-            
+    public function aios_repopulate_page() {
 
         $url =  get_stylesheet_directory_uri() .'/config.json';
 
@@ -36,6 +35,64 @@ class RegenerateContents {
         $libraries = $config->config[0]->libraries;
 
         
+        $config = $data->config[0]->site_info;
+        $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
+        $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
+        if (isset($client_info->banner_title_inside)){
+    
+            $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
+            $taxonomy_title_option['title']['category'] = 'category';
+            $taxonomy_title_option['title']['community-group'] = 'community-group';
+            $taxonomy_title_option['title']['property-features'] = 'property-features';
+            $taxonomy_title_option['title']['property-types'] = 'property-types';
+            $taxonomy_title_option['title']['property-statuses'] = 'property-statuses';
+            $taxonomy_title_option['title']['property-states'] = 'property-states';
+
+            $post_title_option['title']['post'] = 'post';
+            $post_title_option['title']['page'] = 'page';
+            $post_title_option['title']['aios-neighborhood'] = 'aios-neighborhood';
+            $post_title_option['title']['aios-agents'] = 'aios-agents';
+            $post_title_option['title']['aios-communities'] = 'aios-communities';
+            $post_title_option['title']['aios-concierge'] = 'aios-concierge';
+            $post_title_option['title']['aios-rm-buyers'] = 'aios-rm-buyers';
+            $post_title_option['title']['aios-rm-financing'] = 'aios-rm-financing';
+            $post_title_option['title']['aios-rm-sellers'] = 'aios-rm-sellers';
+            $post_title_option['title']['aios-testimonials'] = 'aios-testimonials';
+
+            $inside_banner = get_option('aios-metaboxes-banner-title-layout');
+            $inside_banner[1] = 1;
+            update_option('aios-metaboxes-banner-title-layout', $inside_banner);
+            update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
+            update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
+
+        }else{
+            $taxonomy_title_option['title']['asiowpfiller'] = '';
+            $taxonomy_title_option['title']['category'] = '';
+            $taxonomy_title_option['title']['community-group'] = '';
+            $taxonomy_title_option['title']['property-features'] = '';
+            $taxonomy_title_option['title']['property-types'] = '';
+            $taxonomy_title_option['title']['property-statuses'] = '';
+            $taxonomy_title_option['title']['property-states'] = '';
+
+            $post_title_option['title']['post'] = 'post';
+            $post_title_option['title']['page'] = 'page';
+            $post_title_option['title']['aios-neighborhood'] = '';
+            $post_title_option['title']['aios-agents'] = '';
+            $post_title_option['title']['aios-communities'] = '';
+            $post_title_option['title']['aios-concierge'] = '';
+            $post_title_option['title']['aios-rm-buyers'] = '';
+            $post_title_option['title']['aios-rm-financing'] = '';
+            $post_title_option['title']['aios-rm-sellers'] = '';
+            $post_title_option['title']['aios-testimonials'] = '';
+
+            $inside_banner = get_option('aios-metaboxes-banner-title-layout');
+            $inside_banner[1] = '';
+            update_option('aios-metaboxes-banner-title-layout', $inside_banner);
+            update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
+            update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
+        }
+
+
         $communitiesConfig = $config->config[0]->plugins->aios_communities;
         // aios-communities
         update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
@@ -49,9 +106,6 @@ class RegenerateContents {
 
         update_option( 'aios-enqueue-cdn', $aios_enqueue_cdn );
 
-
-        $data =  json_decode($response['body']);
-
         $aboutArgs = array(
             'post_type' => 'page',
             'post_status' => 'publish',
@@ -60,8 +114,6 @@ class RegenerateContents {
         );
         $aboutArrs = new \WP_Query($aboutArgs);
         $about =  $aboutArrs->posts[0];
-
-
         $contactArgs = array(
             'post_type' => 'page', 
             'post_status' => 'publish',
@@ -92,7 +144,6 @@ class RegenerateContents {
             // Update the post in the database
             wp_update_post($contact_data);
 
-            
             update_option('aios_autopopulation_theme', $active_theme);
 
         }else{
@@ -165,7 +216,6 @@ class RegenerateContents {
                         }
                     }
                     // Debugging: Check if post is inserted successfully
-                    error_log('Post inserted with ID: ' . $insert_post);
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Pages generated successfully';
 
@@ -173,7 +223,6 @@ class RegenerateContents {
 
                 } else {
                     // Debugging: Check if there is an error during post insertion
-                    error_log('Error inserting post: ' . $insert_post->get_error_message());
                     $response_data['status'] = 'error';
                     $response_data['message'] = 'Error inserting post';
                 }
