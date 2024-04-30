@@ -78,10 +78,7 @@ class Settings {
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
             
-            
-
             if (isset($client_info->banner_title_inside)){
-
 
                 $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
                 $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
