@@ -77,7 +77,19 @@ class Settings {
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
-            
+
+
+
+
+            if (isset($client_info->agent_photo)) {
+            /// agent photo 
+                $imagesPath = get_stylesheet_directory_uri() . '/' . $client_info->agent_photo->extension . '/images/';
+                $src = media_sideload_image($imagesPath .$client_info->agent_photo->image, null, null, 'src');
+
+                $aios_client_info['photo'] = $src;
+            }
+
+
             if (isset($client_info->banner_title_inside)){
 
                 $post_title_option = get_option('aios-metaboxes-custom-title-post-types');

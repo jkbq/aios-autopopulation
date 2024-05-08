@@ -1,7 +1,8 @@
 <?php
-   use AIOS\AUTOPOPULATE\Helpers\helpers;
-   $themes = Helpers::agentpro_themes();
-   $apiStatus = Helpers::api_status();
+   use AIOS\AUTOPOPULATE\Helpers\Helpers;
+   $helpers = new Helpers();
+   $themes = $helpers->agentpro_themes();
+   $apiStatus = $helpers->api_status();
 
 ?>
 <div id="wpui-container-minimalist">
