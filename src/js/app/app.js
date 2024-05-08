@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
             text: "Doing This will Delete Form, Current Menu and Slideshow",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "Yes, Proceed!",
-            cancelButtonText: "No, cancel!",
+            confirmButtonText: "Proceed!",
+            cancelButtonText: "Cancel!",
             reverseButtons: true,
             allowOutsideClick: false,
         }).then((result) => {

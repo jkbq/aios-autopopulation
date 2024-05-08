@@ -12,19 +12,23 @@ class Helpers {
   {
 
     $themes = [
-       "AgentPro Galaxy",
-       "AgentPro Beacon",
-       "AgentPro Panorama",
-       "AgentPro Radiance",
-       "AgentPro Purist",
-       "AgentPro Endeavor",
-       "AgentPro Legacy",
-       "AgentPro Amante II",
-       "AgentPro Element",
-       "AgentPro Iconic",
-       "AgentPro Vega",
-       "AgentPro Maven",
-       "AgentPro Metropolitan",
+      "AgentPro Galaxy",
+      "AgentPro Beacon",
+      "AgentPro Panorama",
+      "AgentPro Radiance",
+      "AgentPro Purist",
+      "AgentPro Endeavor",
+      "AgentPro Legacy",
+      "AgentPro Amante II",
+      "AgentPro Element",
+      "AgentPro Iconic",
+      "AgentPro Vega",
+      "AgentPro Maven",
+      "AgentPro Metropolitan",
+      "Agentimagex Royale",
+      "Agentimagex Quantum",
+      "Agentimagex Seneca",
+      "Agentimagex Hamilton",
     ];
 
     return $themes;
