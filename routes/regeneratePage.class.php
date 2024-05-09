@@ -34,10 +34,11 @@ class RegenerateContents {
         // Default Libraries
         $libraries = $config->config[0]->libraries;
 
-        
-        $config = $data->config[0]->site_info;
+
+        $client_info = $config->config[0]->site_info;
         $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
         $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
+
         if (isset($client_info->banner_title_inside)){
     
             $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
@@ -92,6 +93,24 @@ class RegenerateContents {
             update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
         }
 
+
+
+        $wpseo_titles = get_option('wpseo_titles');
+        $wpseo_titles['breadcrumbs-enable'] = true;
+        $wpseo_titles['post_types-post-maintax'] = 'category';
+        update_option('wpseo_titles', $wpseo_titles);
+
+        $settings = $config->slideshow[0]->settings[0];
+
+        $aios_slider_options = get_option('aios_slider');
+        foreach ($settings->extensions as $key => $value) {
+
+            if (!empty($value)) {
+                $aios_slider_options['extensions'][$key] = $value;
+            }
+        }
+        $aios_slider_options['enqueue'] = $settings->enqueue;
+        update_option('aios_slider', $aios_slider_options);
 
         $communitiesConfig = $config->config[0]->plugins->aios_communities;
         // aios-communities
