@@ -43,7 +43,7 @@ class InitialSetupPage {
                 if(isset($client_info->has_contact_form)){
                     $ids = [0, 1, 2, 3, 4, 5];
                 }else{
-                    $ids = [0, 1, 2, 4, 5];
+                    $ids = [0, 1, 2, 3, 4, 5];
                 }
 
                 $aios_initial_setup_generate_default_pages = new aios_initial_setup_generate_default_pages();
