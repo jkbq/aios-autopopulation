@@ -61,11 +61,52 @@ class Menu {
                 $menu_name = $menu_data->menu_name;
                 $nav_items = $menu_data->nav;
 
+
+                $communitiesID = '';
+
+
+                foreach ($nav_items as $menus) {
+                    if ($menus->title == 'Communities') {
+                        $communitiesID .= $menus->id;
+                    }
+                }
+
+                $args = array(
+                    'post_type' => 'aios-communities',
+                    'posts_per_page' => 12,
+                    'post_status' => 'publish',
+                    'orderby' => 'title',
+                    'order' => 'ASC',
+                );
+
+                $query = new \WP_Query($args);
+                $entries = array();
+
+
+                foreach ($query->posts as $key => $post) {
+
+                    $entry = new \stdClass();
+                    $entry->title = $post->post_title;
+                    $entry->id = $post->ID;
+                    $entry->parent = $communitiesID;
+                    $entry->url = '/community/'.$post->post_name.'';
+                    $entry->order = $post->ID;
+                    $entry->option_name = '';
+                    $entry->post_type = 'custom-navigation';
+
+                    $entries[] = $entry;
+                }
+
+
+                $nav_items_new = array_merge($nav_items, $entries);
+
+
                 // Check if the menu exists by location
                 $menu_exists = wp_get_nav_menu_object($menu_name);
 
                 if (!$menu_exists) {
-                    if (isset($nav_items)) {
+
+                    if (isset($nav_items_new)) {
                         $menu_id = wp_create_nav_menu($menu_name); // Use the actual menu name
                         $locations = get_theme_mod('nav_menu_locations');
                         $locations[$location] = $menu_id;
@@ -74,8 +115,14 @@ class Menu {
                         $parent_id_arr = array(0);
                         $parent_id = 0;
 
-                        foreach ($nav_items as $json_data) {
+                        $count_menu = 0;
+
+
+                        foreach ($nav_items_new as $json_data) {
+      
+
                             if ($json_data->post_type == 'custom-navigation') {
+                               
                                 $parent_id = wp_update_nav_menu_item(
                                     $menu_id,
                                     0,
@@ -87,6 +134,8 @@ class Menu {
                                         'menu-item-classes' => $json_data->class,
                                     )
                                 );
+
+
                                 $count_menu++;
                             }
                             // Set parent and child
@@ -104,12 +153,11 @@ class Menu {
 
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Menu generated successfully';
-
-
-                }else{
+                } else {
                     $response_data['status'] = 'success';
                     $response_data['message'] = 'Menu generated successfully';
                 }
+
             }
         }
 
