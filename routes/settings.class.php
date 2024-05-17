@@ -32,6 +32,7 @@ class Settings {
 
         $data =  json_decode($response['body']);
 
+
         if($activate_initial_setup_assets != true){
             // Default Libraries
             $libraries = $data->config[0]->libraries;
@@ -44,7 +45,8 @@ class Settings {
 
             update_option( 'aios-enqueue-cdn', $aios_enqueue_cdn );
 
-            update_option( 'aios-metaboxes-banner-not-found', '404 Pages' );
+            $aios_banner_404['404 Pages'] = '404 Pages';
+            update_option('aios-metaboxes-banner-not-found', $aios_banner_404);
             $aios_banner_post_types = get_option( 'aios-metaboxes-banner-post-types');
             $aios_banner_post_types['banner']['post']  = 'post';
             $aios_banner_post_types['banner']['page']  = 'page';
@@ -77,19 +79,37 @@ class Settings {
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
+            $productType = $data->product_type;
+            $default_social_media_links = [
+                "facebook" => 'https://www.facebook.com/AgentImage',
+                "twitter" => 'https://www.twitter.com/agentimage',
+                "youtube" => 'https://www.youtube.com/agentimage',
+                "linkedin" => 'https://www.linkedin.com/company/agent-image',
+                "pinterest" => 'https://www.pinterest.com/agentimage/',
+                "instagram" => 'https://www.instagram.com/agentimage/'
+            ];
+            foreach ($default_social_media_links as $key => $value) {
+                $aios_client_info[$key] = $aios_client_info[$key] ? $aios_client_info[$key] : $value;
 
+                if(isset($productType) && $productType === 'AgentImagex'){
+                    set_theme_mod('aios-social-media-'.$key.'', $value);
+                }
 
+            }
 
 
             if (isset($client_info->agent_photo)) {
-            /// agent photo 
+                /// agent photo 
                 $imagesPath = get_stylesheet_directory_uri() . '/' . $client_info->agent_photo->extension . '/images/';
-                $src = media_sideload_image($imagesPath .$client_info->agent_photo->image, null, null, 'src');
+                $src = media_sideload_image($imagesPath . $client_info->agent_photo->image, null, null, 'src');
 
                 $aios_client_info['photo'] = $src;
             }
 
+            
+            update_option('aiis_ci', $aios_client_info);
 
+     
             if (isset($client_info->banner_title_inside)){
 
                 $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
@@ -124,21 +144,6 @@ class Settings {
                 update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
                 update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
             }
-
-            $default_social_media_links = [
-                "facebook" => 'https://www.facebook.com/AgentImage',
-                "twitter" => 'https://www.twitter.com/agentimage',
-                "youtube" => 'https://www.youtube.com/agentimage',
-                "linkedin" => 'https://www.linkedin.com/company/agent-image',
-                "pinterest" => 'https://www.pinterest.com/agentimage/',
-                "instagram" => 'https://www.instagram.com/agentimage/'
-            ];
-
-            foreach ($default_social_media_links as $key => $value) {
-                $aios_client_info[ $key ] = $aios_client_info[ $key ] ? $aios_client_info[ $key ] : $value;
-            }
-            update_option( 'aiis_ci', $aios_client_info );
-
                 
             // Modules
             $aios_initial_setup_modules = get_option( 'aios_initial_setup_modules' );

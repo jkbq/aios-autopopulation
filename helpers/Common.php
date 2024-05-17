@@ -25,10 +25,10 @@ class Helpers {
       "AgentPro Vega",
       "AgentPro Maven",
       "AgentPro Metropolitan",
-      "Agentimagex Royale",
-      "Agentimagex Quantum",
-      "Agentimagex Seneca",
-      "Agentimagex Hamilton",
+      "AIX Royale",
+      "AIX Quantum",
+      "AIX Seneca",
+      "AIX Hamilton",
     ];
 
     return $themes;
