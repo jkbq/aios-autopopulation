@@ -150,12 +150,15 @@ class Widgets {
             $aiosCommunities['opacity_percentage'] = $communitiesConfig->opacity_percentage;
             $aiosCommunities['primary_color'] = $client_info->primary_color;
 
-            // Listings
-            $listings = get_option('listings_settings');
-            $get_properties_page = get_page_by_title('Properties');
-            $get_properties_featured = get_page_by_title('Featured Listings');
-            $listings['main_page'] = $get_properties_page->ID;
-            $listings['featured_property_page'] = $get_properties_featured->ID;
+
+            if($data->product_type !== 'AgentImagex'){
+                // Listings
+                $listings = get_option('listings_settings');
+                $get_properties_page = get_page_by_title('Properties');
+                $get_properties_featured = get_page_by_title('Featured Listings');
+                $listings['main_page'] = $get_properties_page->ID;
+                $listings['featured_property_page'] = $get_properties_featured->ID;
+            }
 
             // Agents
             $agents = get_option('agents_settings');
