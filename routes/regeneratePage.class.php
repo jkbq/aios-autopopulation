@@ -34,11 +34,60 @@ class RegenerateContents {
         // Default Libraries
         $libraries = $config->config[0]->libraries;
 
-
         $client_info = $config->config[0]->site_info;
         $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
         $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
 
+        $product_type = $config->product_type;
+        $old_theme_slug = 'theme_mods_' . $beforeTheme; // Replace 'old_theme_slug' with the slug of the old theme
+
+        $theme_mods = get_option($old_theme_slug);
+
+        if( $product_type === 'AgentImagex'){
+            if ($theme_mods !== false) {
+                foreach ($theme_mods as $mod_name => $mod_value) {
+                    if($mod_name !== 'nav_menu_locations'){
+                        set_theme_mod($mod_name, $mod_value);
+                    }
+                }
+            }
+
+            // Check if the 'Main Nav' menu exists
+            $menu_name = 'Main Nav';
+            $menu_exists = wp_get_nav_menu_object($menu_name);
+
+            $menu_id = $menu_exists->term_id;
+
+            // Retrieve current theme mods for the theme
+            $theme_mods = get_option("theme_mods_$active_child_theme");
+
+            // Ensure $theme_mods['nav_menu_locations'] is an array
+            if (!isset($theme_mods['nav_menu_locations']) || !is_array($theme_mods['nav_menu_locations'])) {
+                $theme_mods['nav_menu_locations'] = array();
+            }
+
+            // Set the 'primary-menu' location to the 'Main Nav' menu ID
+            $location = 'primary-menu';
+            $theme_mods['nav_menu_locations'][$location] = $menu_id;
+
+            // Update the theme mods option
+            update_option("theme_mods_$active_child_theme", $theme_mods);
+            
+        }
+        if ($theme_mods !== false) {
+            $aix_client_phone_arrs                  =   $theme_mods['aios-agent-profile-phone-number'];
+            $aix_client_phone_arrs                  =   json_decode($aix_client_phone_arrs);
+            $aix_client_email                       =   $theme_mods['aios-agent-profile-email'];
+            $welcome_photo                          = $theme_mods['aios-welcome-photo'];
+            $aios_client_info = get_option('aiis_ci');
+            $aios_client_info['name'] = $client_info->name;
+            $aios_client_info['email'] = $aix_client_email;
+            $aios_client_info['phone'] = $aix_client_phone_arrs->phone;
+            $aios_client_info['photo'] = wp_get_attachment_image_url($welcome_photo, 'full');
+            update_option('aiis_ci', $aios_client_info);
+        }
+
+        
         if (isset($client_info->banner_title_inside)){
     
             $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
@@ -92,8 +141,6 @@ class RegenerateContents {
             update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
             update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
         }
-
-
 
         $wpseo_titles = get_option('wpseo_titles');
         $wpseo_titles['breadcrumbs-enable'] = true;
@@ -192,7 +239,6 @@ class RegenerateContents {
                     'post_author'  => 1,
                     'page_template' => $value->page_template
                 );
-
                 // Check post type and set category accordingly
                 if ($value->post_type == 'post' && isset($value->post_category_id)) {
                     $post_data['post_category'] = array(get_cat_ID( 'Blog' ));
@@ -201,8 +247,6 @@ class RegenerateContents {
                 if($value->post_title == 'About' || $value->post_title == 'Contact'){ 
                     $insert_post = wp_insert_post($post_data);
                 }
-
-
 
                 if ($insert_post) {
                     // Post inserted successfully
@@ -247,7 +291,6 @@ class RegenerateContents {
                 }
             }
         }
-                
         return rest_ensure_response($response_data);
     }
 }
