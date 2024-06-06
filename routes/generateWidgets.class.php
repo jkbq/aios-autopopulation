@@ -158,6 +158,7 @@ class Widgets {
                 $get_properties_featured = get_page_by_title('Featured Listings');
                 $listings['main_page'] = $get_properties_page->ID;
                 $listings['featured_property_page'] = $get_properties_featured->ID;
+                update_option('listings_settings', $listings);
             }
 
             // Agents
@@ -173,7 +174,7 @@ class Widgets {
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
-            update_option('listings_settings', $listings );
+
             update_option('listings_results_page_primary_color', $client_info->primary_color);
             update_option('listings_results_page_secondary_color', '#ffffff');
             update_option('agents_settings', $agents );
