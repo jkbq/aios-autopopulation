@@ -83,6 +83,7 @@ class RegenerateContents {
             $aios_client_info['name'] = $client_info->name;
             $aios_client_info['email'] = $aix_client_email;
             $aios_client_info['phone'] = $aix_client_phone_arrs->phone;
+            $aios_client_info['country-code-phone'] = $aix_client_phone_arrs->country;
             $aios_client_info['photo'] = wp_get_attachment_image_url($welcome_photo, 'full');
             update_option('aiis_ci', $aios_client_info);
         }
