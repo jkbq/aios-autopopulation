@@ -5,13 +5,21 @@ namespace AIOS\AUTOPOPULATE\App\Controllers;
 class autopopulateFrontePage
 {
     private $virtual_page_slug;
+    private $aios_install_ap_old_visited;
+    private $aios_install_aix_old_visited;
 
     public function __construct()
     {
         $this->virtual_page_slug = 'aios-installation';
 
-        // Hook into switch_theme to handle theme activation
-        add_action('after_switch_theme', [$this, 'handleThemeActivation']);
+
+        $this->aios_install_ap_old_visited = get_option('ap_setup_visited');
+        $this->aios_install_aix_old_visited = get_option('aix_setup_visited');
+
+        if (!$this->aios_install_ap_old_visited && !$this->aios_install_aix_old_visited) {
+            // Hook into switch_theme to handle theme activation
+            add_action('after_switch_theme', [$this, 'handleThemeActivation']);
+        }
 
         add_action('init', [$this, 'landingpage_checker']);
 
@@ -50,8 +58,10 @@ class autopopulateFrontePage
         $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
 
         $aios_install_setup_visited = get_option('aios_install_setup_visited');
+        $aios_install_ap_old_visited = get_option('ap_setup_visited');
+        $aios_install_aix_old_visited = get_option('aix_setup_visited');
 
-        if (!$aios_install_setup_visited){
+        if (!$aios_install_setup_visited && !$aios_install_ap_old_visited && !$aios_install_aix_old_visited) {
             // Your previous redirection logic
             if (is_admin() && isset($_GET['activated']) && $current_slug[1] != $this->virtual_page_slug) {
             
@@ -165,14 +175,18 @@ class autopopulateFrontePage
         $aios_install_setup_visited = get_option('aios_install_setup_visited');
         $wigets_generated = get_option('aios_auto_population_widgets');
     
+        
         if ( $current_slug[1] == $this->virtual_page_slug ){
             wp_enqueue_style(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
             wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
             //dequeue
             wp_dequeue_script('aios-starter-theme-script');
         }
-        if (!$aios_install_setup_visited || !$wigets_generated){
-            wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/redirection.min.js', [], time(), true);
+
+        if (!$this->aios_install_ap_old_visited && !$this->aios_install_aix_old_visited) {
+            if (!$aios_install_setup_visited || !$wigets_generated){
+                wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/redirection.min.js', [], time(), true);
+            }
         }
     }
 }
