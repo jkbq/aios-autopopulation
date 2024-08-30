@@ -79,6 +79,30 @@ class Settings {
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
+            $aios_back_to_top = get_option('aios-back-top');
+            $aios_back_to_top['enabled'] = "1";
+            $aios_back_to_top['pages'] = "all";
+            $aios_back_to_top['right'] = "15";
+            $aios_back_to_top['bottom'] = "15";
+            $aios_back_to_top['transition'] = "5";
+            $aios_back_to_top['offset'] = "100";
+            $aios_back_to_top['height'] = "60";
+            $aios_back_to_top['svg-width'] = "32";
+            $aios_back_to_top['border-style'] = "none";
+            $aios_back_to_top['border-color'] = "#000000";
+            $aios_back_to_top['hover-border-color'] = "#4f4f4f";
+            $aios_back_to_top['background-color'] = "#000000";
+            $aios_back_to_top['hover-background-color'] = "#4f4f4f";
+            $aios_back_to_top['shadow-color'] = "rgba(0,0,0,0)";
+            $aios_back_to_top['font-size'] = "16";
+            $aios_back_to_top['text-color'] = "#ffffff";
+            $aios_back_to_top['hover-text-color'] = "#ffffff";
+            $aios_back_to_top['icon'] = "default";
+            $aios_back_to_top['text-gap'] = "10";
+
+            update_option('aios-back-top', $aios_back_to_top);
+
+
             $productType = $data->product_type;
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
