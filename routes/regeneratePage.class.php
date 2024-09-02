@@ -47,6 +47,11 @@ class RegenerateContents {
 
         $theme_mods = get_option($old_theme_slug);
 
+
+        $aios_client_info = get_option('aiis_ci');
+
+
+
         if( $product_type === 'AgentImagex'){
             if ($theme_mods !== false) {
                 foreach ($theme_mods as $mod_name => $mod_value) {
@@ -76,20 +81,21 @@ class RegenerateContents {
 
             // Update the theme mods option
             update_option("theme_mods_$active_child_theme", $theme_mods);
+
+
+            if ($theme_mods !== false) {
+                $aix_client_phone_arrs                  =   $theme_mods['aios-agent-profile-phone-number'];
+                $aix_client_phone_arrs                  =   json_decode($aix_client_phone_arrs);
+                $aix_client_email                       =   $theme_mods['aios-agent-profile-email'];
+                $welcome_photo                          = $theme_mods['aios-welcome-photo'];
+                $aios_client_info['name'] = $client_info->name;
+                $aios_client_info['email'] = $aix_client_email;
+                $aios_client_info['phone'] = $aix_client_phone_arrs->phone;
+                $aios_client_info['country-code-phone'] = $aix_client_phone_arrs->country;
+                $aios_client_info['photo'] = wp_get_attachment_image_url($welcome_photo, 'full');
+                update_option('aiis_ci', $aios_client_info);
+            }
             
-        }
-        if ($theme_mods !== false) {
-            $aix_client_phone_arrs                  =   $theme_mods['aios-agent-profile-phone-number'];
-            $aix_client_phone_arrs                  =   json_decode($aix_client_phone_arrs);
-            $aix_client_email                       =   $theme_mods['aios-agent-profile-email'];
-            $welcome_photo                          = $theme_mods['aios-welcome-photo'];
-            $aios_client_info = get_option('aiis_ci');
-            $aios_client_info['name'] = $client_info->name;
-            $aios_client_info['email'] = $aix_client_email;
-            $aios_client_info['phone'] = $aix_client_phone_arrs->phone;
-            $aios_client_info['country-code-phone'] = $aix_client_phone_arrs->country;
-            $aios_client_info['photo'] = wp_get_attachment_image_url($welcome_photo, 'full');
-            update_option('aiis_ci', $aios_client_info);
         }
 
         
@@ -185,13 +191,13 @@ class RegenerateContents {
         $about_options = get_option('about_options');
 
 
-
-        $aios_client_info = get_option('aiis_ci');
-        
         $aios_client_info['photo'] = wp_get_attachment_image_url($about_options['agent_team_photo'], 'full');
+
         update_option('aiis_ci', $aios_client_info);
 
+
         $about_options['theme'] = $productType . '-' . $about->theme;
+        $about_options['address-display'] = $about->address_display;
         
         update_option('about-theme', $productType . '-' . $about->theme);
 

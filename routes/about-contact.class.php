@@ -47,6 +47,7 @@ class ABOUT_CONTACT_GENERATE {
             $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
             $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->image_name;
 
+            $background_image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->background;
 
             $aios_client_info = get_option('aiis_ci');
 
@@ -57,13 +58,17 @@ class ABOUT_CONTACT_GENERATE {
 
             // for profile photo
             $agentPhoto = media_sideload_image($image_url, $about_options['page_id'], '', 'id');
+
             $about_options['agent_team_photo'] = $agentPhoto;
+
             $aios_client_info['photo'] = wp_get_attachment_image_url($agentPhoto, 'full');
+
             update_option('aiis_ci', $aios_client_info);
 
 
             foreach($about as $key=>$content){
 
+                
                 if($key === 'theme'){
                     $about_options[$key] = $productType .'-'. $content;
                     
@@ -82,22 +87,26 @@ class ABOUT_CONTACT_GENERATE {
 
             update_option('about_options', $about_options);
 
-
-
             // Contact 
             $contact =  $data->about_contact[0]->contact;
             $contact_options = get_option('contact_options');
 
-
-            $contact_options['agent_team_photo'] = $agentPhoto;
-
+            if($contact->theme !== "element"){
+                $contact_options['agent_team_photo'] = $agentPhoto;
+            }else{
+                $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
+                $contact_options['agent_team_photo'] = $backgroundImage;
+            }
+            
 
             foreach ($contact as $key => $content) {
 
                 if ($key === 'theme') {
                     $contact_options[$key] = $productType . '-' . $content;
                 } else {
-                    $contact_options[$key] = $content;
+
+                    $finalKey = $key === 'address_display' ? 'address-display' : $key;
+                    $contact_options[$finalKey] = $content;
                 }
             }
             update_option('contact-theme', $productType . '-' . $contact->theme);
