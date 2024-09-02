@@ -121,15 +121,6 @@ class Settings {
 
             }
 
-
-            if (isset($client_info->agent_photo)) {
-                /// agent photo 
-                $imagesPath = get_stylesheet_directory_uri() . '/' . $client_info->agent_photo->extension . '/images/';
-                $src = media_sideload_image($imagesPath . $client_info->agent_photo->image, null, null, 'src');
-
-                $aios_client_info['photo'] = $src;
-            }
-
             
             update_option('aiis_ci', $aios_client_info);
 

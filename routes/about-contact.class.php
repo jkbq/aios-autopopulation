@@ -48,15 +48,19 @@ class ABOUT_CONTACT_GENERATE {
             $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->image_name;
 
 
+            $aios_client_info = get_option('aiis_ci');
+
             // About
             $about =  $data->about_contact[0]->about;
             $about_options = get_option('about_options');
 
 
+            // for profile photo
             $agentPhoto = media_sideload_image($image_url, $about_options['page_id'], '', 'id');
-
-
             $about_options['agent_team_photo'] = $agentPhoto;
+            $aios_client_info['photo'] = wp_get_attachment_image_url($agentPhoto, 'full');
+            update_option('aiis_ci', $aios_client_info);
+
 
             foreach($about as $key=>$content){
 
@@ -116,7 +120,7 @@ class ABOUT_CONTACT_GENERATE {
     
             $response = array(
                 'success' => false, 
-                'message' => 'Settings Already Generated', 
+                'message' => 'About and Contact Successfully Generated', 
                 'date' => $dateComplete
             );
         }
