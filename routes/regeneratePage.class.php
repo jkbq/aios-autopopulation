@@ -197,7 +197,6 @@ class RegenerateContents {
 
 
         $about_options['theme'] = $productType . '-' . $about->theme;
-        $about_options['address-display'] = $about->address_display;
         
         update_option('about-theme', $productType . '-' . $about->theme);
 
@@ -216,6 +215,10 @@ class RegenerateContents {
         $contact_options = get_option('contact_options');
 
         $contact_options['theme'] = $productType . '-' . $contact->theme;
+
+        $contact_options['address-display'] = $contact->address_display;
+
+
 
         update_option('contact-theme', $productType . '-' . $contact->theme);
 
