@@ -19,12 +19,15 @@ class autopopulateFrontePage
         if (!$this->aios_install_ap_old_visited && !$this->aios_install_aix_old_visited) {
             // Hook into switch_theme to handle theme activation
             add_action('after_switch_theme', [$this, 'handleThemeActivation']);
+
+            // Hook into after_switch_theme for additional actions after theme switch
+            add_action('after_switch_theme', [$this, 'handleAfterSwitchTheme']);
+            
         }
 
         add_action('init', [$this, 'landingpage_checker']);
 
-        // Hook into after_switch_theme for additional actions after theme switch
-        add_action('after_switch_theme', [$this, 'handleAfterSwitchTheme']);
+
 
         add_action('query_vars', [$this, 'aios_install_set_query_var']);
         add_action('init', [$this, 'aios_install_custom_add_rewrite_rule']);
@@ -40,12 +43,20 @@ class autopopulateFrontePage
 
         $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
         $active_theme = get_option('template');
+        $active_child_theme = get_option('stylesheet');
+
+        $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
         
 
         if(!empty($current_slug[1])){
             if( $current_slug[1] === $this->virtual_page_slug ){
                 update_option('aios_install_setup_visited', 'visited');
+
+                
                 update_option('aios_autopopulation_theme', $active_theme );
+
+                $this->flushRewriteRulesAndPermalinks();
+                
             }
         }
     }

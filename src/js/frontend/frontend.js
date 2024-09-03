@@ -193,6 +193,7 @@ const apiRequests = [
     { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: {date: "" }, showReRunButton: false },
     { name: 'Contents', url: `${wordpressApiBaseUrl}/contents`, data: {date: "" }, showReRunButton: false },
     { name: 'Roadmaps', url: `${wordpressApiBaseUrl}/roadmaps`, data: {date: "" }, showReRunButton: false },
+    { name: 'About and Contact', url: `${wordpressApiBaseUrl}/about-contact`, data: {date: "" }, showReRunButton: false },
     { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: {date: "" }, showReRunButton: false },
     { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: {date: "" }, showReRunButton: false },
     { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: {date: "" }, showReRunButton: true },

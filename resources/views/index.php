@@ -40,6 +40,7 @@
 
                               $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
                               
+
                               $currentThenme = '';
                               foreach ($themes as $theme){  
 

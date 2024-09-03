@@ -81,9 +81,29 @@ class Contents {
                         if ($insert_post) {
                             // Post inserted successfully
 
-       
+
+                            if($value->post_title === 'About'){
+                                $about_options = get_option('about_options');
+
+                                $about_options['page_id'] = $insert_post;
+                                update_option('about_options', $about_options);
+
+                            }
+
+                            if ($value->post_title === 'Contact') {
+
+                                $contact_options = get_option('contact_options');
+
+                                $contact_options['page_id'] = $insert_post;
+
+                                update_option('contact_options', $contact_options);
+                            }
+                       
+
+
                             $extension = !empty($value->extension) ? ''.$value->extension.'/' : '';
                             $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $value->featured_image;
+
                             $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
 
                             // Set featured image using media_sideload_image
