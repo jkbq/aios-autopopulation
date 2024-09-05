@@ -79,11 +79,14 @@ class ABOUT_CONTACT_GENERATE {
             }
             update_option('about-theme', $productType .'-'. $about->theme );
 
-            autoPopulateCustomPages(
-                'about',
-                $about->theme,
-                true
-            );
+
+            if (function_exists('autoPopulateCustomPages')) {
+                autoPopulateCustomPages(
+                    'about',
+                    $about->theme,
+                    true
+                );
+            }
 
             update_option('about_options', $about_options);
 
@@ -111,11 +114,13 @@ class ABOUT_CONTACT_GENERATE {
             }
             update_option('contact-theme', $productType . '-' . $contact->theme);
 
-            autoPopulateCustomPages(
-                'contact',
-                $contact->theme,
-                true
-            );
+            if (function_exists('autoPopulateCustomPages')) {
+                autoPopulateCustomPages(
+                    'contact',
+                    $contact->theme,
+                    true
+                );
+            }
 
             update_option('contact_options', $contact_options);
             
