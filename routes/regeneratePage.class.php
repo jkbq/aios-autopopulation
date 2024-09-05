@@ -206,19 +206,27 @@ class RegenerateContents {
             true
         );
 
-
         update_option('about_options', $about_options);
 
 
         // Contact 
+        $image =  $config->about_contact[0]->image;
+        $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
+
+        $background_image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->background;
+
         $contact =  $config->about_contact[0]->contact;
         $contact_options = get_option('contact_options');
 
+        if($contact_options['theme'] !== 'agent-pro-element'){
+            if ($contact->theme === "element") {
+                $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
+                $contact_options['agent_team_photo'] = $backgroundImage;
+            }
+        }
         $contact_options['theme'] = $productType . '-' . $contact->theme;
 
         $contact_options['address-display'] = $contact->address_display;
-
-
 
         update_option('contact-theme', $productType . '-' . $contact->theme);
 
@@ -229,6 +237,16 @@ class RegenerateContents {
         );
         update_option('contact_options', $contact_options);
 
+
+        $page_template_about = $config->about_contact[0]->page_template_about;
+        $page_template_contact = $config->about_contact[0]->page_template_contact;
+
+        if($page_template_about){
+            update_post_meta($about_options['page_id'], '_wp_page_template', $page_template_about);
+        }
+        if ($page_template_contact) {
+            update_post_meta($contact_options['page_id'], '_wp_page_template', $page_template_contact);
+        }
 
         update_option('aios_autopopulation_theme', $active_theme);
 
