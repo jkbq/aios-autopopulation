@@ -172,10 +172,6 @@ class Contents {
                                 update_post_meta( $insert_post, 'license', $value->meta_input->license );
                                 update_post_meta( $insert_post, 'email', $value->meta_input->email_address );
                             }
-                            if ($value->post_type === 'aios-communities') {
-                                update_post_meta($insert_post, 'display_cta', $value->display_cta);
-                            }
-
                             // Debugging: Check if post is inserted successfully
                             error_log('Post inserted with ID: ' . $insert_post);
                             $response_data['status'] = 'success';
