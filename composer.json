@@ -1,0 +1,14 @@
+{
+    "name": "aios-packages/aios-autopopulation",
+    "description": "Autopopulate Agentpro and AIX Theme.",
+    "type": "wordpress-plugin",
+    "license": "Proprietary",
+    "authors": [
+      {
+        "name": "Agent Image"
+      }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+  }
+  
