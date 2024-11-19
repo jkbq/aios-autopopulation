@@ -79,6 +79,8 @@ class Settings {
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
+
+          
             $aios_back_to_top = get_option('aios-back-top');
             $aios_back_to_top['enabled'] = "1";
             $aios_back_to_top['pages'] = "all";
@@ -121,7 +123,25 @@ class Settings {
 
             }
 
+            // Add Logo and Brokerage Logo
+            if(isset($client_info->logo)){
+                $logoUrl = get_stylesheet_directory_uri() . '/' . $client_info->logo->extension . '/images/' . $client_info->logo->image;
+                $clientLogo = media_sideload_image($logoUrl, '0', '', 'id');
+                
+                $clientlogoUrl = wp_get_attachment_image_url($clientLogo, 'full');
             
+                $aios_client_info[ 'logo' ] =  $clientlogoUrl;
+            }
+            
+            if(isset($client_info->brokerage_logo)){
+                $brokerageLogoUrl = get_stylesheet_directory_uri() . '/' . $client_info->brokerage_logo->extension . '/images/' . $client_info->brokerage_logo->image;
+
+                $brokerageLogo = media_sideload_image($brokerageLogoUrl, '0', '', 'id');
+
+                $brokerageLogoUrlUp = wp_get_attachment_image_url($brokerageLogo, 'full');
+                $aios_client_info[ 'ip-logo' ] = $brokerageLogoUrlUp;
+            }
+
             update_option('aiis_ci', $aios_client_info);
 
      
