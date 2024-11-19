@@ -99,22 +99,36 @@ class ABOUT_CONTACT_GENERATE
                 $contact =  $data->about_contact[0]->contact;
                 $contact_options = get_option('contact_options');
 
-                if ($contact->theme !== "element") {
-                    $contact_options['agent_team_photo'] = $agentPhoto;
-                } else {
-                    $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
-                    $contact_options['agent_team_photo'] = $backgroundImage;
-                }
 
+                if(isset($contact->agent_team_photo)) {
+                    
+                    $contactFormPhotoSrc = get_stylesheet_directory_uri() . '/' . $image->extension . '/images/' . $contact->agent_team_photo;
+
+                    $contactFormPhoto = media_sideload_image($contactFormPhotoSrc, $contact_options['page_id'], '', 'id');
+
+                    $contact_options['agent_team_photo'] = $contactFormPhoto;
+
+                }else{
+
+                    if ($contact->theme !== "element") {
+                        $contact_options['agent_team_photo'] = $agentPhoto;
+                    } else {
+                        $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
+                        $contact_options['agent_team_photo'] = $backgroundImage;
+                    }
+                }
+       
 
                 foreach ($contact as $key => $content) {
 
                     if ($key === 'theme') {
                         $contact_options[$key] = $productType . '-' . $content;
-                    } else {
+                    } else{
 
-                        $finalKey = $key === 'address_display' ? 'address-display' : $key;
-                        $contact_options[$finalKey] = $content;
+                        if($key !== 'agent_team_photo') {
+                            $finalKey = $key === 'address_display' ? 'address-display' : $key;
+                            $contact_options[$finalKey] = $content;        
+                        }         
                     }
                 }
                 update_option('contact-theme', $productType . '-' . $contact->theme);
@@ -128,6 +142,7 @@ class ABOUT_CONTACT_GENERATE
                 }
 
                 update_option('contact_options', $contact_options);
+
             }
 
             $response = array(

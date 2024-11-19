@@ -145,11 +145,18 @@ class Settings {
             update_option('aiis_ci', $aios_client_info);
 
      
+            if (isset($client_info->no_content_breadcurmbs) || $client_info->no_content_breadcurmbs === true){
+
+                update_option('aios-metaboxes-breadcrumb', '1');
+            }
+
+
             if (isset($client_info->banner_title_inside)){
 
                 $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
                 $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
-
+                
+                
                 $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
                 $taxonomy_title_option['title']['category'] = 'category';
                 $taxonomy_title_option['title']['community-group'] = 'community-group';
@@ -178,6 +185,15 @@ class Settings {
                 
                 update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
                 update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
+            }
+
+            if($client_info->featured_image_banner){
+                $featured_banner_lists = get_option('aios-metaboxes-featured-banner-image');
+                foreach($client_info->featured_image_banner as $value){
+                    $featured_banner_lists[$value] = $value;
+                }
+                update_option('aios-metaboxes-featured-banner-image', $featured_banner_lists);
+
             }
                 
             // Modules
