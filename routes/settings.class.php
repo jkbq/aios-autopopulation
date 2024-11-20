@@ -80,28 +80,49 @@ class Settings {
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
 
-          
-            $aios_back_to_top = get_option('aios-back-top');
-            $aios_back_to_top['enabled'] = "1";
-            $aios_back_to_top['pages'] = "all";
-            $aios_back_to_top['right'] = "15";
-            $aios_back_to_top['bottom'] = "15";
-            $aios_back_to_top['transition'] = "5";
-            $aios_back_to_top['offset'] = "100";
-            $aios_back_to_top['height'] = "60";
-            $aios_back_to_top['svg-width'] = "32";
-            $aios_back_to_top['border-style'] = "none";
-            $aios_back_to_top['border-color'] = "#000000";
-            $aios_back_to_top['hover-border-color'] = "#4f4f4f";
-            $aios_back_to_top['background-color'] = "#000000";
-            $aios_back_to_top['hover-background-color'] = "#4f4f4f";
-            $aios_back_to_top['shadow-color'] = "rgba(0,0,0,0)";
-            $aios_back_to_top['font-size'] = "16";
-            $aios_back_to_top['text-color'] = "#ffffff";
-            $aios_back_to_top['hover-text-color'] = "#ffffff";
-            $aios_back_to_top['icon'] = "default";
-            $aios_back_to_top['text-gap'] = "10";
 
+            $back_to_top_config = $data->config[0]->back_to_top;
+
+            $aios_back_to_top = get_option('aios-back-top');
+
+          
+            if(isset($back_to_top_config)){
+                $back_to_top_icon = get_stylesheet_directory_uri() . '/' . $back_to_top_config->extension . '/images/' . $back_to_top_config->image_icon;
+                $backToTopIcon = media_sideload_image( $back_to_top_icon, '0', '', 'id');
+        
+                $backToTopIconUrl = wp_get_attachment_url($backToTopIcon, 'full');
+                $aios_back_to_top['image-icon'] = $backToTopIconUrl;
+
+                foreach($back_to_top_config as $key => $value){
+                    
+                    if($key != 'extension') {
+                        $aios_back_to_top[$key] = $value;
+                    }
+                }
+
+
+            }else{
+
+                $aios_back_to_top['enabled'] = "1";
+                $aios_back_to_top['pages'] = "all";
+                $aios_back_to_top['right'] = "15";
+                $aios_back_to_top['bottom'] = "15";
+                $aios_back_to_top['transition'] = "5";
+                $aios_back_to_top['offset'] = "100";
+                $aios_back_to_top['height'] = "60";
+                $aios_back_to_top['svg-width'] = "32";
+                $aios_back_to_top['border-style'] = "none";
+                $aios_back_to_top['border-color'] = "#000000";
+                $aios_back_to_top['hover-border-color'] = "#4f4f4f";
+                $aios_back_to_top['background-color'] = "#000000";
+                $aios_back_to_top['hover-background-color'] = "#4f4f4f";
+                $aios_back_to_top['shadow-color'] = "rgba(0,0,0,0)";
+                $aios_back_to_top['font-size'] = "16";
+                $aios_back_to_top['text-color'] = "#ffffff";
+                $aios_back_to_top['hover-text-color'] = "#ffffff";
+                $aios_back_to_top['icon'] = "default";
+                $aios_back_to_top['text-gap'] = "10";
+            }
             update_option('aios-back-top', $aios_back_to_top);
 
 
