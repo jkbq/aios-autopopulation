@@ -44,7 +44,7 @@ class Agents {
 
                 foreach ($contents as $key=>$content) {
 
-                    if($key === 'aios-agents'){
+                    if($key === 'aios-agents' || !empty($content)){
                         foreach ($content as $value) {
                             
                             $post_data = array(
@@ -108,7 +108,7 @@ class Agents {
                                 // Debugging: Check if post is inserted successfully
                                 error_log('Post inserted with ID: ' . $insert_post);
                                 $response_data['status'] = 'success';
-                                $response_data['message'] = 'Post already generated';
+                                $response_data['message'] = 'Agents already generated';
 
                             }else {
                                 $response_data['status'] = 'error';
@@ -118,7 +118,7 @@ class Agents {
                         }
                     }else{
                         $response_data['status'] = 'success';
-                        $response_data['message'] = 'Agents generated successfully';
+                        $response_data['message'] = 'Agents already generated';
                     }
                 }
                 // Set the option to indicate that pages have been generated
