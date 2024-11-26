@@ -110,6 +110,9 @@ class PostPopulate {
                             }
 
                         }
+                    }else{
+                        $response_data['status'] = 'success';
+                        $response_data['message'] = 'Post generated successfully';
                     }
                 }
                 // Set the option to indicate that pages have been generated
