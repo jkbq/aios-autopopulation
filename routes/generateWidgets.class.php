@@ -133,8 +133,10 @@ class Widgets {
             $communitiesConfig = $data->config[0]->plugins->aios_communities;
             $agentsConfig = $data->config[0]->plugins->aios_agents;
             $client_info = $data->config[0]->site_info;
-            
+            $roadmapsConfig = $data->config[0]->plugins->aios_roadmaps;
+            $testimonialsConfig = $data->config[0]->plugins->aios_testimonials;
             /// Plugins Settings
+
             // Testimonials
             $testimonials_options = get_option('aios_testimonials_settings');
             $testimonial_page = get_page_by_title('Testimonials');
@@ -163,14 +165,23 @@ class Widgets {
 
             // Agents
             $agents = get_option('agents_settings');
-            $get_agents_page = get_page_by_title('Meet The Team');
+            $get_agents_page = '';
+
+            if($get_agents_page){
+                $get_agents_page = get_page_by_title('Meet The Team');;
+            }else{
+
+                $get_agents_page = get_page_by_title('Our Team');
+            }
+
             $agents['main_page'] = $get_agents_page->ID;
             $agents['primary_color'] = $client_info->primary_color;
             $agents['hover_color'] = $client_info->primary_color;
 
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
-            $aiosRoadmaps['primary_color'] = "#000000";
+            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
+            $aiosRoadmaps['hover_color'] = isset($client_info->hover_color) ? $client_info->hover_color : '#000000';
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
@@ -181,12 +192,32 @@ class Widgets {
             update_option('aios_roadmaps_settings', $aiosRoadmaps );
 
             
+            //aios-roadmaps
+            if($roadmapsConfig->theme){
+                update_option( 'roadmaps-themes', ''.$roadmapsConfig->theme.'-core' );
+            }
+
+
             // aios-communities
 			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
-            // aios-testimonials
-			update_option( 'agent-main-page', ''.$agentsConfig->theme.'-core' );
-			update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
+            // aios-agents
+            if($agentsConfig->theme){
+                update_option( 'agent-main-page', ''.$agentsConfig->theme.'-core' );
+                update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
+
+            }else{
+                update_option( 'agent-main-page', ''.$agentsConfig->main_page.'-core' );
+                update_option( 'agent-details-page', ''.$agentsConfig->details_page.'-core' );
+            }
+
+
+
+            if($testimonialsConfig->theme){
+                // aios-testimonials
+                update_option( 'testimonials-themes', ''.$testimonialsConfig->theme.'-core' );
+            }
+
 
 
             // Set the option to indicate that pages have been generated

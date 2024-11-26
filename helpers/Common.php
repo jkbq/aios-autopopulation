@@ -25,6 +25,7 @@ class Helpers {
       "AgentPro Vega",
       "AgentPro Maven",
       "AgentPro Metropolitan",
+      "AgentPro Equinox",
       "AIX Royale",
       "AIX Quantum",
       "AIX Seneca",

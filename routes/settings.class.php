@@ -79,27 +79,50 @@ class Settings {
             $aios_client_info[ 'address_state' ] = $aios_client_info[ 'address_state' ] != '' ? $aios_client_info[ 'address_state' ] : $client_info->address_state;
             $aios_client_info[ 'address_zip' ] = $aios_client_info[ 'address_zip' ] != '' ? $aios_client_info[ 'address_zip' ] : $client_info->address_zip;
 
-            $aios_back_to_top = get_option('aios-back-top');
-            $aios_back_to_top['enabled'] = "1";
-            $aios_back_to_top['pages'] = "all";
-            $aios_back_to_top['right'] = "15";
-            $aios_back_to_top['bottom'] = "15";
-            $aios_back_to_top['transition'] = "5";
-            $aios_back_to_top['offset'] = "100";
-            $aios_back_to_top['height'] = "60";
-            $aios_back_to_top['svg-width'] = "32";
-            $aios_back_to_top['border-style'] = "none";
-            $aios_back_to_top['border-color'] = "#000000";
-            $aios_back_to_top['hover-border-color'] = "#4f4f4f";
-            $aios_back_to_top['background-color'] = "#000000";
-            $aios_back_to_top['hover-background-color'] = "#4f4f4f";
-            $aios_back_to_top['shadow-color'] = "rgba(0,0,0,0)";
-            $aios_back_to_top['font-size'] = "16";
-            $aios_back_to_top['text-color'] = "#ffffff";
-            $aios_back_to_top['hover-text-color'] = "#ffffff";
-            $aios_back_to_top['icon'] = "default";
-            $aios_back_to_top['text-gap'] = "10";
 
+
+            $back_to_top_config = $data->config[0]->back_to_top;
+
+            $aios_back_to_top = get_option('aios-back-top');
+
+          
+            if(isset($back_to_top_config)){
+                $back_to_top_icon = get_stylesheet_directory_uri() . '/' . $back_to_top_config->extension . '/images/' . $back_to_top_config->image_icon;
+                $backToTopIcon = media_sideload_image( $back_to_top_icon, '0', '', 'id');
+        
+                $backToTopIconUrl = wp_get_attachment_url($backToTopIcon, 'full');
+                $aios_back_to_top['image-icon'] = $backToTopIconUrl;
+
+                foreach($back_to_top_config as $key => $value){
+                    
+                    if($key != 'extension') {
+                        $aios_back_to_top[$key] = $value;
+                    }
+                }
+
+
+            }else{
+
+                $aios_back_to_top['enabled'] = "1";
+                $aios_back_to_top['pages'] = "all";
+                $aios_back_to_top['right'] = "15";
+                $aios_back_to_top['bottom'] = "15";
+                $aios_back_to_top['transition'] = "5";
+                $aios_back_to_top['offset'] = "100";
+                $aios_back_to_top['height'] = "60";
+                $aios_back_to_top['svg-width'] = "32";
+                $aios_back_to_top['border-style'] = "none";
+                $aios_back_to_top['border-color'] = "#000000";
+                $aios_back_to_top['hover-border-color'] = "#4f4f4f";
+                $aios_back_to_top['background-color'] = "#000000";
+                $aios_back_to_top['hover-background-color'] = "#4f4f4f";
+                $aios_back_to_top['shadow-color'] = "rgba(0,0,0,0)";
+                $aios_back_to_top['font-size'] = "16";
+                $aios_back_to_top['text-color'] = "#ffffff";
+                $aios_back_to_top['hover-text-color'] = "#ffffff";
+                $aios_back_to_top['icon'] = "default";
+                $aios_back_to_top['text-gap'] = "10";
+            }
             update_option('aios-back-top', $aios_back_to_top);
 
 
@@ -121,15 +144,40 @@ class Settings {
 
             }
 
+            // Add Logo and Brokerage Logo
+            if(isset($client_info->logo)){
+                $logoUrl = get_stylesheet_directory_uri() . '/' . $client_info->logo->extension . '/images/' . $client_info->logo->image;
+                $clientLogo = media_sideload_image($logoUrl, '0', '', 'id');
+                
+                $clientlogoUrl = wp_get_attachment_image_url($clientLogo, 'full');
             
+                $aios_client_info[ 'logo' ] =  $clientlogoUrl;
+            }
+            
+            if(isset($client_info->brokerage_logo)){
+                $brokerageLogoUrl = get_stylesheet_directory_uri() . '/' . $client_info->brokerage_logo->extension . '/images/' . $client_info->brokerage_logo->image;
+
+                $brokerageLogo = media_sideload_image($brokerageLogoUrl, '0', '', 'id');
+
+                $brokerageLogoUrlUp = wp_get_attachment_image_url($brokerageLogo, 'full');
+                $aios_client_info[ 'ip-logo' ] = $brokerageLogoUrlUp;
+            }
+
             update_option('aiis_ci', $aios_client_info);
 
      
+            if (isset($client_info->no_content_breadcurmbs) || $client_info->no_content_breadcurmbs === true){
+
+                update_option('aios-metaboxes-breadcrumb', '1');
+            }
+
+
             if (isset($client_info->banner_title_inside)){
 
                 $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
                 $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
-
+                
+                
                 $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
                 $taxonomy_title_option['title']['category'] = 'category';
                 $taxonomy_title_option['title']['community-group'] = 'community-group';
@@ -158,6 +206,15 @@ class Settings {
                 
                 update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
                 update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
+            }
+
+            if($client_info->featured_image_banner){
+                $featured_banner_lists = get_option('aios-metaboxes-featured-banner-image');
+                foreach($client_info->featured_image_banner as $value){
+                    $featured_banner_lists[$value] = $value;
+                }
+                update_option('aios-metaboxes-featured-banner-image', $featured_banner_lists);
+
             }
                 
             // Modules
