@@ -193,7 +193,9 @@ class Widgets {
 
             
             //aios-roadmaps
-            update_option( 'roadmaps-themes', ''.$roadmapsConfig->theme.'-core' );
+            if($roadmapsConfig->theme){
+                update_option( 'roadmaps-themes', ''.$roadmapsConfig->theme.'-core' );
+            }
 
 
             // aios-communities
@@ -210,8 +212,11 @@ class Widgets {
             }
 
 
-            // aios-testimonials
-			update_option( 'testimonials-themes', ''.$testimonialsConfig->theme.'-core' );
+
+            if($testimonialsConfig->theme){
+                // aios-testimonials
+                update_option( 'testimonials-themes', ''.$testimonialsConfig->theme.'-core' );
+            }
 
 
 
