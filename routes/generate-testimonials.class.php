@@ -67,7 +67,7 @@ class Testimonials {
                         }
 
                         $response_data['status'] = 'success';
-                        $response_data['message'] = 'Post generated successfully';
+                        $response_data['message'] = 'Testimonials generated successfully';
 
                     }
                 }
