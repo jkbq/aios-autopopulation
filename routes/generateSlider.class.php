@@ -54,18 +54,29 @@ class AiosSlider {
 
 			$ip_banner_uploaded = false;
 			foreach ( $images as $index => $image ) {
-
 				$imagesPath = get_stylesheet_directory_uri() . '/' . $image->extension . '/images/';
 				$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'id' );
 
-				$slider_meta[] = array(
+				$meta = [
 					'type'    => 'image',
 					'image'	  => $src,
-					'tagline' => array(
+					'tagline' => [
 						'title' 	  => $image->title,
 						'description' => $image->description,
-					),
-				);
+					],
+				];
+
+				if ( isset($image->type) ) {
+					$meta['type'] = $image->type;
+
+					if ( $image->type === "html5-video" ) {
+						$meta["html5_video"] = [
+							"url" => $image->video_url ?? ''
+						];
+					}
+				}
+
+				$slider_meta[] = $meta;
 
 				// for innerpage image banner
 				if ( !$ip_banner_uploaded ) {
