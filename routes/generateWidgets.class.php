@@ -167,11 +167,10 @@ class Widgets {
             $agents = get_option('agents_settings');
             $get_agents_page = '';
 
-            if($get_agents_page){
+            if ( $get_agents_page ) {
                 $get_agents_page = get_page_by_title('Meet The Team');;
-            }else{
-
-                $get_agents_page = get_page_by_title('Our Team');
+            } else {
+                $get_agents_page = get_page_by_title($agentsConfig->page_title ?? 'Our Team');
             }
 
             $agents['main_page'] = $get_agents_page->ID;
