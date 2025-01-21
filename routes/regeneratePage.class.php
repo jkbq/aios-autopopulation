@@ -16,28 +16,21 @@ class RegenerateContents {
     }
 
     public function aios_repopulate_page() {
-
         $url =  get_stylesheet_directory_uri() .'/config.json';
-
-        $response = wp_remote_get($url, array(
+        $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
             'cookies' => array()
-        ));
+        ]);
 
         $config =  json_decode($response['body']);
-
         $beforeTheme = get_option('aios_autopopulation_theme');
-
         $active_theme = get_option('template');
-
         $active_child_theme = get_option('stylesheet');
-
         $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
 
         // Default Libraries
         $libraries = $config->config[0]->libraries;
-
         $client_info = $config->config[0]->site_info;
         $post_title_option = get_option('aios-metaboxes-custom-title-post-types');
         $taxonomy_title_option = get_option('aios-metaboxes-custom-title-taxonomies');
@@ -46,11 +39,7 @@ class RegenerateContents {
         $old_theme_slug = 'theme_mods_' . $beforeTheme; // Replace 'old_theme_slug' with the slug of the old theme
 
         $theme_mods = get_option($old_theme_slug);
-
-
         $aios_client_info = get_option('aiis_ci');
-
-
 
         if( $product_type === 'AgentImagex'){
             if ($theme_mods !== false) {
@@ -99,8 +88,7 @@ class RegenerateContents {
         }
 
         
-        if (isset($client_info->banner_title_inside)){
-    
+        if (isset($client_info->banner_title_inside)) {
             $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
             $taxonomy_title_option['title']['category'] = 'category';
             $taxonomy_title_option['title']['community-group'] = 'community-group';
@@ -125,8 +113,7 @@ class RegenerateContents {
             update_option('aios-metaboxes-banner-title-layout', $inside_banner);
             update_option('aios-metaboxes-custom-title-post-types', $post_title_option);
             update_option('aios-metaboxes-custom-title-taxonomies', $taxonomy_title_option);
-
-        }else{
+        } else {
             $taxonomy_title_option['title']['asiowpfiller'] = '';
             $taxonomy_title_option['title']['category'] = '';
             $taxonomy_title_option['title']['community-group'] = '';
@@ -162,42 +149,35 @@ class RegenerateContents {
 
         $aios_slider_options = get_option('aios_slider');
         foreach ($settings->extensions as $key => $value) {
-
             if (!empty($value)) {
                 $aios_slider_options['extensions'][$key] = $value;
             }
         }
+
         $aios_slider_options['enqueue'] = $settings->enqueue;
         update_option('aios_slider', $aios_slider_options);
 
         $communitiesConfig = $config->config[0]->plugins->aios_communities;
+
         // aios-communities
         update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
-
-
         $aios_enqueue_cdn = get_option( 'aios-enqueue-cdn' );
 
-        foreach (  $libraries as $key=>$value){
+        foreach ( $libraries as $key => $value ){
             $aios_enqueue_cdn[$key] = $value;
         }
 
         update_option( 'aios-enqueue-cdn', $aios_enqueue_cdn );
-
-
         $productType = $config->config[0]->product_type;
 
         // about and contact regenerate 
         $about =  $config->about_contact[0]->about;
         $about_options = get_option('about_options');
 
-
         $aios_client_info['photo'] = wp_get_attachment_image_url($about_options['agent_team_photo'], 'full');
-
         update_option('aiis_ci', $aios_client_info);
 
-
         $about_options['theme'] = $productType . '-' . $about->theme;
-        
         update_option('about-theme', $productType . '-' . $about->theme);
 
         autoPopulateCustomPages(
@@ -208,7 +188,6 @@ class RegenerateContents {
 
         update_option('about_options', $about_options);
 
-
         // Contact 
         $image =  $config->about_contact[0]->image;
         $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
@@ -218,14 +197,14 @@ class RegenerateContents {
         $contact =  $config->about_contact[0]->contact;
         $contact_options = get_option('contact_options');
 
-        if($contact_options['theme'] !== 'agent-pro-element'){
+        if ($contact_options['theme'] !== 'agent-pro-element') {
             if ($contact->theme === "element") {
                 $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
                 $contact_options['agent_team_photo'] = $backgroundImage;
             }
         }
-        $contact_options['theme'] = $productType . '-' . $contact->theme;
 
+        $contact_options['theme'] = $productType . '-' . $contact->theme;
         $contact_options['address-display'] = $contact->address_display;
 
         update_option('contact-theme', $productType . '-' . $contact->theme);
@@ -235,27 +214,27 @@ class RegenerateContents {
             $contact->theme,
             true
         );
-        update_option('contact_options', $contact_options);
 
+        update_option('contact_options', $contact_options);
 
         $page_template_about = $config->about_contact[0]->page_template_about;
         $page_template_contact = $config->about_contact[0]->page_template_contact;
 
-        if($page_template_about){
+        if ($page_template_about) {
             update_post_meta($about_options['page_id'], '_wp_page_template', $page_template_about);
         }
+        
         if ($page_template_contact) {
             update_post_meta($contact_options['page_id'], '_wp_page_template', $page_template_contact);
         }
 
         update_option('aios_autopopulation_theme', $active_theme);
 
-        $response = array(
+        $response = [
             'success' => true,
             'message' => 'Regenerate Successful'
-        );
+        ];
 
-        
         return rest_ensure_response($response);
     }
 }
