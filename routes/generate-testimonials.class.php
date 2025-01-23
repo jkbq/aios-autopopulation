@@ -61,9 +61,25 @@ class Testimonials {
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
                             );
-    
-                            wp_insert_post($post_data);
 
+                            $insert_post = wp_insert_post($post_data);
+
+                            $post_meta = $value->meta_input[0];
+                            
+                            update_post_meta( $insert_post, 'aios_testimonials_video_url', $post_meta->aios_testimonials_video_url );
+                            update_post_meta( $insert_post, 'aios_testimonials_video_type', $post_meta->aios_testimonials_video_type );
+
+                            if (isset($post_meta->aios_testimonials_video_placeholder)) {
+                                  
+                                $extension = !empty($post_meta->extension) ? ''.$post_meta->extension.'/' : '';
+                                $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
+    
+                                $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
+
+                                update_post_meta( $insert_post, 'aios_testimonials_video_placeholder', $image_data );
+
+                            }
+                            
                         }
 
                         $response_data['status'] = 'success';
