@@ -206,8 +206,8 @@ class Widgets {
                 update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
 
             }else{
-                update_option( 'agent-main-page', ''.$agentsConfig->main_page.'-core' );
-                update_option( 'agent-details-page', ''.$agentsConfig->details_page.'-core' );
+                update_option( 'agent-main-page', 'default-core' );
+                update_option( 'agent-details-page', 'default-core' );
             }
 
 
