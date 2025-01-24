@@ -36,17 +36,22 @@ class PostPopulate {
 			));
 
             
+            $contents = json_decode($response['body']);
+
             $cid = wp_insert_term(
                 'Blog', 'category',
-                array( 'slug' => 'blog'
-            ) );
+                array(
+                    'slug' => 'blog',
+                    'description' => $contents->category[0]->description
+                )
+            );
             
             if (is_wp_error($response)) {
                 error_log(print_r($response->get_error_message(), true));
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
-                $contents = json_decode($response['body']);
+            
 
                 foreach ($contents as $key=>$content) {
 
