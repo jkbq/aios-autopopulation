@@ -219,6 +219,13 @@ class Widgets {
 
 
 
+            // sets permalink custom structure
+            update_option( 'permalink_structure', '/%category%/%postname%/' );
+
+
+            flush_rewrite_rules();
+
+            
             // Set the option to indicate that pages have been generated
             update_option('aios_auto_population_widgets', true);
             update_option('aios_auto_population_widgets_date',  $dateComplete);
