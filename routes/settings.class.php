@@ -237,7 +237,11 @@ class Settings {
             $wpseo_titles = get_option( 'wpseo_titles' );
             $wpseo_titles[ 'breadcrumbs-enable' ] = true;
             $wpseo_titles[ 'post_types-post-maintax' ] = 'category';
+
+            $wpseo_titles['breadcrumbs-sep'] = '>';
+            
             update_option( 'wpseo_titles', $wpseo_titles );
+            
 
             update_option('aios_auto_population_initial_setup_assets', true);
 

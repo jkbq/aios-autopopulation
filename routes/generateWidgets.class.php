@@ -203,9 +203,9 @@ class Widgets {
 			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
             // aios-agents
-            if($agentsConfig->theme){
-                update_option( 'agent-main-page', ''.$agentsConfig->theme.'-core' );
-                update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
+            if($agentsConfig->main_page){
+                update_option( 'agent-main-page', ''.$agentsConfig->main_page.'-core' );
+                update_option( 'agent-details-page', ''.$agentsConfig->details_page.'-core' );
 
             }else{
                 update_option( 'agent-main-page', 'default-core' );
