@@ -135,6 +135,8 @@ class Widgets {
             $client_info = $data->config[0]->site_info;
             $roadmapsConfig = $data->config[0]->plugins->aios_roadmaps;
             $testimonialsConfig = $data->config[0]->plugins->aios_testimonials;
+            $listingsConfig = $data->config[0]->plugins->aios_listings;
+            $ihfConfig = $data->config[0]->plugins->aios_custom_ihf;
             /// Plugins Settings
 
             // Testimonials
@@ -210,14 +212,21 @@ class Widgets {
                 update_option( 'agent-details-page', 'default-core' );
             }
 
-
-
             if($testimonialsConfig->theme){
                 // aios-testimonials
                 update_option( 'testimonials-themes', ''.$testimonialsConfig->theme.'-core' );
             }
 
+            if($listingsConfig->main_page){
+                update_option( 'listing-main-page', ''.$listingsConfig->main_page.'-core' );
+                update_option( 'listing-details-page', ''.$listingsConfig->details_page.'-core' );
 
+            }
+
+            if($ihfConfig->results_page){
+                update_option( 'aios-custom-ihomefinder-templates-results-page', ''.$ihfConfig->results_page.'-core' );
+                update_option( 'aios-custom-ihomefinder-templates-details-page', ''.$ihfConfig->details_page.'-core' );
+            }
 
             // sets permalink custom structure
             update_option( 'permalink_structure', '/%category%/%postname%/' );

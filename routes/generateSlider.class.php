@@ -101,6 +101,32 @@ class AiosSlider {
 				'arrows'			=> $settings->arrows,
 				'dots'				=> $settings->dots,
 				'random'			=> $settings->random,
+				'kenburns'			=> $settings->kenburns,
+				'optimization'      => array(
+					'image'         => $settings->optimization->image != '' ? $settings->optimization->image : 'no',
+					'video'         => $settings->optimization->video != '' ? $settings->optimization->video : 'no',
+					'responsive'    => $settings->optimization->responsive != '' ? $settings->optimization->responsive : 'enable',
+				),
+				'volume'			=> array(
+					'visibility'    => $settings->volume->visibility != '' ? $settings->volume->visibility : 'show',
+					'position'	    => $settings->volume->position != '' ? $settings->volume->position : 'bottom-right',
+				),
+				'colors'		    => array(
+					'primary'	    => $settings->colors->primary != '' ? $settings->colors->primary : 'rgba(255, 255, 255, 1)',
+					'secondary'     => $settings->colors->secondary != '' ? $settings->colors->secondary : 'rgba(204, 204, 204, 1)',
+				),
+				'tagline'           => array(
+					'type'          => $settings->tagline->type != '' ? $settings->tagline->type : 'fade',
+					'background'    => $settings->tagline->background != '' ? $settings->tagline->background : 'rgba(0, 0, 0, 0.75)',
+				),
+				'kenburns'          => array(
+					'enable'        => $settings->kenburns->enable != '' ? $settings->kenburns->enable : 'no',
+					'duration'      => $settings->kenburns->duration != '' ? $settings->kenburns->duration : '20000',
+				),
+				'theme'             => array(
+					'name'          => $settings->theme->name != '' ? $settings->theme->name : 'default',
+					'location'      => $settings->theme->location != '' ? $settings->theme->location : 'core',
+				),
 			);
 			update_post_meta( $slider_id, '_aios_slider_settings', $slider_settings );
 
