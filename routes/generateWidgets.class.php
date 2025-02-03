@@ -135,7 +135,23 @@ class Widgets {
             $client_info = $data->config[0]->site_info;
             $roadmapsConfig = $data->config[0]->plugins->aios_roadmaps;
             $testimonialsConfig = $data->config[0]->plugins->aios_testimonials;
+            $listingsConfig = $data->config[0]->plugins->aios_listings;
+            $ihfConfig = $data->config[0]->plugins->aios_custom_ihf;
+            $homevaluation = $data->config[0]->plugins->aios_homevaluation;
             /// Plugins Settings
+
+
+
+            // Homevaluation
+            $home_valuation_settings = get_option('aios_home_valuation_settings');
+            $homevaluation_path = get_stylesheet_directory_uri() . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
+            $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
+          
+            $home_valuation_settings['background_image'] = $home_valuation_background;
+
+            update_option('aios_home_valuation_settings', $home_valuation_settings);
+
+                        
 
             // Testimonials
             $testimonials_options = get_option('aios_testimonials_settings');
@@ -201,24 +217,38 @@ class Widgets {
 			update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
 
             // aios-agents
-            if($agentsConfig->theme){
-                update_option( 'agent-main-page', ''.$agentsConfig->theme.'-core' );
-                update_option( 'agent-details-page', ''.$agentsConfig->theme.'-core' );
+            if($agentsConfig->main_page){
+                update_option( 'agent-main-page', ''.$agentsConfig->main_page.'-core' );
+                update_option( 'agent-details-page', ''.$agentsConfig->details_page.'-core' );
 
             }else{
                 update_option( 'agent-main-page', 'default-core' );
                 update_option( 'agent-details-page', 'default-core' );
             }
 
-
-
             if($testimonialsConfig->theme){
                 // aios-testimonials
                 update_option( 'testimonials-themes', ''.$testimonialsConfig->theme.'-core' );
             }
 
+            if($listingsConfig->main_page){
+                update_option( 'listing-main-page', ''.$listingsConfig->main_page.'-core' );
+                update_option( 'listing-details-page', ''.$listingsConfig->details_page.'-core' );
+
+            }
+
+            if($ihfConfig->results_page){
+                update_option( 'aios-custom-ihomefinder-templates-results-page', ''.$ihfConfig->results_page.'-core' );
+                update_option( 'aios-custom-ihomefinder-templates-details-page', ''.$ihfConfig->details_page.'-core' );
+            }
+
+            // sets permalink custom structure
+            update_option( 'permalink_structure', '/%category%/%postname%/' );
 
 
+            flush_rewrite_rules();
+
+            
             // Set the option to indicate that pages have been generated
             update_option('aios_auto_population_widgets', true);
             update_option('aios_auto_population_widgets_date',  $dateComplete);
