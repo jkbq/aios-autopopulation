@@ -144,11 +144,14 @@ class Widgets {
 
             // Homevaluation
             $home_valuation_settings = get_option('aios_home_valuation_settings');
-            $homevaluation_path = get_stylesheet_directory_uri() . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
-            $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
-          
-            $home_valuation_settings['background_image'] = $home_valuation_background;
 
+
+            if($homevaluation->background){
+                $homevaluation_path = get_stylesheet_directory_uri() . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
+                $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
+            
+                $home_valuation_settings['background_image'] = $home_valuation_background;
+            }
             update_option('aios_home_valuation_settings', $home_valuation_settings);
 
                         
