@@ -161,6 +161,10 @@ class Widgets {
             $testimonial_page = get_page_by_title('Testimonials');
             $testimonials_options['main_page'] = $testimonial_page->ID ;
             $testimonials_options['primary_color'] = $client_info->primary_color;
+            $testimonials_options['post_per_page'] = $testimonialsConfig->post_per_page;
+            $testimonials_options['order'] = $testimonialsConfig->order;
+            $testimonials_options['testimonials_source'] = $testimonialsConfig->testimonials_source;
+            $testimonials_options['order_by'] = $testimonialsConfig->order_by;
 
             // Communities
             $aiosCommunities = get_option('aios_communities_settings');
