@@ -104,6 +104,19 @@ class PagePopulate {
 
                 update_option('aios_auto_population_page', true);
                 update_option('aios_auto_population_page_date',  $dateComplete);
+
+                // After page population let's delete the sample page
+                $sample_page = get_posts([
+                    'name'        => 'sample-page',
+                    'post_type'   => 'page',
+                    'post_status' => 'publish',
+                    'numberposts' => 1
+                ]);
+                
+                if (!empty($sample_page)) {
+                    $page_id = $sample_page[0]->ID; 
+                    wp_delete_post($page_id, true);
+                }
             }
         } else {
             $response_data['status'] = 'success';
