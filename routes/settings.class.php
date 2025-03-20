@@ -100,10 +100,7 @@ class Settings {
                         $aios_back_to_top[$key] = $value;
                     }
                 }
-
-
-            }else{
-
+            } else {
                 $aios_back_to_top['enabled'] = "1";
                 $aios_back_to_top['pages'] = "all";
                 $aios_back_to_top['right'] = "15";

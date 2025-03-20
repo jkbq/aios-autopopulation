@@ -205,13 +205,13 @@ class Widgets {
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
             $aiosRoadmaps['primary_color'] = $client_info->primary_color;
-            $aiosRoadmaps['hover_color'] = isset($client_info->hover_color) ? $client_info->hover_color : '#000000';
+            $aiosRoadmaps['hover_color'] = $client_info->roadmap_hover_color ?? $client_info->hover_color ?? '#000000';
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
 
             update_option('listings_results_page_primary_color', $client_info->primary_color);
-            update_option('listings_results_page_secondary_color', '#ffffff');
+            update_option('listings_results_page_secondary_color', $client_info->listing_secondary_color ?? '#ffffff');
             update_option('agents_settings', $agents );
             update_option('aios_roadmaps_settings', $aiosRoadmaps );
 
