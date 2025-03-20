@@ -197,8 +197,10 @@ class Widgets {
             }
 
             $agents['main_page'] = $get_agents_page->ID;
-            $agents['primary_color'] = $client_info->primary_color;
-            $agents['hover_color'] = $client_info->primary_color;
+            $agents['primary_color'] = $agentsConfig->primary_color ?? $client_info->primary_color;
+            $agents['text_color'] = $agentsConfig->text_color ?? '#000000';
+            $agents['icon_color'] = $agentsConfig->icon_color ?? $client_info->secondary_color ?? $client_info->primary_color;
+            $agents['hover_color'] = $agentsConfig->hover_color ?? $client_info->secondary_color ?? $client_info->primary_color;
 
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
