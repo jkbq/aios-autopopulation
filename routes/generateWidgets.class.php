@@ -140,8 +140,6 @@ class Widgets {
             $homevaluation = $data->config[0]->plugins->aios_homevaluation;
             /// Plugins Settings
 
-
-
             // Homevaluation
             $home_valuation_settings = get_option('aios_home_valuation_settings');
 
@@ -210,8 +208,11 @@ class Widgets {
             update_option( 'aios_testimonials_settings', $testimonials_options );
             update_option('aios_communities_settings', $aiosCommunities );
 
-            update_option('listings_results_page_primary_color', $client_info->primary_color);
-            update_option('listings_results_page_secondary_color', $client_info->listing_secondary_color ?? '#ffffff');
+            // Listings Colors
+            update_option('listings_results_page_primary_color', $listingsConfig->primary_color ?? $client_info->primary_color);
+            update_option('listings_results_page_secondary_color', $listingsConfig->secondary_color ?? $client_info->secondary_color ?? $client_info->primary_color);
+            update_option('listings_results_page_text_color', $listingsConfig->text_color ?? '#000000');
+
             update_option('agents_settings', $agents );
             update_option('aios_roadmaps_settings', $aiosRoadmaps );
 

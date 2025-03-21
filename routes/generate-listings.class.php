@@ -100,21 +100,53 @@ class Listings {
                                     // Additional code specific to 'aios-listings' post type
     
                                     if (property_exists($value, 'meta_input')) {
-    
-                                        
                                         $tax_status = get_term_by('slug', 'for-sale', 'property-statuses');
                                         $tax_type = get_term_by('slug', 'residential', 'property-types');
-    
-    
+
                                         $meta_input = json_decode(json_encode($value->meta_input), true);
                                         $meta_input = $meta_input[0];
-                                        $meta_input['featured_image_id'] = $image_data;
-                                        $meta_input['listing-gallery'][] = $image_data;
-    
+
+                                        $meta_input['featured_image_id']               = $image_data;
+                                        $meta_input['listing-gallery'][]               = $image_data;
+                                        $meta_input['featured_property']               = '1';
+                                        $meta_input['temporary_status']                = '';
+                                        $meta_input['_listing_location_information']   = [
+                                            'details_country'     => $meta_input['details_country'] ?? '',
+                                            'details_subdivision' => $meta_input['details_subdivision'] ?? '',
+                                            'details_mls_area'    => $meta_input['details_mls_area'] ?? '',
+                                            'details_region'      => $meta_input['details_region'] ?? '',
+                                        ];
+                                        $meta_input['_listing_interior_features']      = [
+                                            'details_heating'              => $meta_input['details_heating'] ?? '',
+                                            'details_rooms'                => $meta_input['details_rooms'] ?? '',
+                                            'details_cooling'              => $meta_input['details_cooling'] ?? '',
+                                            'details_floors'               => $meta_input['details_floors'] ?? '',
+                                            'details_interior_additionals' => $meta_input['details_interior_additionals'] ?? '',
+                                        ];
+                                        $meta_input['_listing_exterior_features']      = [
+                                            'details_style'                => $meta_input['details_style'],
+                                            'details_stories'              => $meta_input['details_stories'],
+                                            'details_zoning'               => $meta_input['details_zoning'],
+                                            'details_exterior_additionals' => $meta_input['details_exterior_additionals'],
+                                            'exterior_features_tab'        => $meta_input['exterior_features_tab']
+                                        ];
+                                        $meta_input['_listing_schools']                = [
+                                            'details_school_district' => $meta_input['details_school_district'],
+                                            'details_js_high_school'  => $meta_input['details_jr_high_school'],
+                                            'details_high_school'     => $meta_input['details_high_school'],
+                                            'details_college'         => $meta_input['details_college'],
+                                        ];
+                                        $meta_input['_listing_additional_information'] = [
+                                            'details_apn'           => $meta_input['details_apn'],
+                                            'details_short_sale'    => $meta_input['details_short_sale'],
+                                            'details_hoa_fee'       => $meta_input['details_hoa_fee'],
+                                            'details_hoa_frequency' => $meta_input['details_hoa_frequency'],
+                                        ];
+
                                         foreach ($meta_input as $meta_key => $meta_value) {
                                             update_post_meta($insert_post, $meta_key, $meta_value);
                                         }
-    
+
                                         update_post_meta($insert_post, '_listing_details', $meta_input);
                                         wp_set_post_terms($insert_post, [$tax_status->term_id], 'property-statuses');
                                         wp_set_post_terms($insert_post, [$tax_type->term_id], 'property-types');

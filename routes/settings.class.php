@@ -219,6 +219,7 @@ class Settings {
             $aios_initial_setup_modules = get_option( 'aios_initial_setup_modules' );
             $aios_initial_setup_modules[ 'classic-editor' ] = 'yes';
             $aios_initial_setup_modules[ 'classic-editor-widget' ] = 'yes';
+            $aios_initial_setup_modules[ 'contact-form-7-floating-tooltip-fix' ] = 'yes';
             update_option( 'aios_initial_setup_modules', $aios_initial_setup_modules );
 
             // updates blog name and description
