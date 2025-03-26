@@ -5,8 +5,14 @@ let isProcessing = false; // New flag to track processing status
 const currentDomain = window.location.origin;
 const wordpressApiBaseUrl = `${currentDomain}/wp-json/aios-populate/v1`;
 
+function addToQueue(apiName, apiEndpoint, showReRunButton = true) {
+    // reconstruct api url dynamically
+    const apiUrl = `${wordpressApiBaseUrl}/${apiEndpoint}`;
 
-function addToQueue(apiName, apiUrl, data, showReRunButton = true) {
+    // date must be set here
+    const data = {
+        date: ''
+    };
 
     const request = {
         apiName,
@@ -38,6 +44,16 @@ function processQueue() {
         }
 
         updateStatus(apiName, 'Generating Please Wait...');
+
+        
+        // Validate and sanitize the apiUrl
+        if (!apiUrl.startsWith(currentDomain)) {
+            console.error('Invalid API URL:', apiUrl);
+            updateStatus(apiName, 'Error: Invalid API URL');
+            requestQueue.shift();
+            processQueue();
+            return;
+        }
 
         fetch(apiUrl, {
             method: 'POST',
@@ -123,7 +139,7 @@ window.addEventListener('beforeunload', function (e) {
 
 // Function to manually trigger re-run for a specific API
 function reRun(apiName, apiUrl, data) {
-    addToQueue(apiName, apiUrl, data);
+    addToQueue(apiName, apiUrl);
     updateTable(); // Update the table after re-run
 }
 
@@ -188,27 +204,26 @@ function updateTable() {
 }
 
 const apiRequests = [
-    { name: 'Settings', url: `${wordpressApiBaseUrl}/settings`, data: {date: "" }, showReRunButton: false },
-    { name: 'Default Pages', url: `${wordpressApiBaseUrl}/initial-setup-pages`, data: {date: "" }, showReRunButton: false },
-    { name: 'Forms', url: `${wordpressApiBaseUrl}/form`, data: {date: "" }, showReRunButton: false },
-    { name: 'Page', url: `${wordpressApiBaseUrl}/page-populate`, data: {date: "" }, showReRunButton: false },
-    { name: 'Post', url: `${wordpressApiBaseUrl}/post-populate`, data: {date: "" }, showReRunButton: false },
-    { name: 'Testimonials', url: `${wordpressApiBaseUrl}/testimonials`, data: {date: "" }, showReRunButton: false },
-    { name: 'Communities', url: `${wordpressApiBaseUrl}/communities`, data: {date: "" }, showReRunButton: false },
-    { name: 'Agents', url: `${wordpressApiBaseUrl}/agents`, data: {date: "" }, showReRunButton: false },
-    { name: 'Listings', url: `${wordpressApiBaseUrl}/listings`, data: {date: "" }, showReRunButton: false },
-    { name: 'Buyers', url: `${wordpressApiBaseUrl}/roadmaps-buyers`, data: {date: "" }, showReRunButton: false },
-    { name: 'Sellers', url: `${wordpressApiBaseUrl}/roadmaps-sellers`, data: {date: "" }, showReRunButton: false },
-    { name: 'Financing', url: `${wordpressApiBaseUrl}/roadmaps-financing`, data: {date: "" }, showReRunButton: false },
-    { name: 'About and Contact', url: `${wordpressApiBaseUrl}/about-contact`, data: {date: "" }, showReRunButton: false },
-    { name: 'Slideshow', url: `${wordpressApiBaseUrl}/slider`, data: {date: "" }, showReRunButton: false },
-    { name: 'Menu', url: `${wordpressApiBaseUrl}/menu`, data: {date: "" }, showReRunButton: false },
-    { name: 'Widgets', url: `${wordpressApiBaseUrl}/widgets`, data: {date: "" }, showReRunButton: true },
+    { name: 'Settings', endpoint: `settings`, showReRunButton: false },
+    { name: 'Default Pages', endpoint: `initial-setup-pages`, showReRunButton: false },
+    { name: 'Forms', endpoint: `form`, showReRunButton: false },
+    { name: 'Page', endpoint: `page-populate`, showReRunButton: false },
+    { name: 'Post', endpoint: `post-populate`, showReRunButton: false },
+    { name: 'Testimonials', endpoint: `testimonials`, showReRunButton: false },
+    { name: 'Communities', endpoint: `communities`, showReRunButton: false },
+    { name: 'Agents', endpoint: `agents`, showReRunButton: false },
+    { name: 'Listings', endpoint: `listings`, showReRunButton: false },
+    { name: 'Buyers', endpoint: `roadmaps-buyers`, showReRunButton: false },
+    { name: 'Sellers', endpoint: `roadmaps-sellers`, showReRunButton: false },
+    { name: 'Financing', endpoint: `roadmaps-financing`, showReRunButton: false },
+    { name: 'About and Contact', endpoint: `about-contact`, showReRunButton: false },
+    { name: 'Slideshow', endpoint: `slider`, showReRunButton: false },
+    { name: 'Menu', endpoint: `menu`, showReRunButton: false },
+    { name: 'Widgets', endpoint: `widgets`, showReRunButton: true },
 ];
 
 apiRequests.forEach(request => {
-
-    addToQueue(request.name, request.url, request.data, request.showReRunButton);
+    addToQueue(request.name, request.endpoint, request.showReRunButton);
 });
 
 // Call updateTable after the initial requests are added
