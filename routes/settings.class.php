@@ -73,7 +73,7 @@ class Settings {
             $aios_client_info[ 'company_name' ] = $aios_client_info[ 'company_name' ] != '' ? $aios_client_info[ 'company_name' ] : $client_info->company_name;
             $aios_client_info[ 'license' ] = $aios_client_info[ 'license' ] != '' ? $aios_client_info[ 'license' ] : $client_info->license;
             
-            $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : $client_info->address;
+            $aios_client_info[ 'address' ] = $aios_client_info[ 'address' ] != '' ? $aios_client_info[ 'address' ] : wp_kses_post($client_info->address);
             $aios_client_info[ 'address_street' ] = $aios_client_info[ 'address_street' ] != '' ? $aios_client_info[ 'address_street' ] : $client_info->address_street;
             $aios_client_info[ 'address_unit' ] = $aios_client_info[ 'address_unit' ] != '' ? $aios_client_info[ 'address_unit' ] : $client_info->address_unit;
             $aios_client_info[ 'address_city' ] = $aios_client_info[ 'address_city' ] != '' ? $aios_client_info[ 'address_city' ] : $client_info->address_city;
