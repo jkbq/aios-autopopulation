@@ -24,7 +24,7 @@ class AiosSlider {
 		if (!$generatedSlideshow) {
 
 
-			$url =  get_stylesheet_directory_uri() .'/config.json';
+			$url =  get_template_directory_uri() .'/config.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,
@@ -54,7 +54,7 @@ class AiosSlider {
 
 			$ip_banner_uploaded = false;
 			foreach ( $images as $index => $image ) {
-				$imagesPath = get_stylesheet_directory_uri() . '/' . $image->extension . '/images/';
+				$imagesPath = get_template_directory_uri() . '/' . $image->extension . '/images/';
 				$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'id' );
 
 				$meta = [

@@ -31,7 +31,7 @@ class ABOUT_CONTACT_GENERATE
         ];
 
         $generateAboutContact = get_option('aios_auto_population_about_contact_generate', false);
-        $url = get_stylesheet_directory_uri() . '/config.json';
+        $url = get_template_directory_uri() . '/config.json';
         $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
@@ -47,10 +47,10 @@ class ABOUT_CONTACT_GENERATE
             $image = $data->about_contact[0]->image;
 
             $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
-            $image_path = get_stylesheet_directory_uri() . '/' . $extension . 'images/';
+            $image_path = get_template_directory_uri() . '/' . $extension . 'images/';
             $image_url = $image_path . $image->image_name;
 
-            $background_image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->background;
+            $background_image_url = get_template_directory_uri() . '/' . $extension . 'images/' . $image->background;
 
             $aios_client_info = get_option('aiis_ci');
 
@@ -102,7 +102,7 @@ class ABOUT_CONTACT_GENERATE
                     $contact_options = get_option('contact_options');
                     
                     if (isset($contact->agent_team_photo)) {
-                        $contactFormPhotoSrc = get_stylesheet_directory_uri() . '/' . $image->extension . '/images/' . $contact->agent_team_photo;
+                        $contactFormPhotoSrc = get_template_directory_uri() . '/' . $image->extension . '/images/' . $contact->agent_team_photo;
                         $contactFormPhoto = media_sideload_image($contactFormPhotoSrc, $contact_options['page_id'], '', 'id');
                         $contact_options['agent_team_photo'] = $contactFormPhoto;
                     } else {

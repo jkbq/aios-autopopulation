@@ -16,7 +16,7 @@ class RegenerateContents {
     }
 
     public function aios_repopulate_page() {
-        $url =  get_stylesheet_directory_uri() .'/config.json';
+        $url =  get_template_directory_uri() .'/config.json';
         $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
@@ -192,7 +192,7 @@ class RegenerateContents {
         $image =  $config->about_contact[0]->image;
         $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
 
-        $background_image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $image->background;
+        $background_image_url = get_template_directory_uri() . '/' . $extension . 'images/' . $image->background;
 
         $contact =  $config->about_contact[0]->contact;
         $contact_options = get_option('contact_options');

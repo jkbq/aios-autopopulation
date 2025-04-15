@@ -35,7 +35,7 @@ class Form {
         if (!$form_generated) {
 
 
-            $url =  get_stylesheet_directory_uri() .'/config.json';
+            $url =  get_template_directory_uri() .'/config.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,
