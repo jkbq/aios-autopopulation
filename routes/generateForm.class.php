@@ -34,8 +34,17 @@ class Form {
         
         if (!$form_generated) {
 
+            $active_theme = get_option('template');
 
-            $url =  get_template_directory_uri() .'/config.json';
+
+            $sPath = get_template_directory_uri();
+    
+        
+            if ( $active_theme  === 'aios-starter-theme') {
+                $sPath = get_stylesheet_directory_uri();
+            }
+
+            $url = $sPath .'/config.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,

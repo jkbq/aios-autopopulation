@@ -28,7 +28,16 @@ class Communities {
 
         if (!$pages_generated) {
     
-            $url =  get_template_directory_uri() .'/contents.json';
+
+            $active_theme = get_option('template');
+
+            $sPath = get_template_directory_uri();
+        
+            if ( $active_theme  === 'aios-starter-theme') {
+                $sPath = get_stylesheet_directory_uri();
+            }
+            
+            $url =  $sPath .'/contents.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,
@@ -61,7 +70,7 @@ class Communities {
                             if ($insert_post) {
 
                                 $extension = !empty($value->extension) ? ''.$value->extension.'/' : '';
-                                $image_url = get_template_directory_uri() . '/' . $extension . 'images/' . $value->featured_image;
+                                $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
     
                                 $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
     

@@ -21,8 +21,19 @@ class Settings {
         update_option('aios_auto_population_initial_setup_assets_date',  $dateComplete);
         $activate_initial_setup_assets = get_option( 'aios_auto_population_initial_setup_assets', false );
         
+        $active_theme = get_option('template');
 
-        $url =  get_template_directory_uri() .'/config.json';
+
+        $sPath = get_template_directory_uri();
+
+    
+        if ( $active_theme  === 'aios-starter-theme') {
+            $sPath = get_stylesheet_directory_uri();
+        }
+
+        
+        
+        $url =  $sPath .'/config.json';
 
         $response = wp_remote_get($url, array(
             'timeout' => 45,
@@ -88,7 +99,7 @@ class Settings {
 
           
             if(isset($back_to_top_config)){
-                $back_to_top_icon = get_template_directory_uri() . '/' . $back_to_top_config->extension . '/images/' . $back_to_top_config->image_icon;
+                $back_to_top_icon = $sPath . '/' . $back_to_top_config->extension . '/images/' . $back_to_top_config->image_icon;
                 $backToTopIcon = media_sideload_image( $back_to_top_icon, '0', '', 'id');
         
                 $backToTopIconUrl = wp_get_attachment_url($backToTopIcon, 'full');
@@ -144,7 +155,7 @@ class Settings {
 
             // Add Logo and Brokerage Logo
             if(isset($client_info->logo)){
-                $logoUrl = get_template_directory_uri() . '/' . $client_info->logo->extension . '/images/' . $client_info->logo->image;
+                $logoUrl = $sPath . '/' . $client_info->logo->extension . '/images/' . $client_info->logo->image;
                 $clientLogo = media_sideload_image($logoUrl, '0', '', 'id');
                 
                 $clientlogoUrl = wp_get_attachment_image_url($clientLogo, 'full');
@@ -153,7 +164,7 @@ class Settings {
             }
             
             if(isset($client_info->brokerage_logo)){
-                $brokerageLogoUrl = get_template_directory_uri() . '/' . $client_info->brokerage_logo->extension . '/images/' . $client_info->brokerage_logo->image;
+                $brokerageLogoUrl = $sPath . '/' . $client_info->brokerage_logo->extension . '/images/' . $client_info->brokerage_logo->image;
 
                 $brokerageLogo = media_sideload_image($brokerageLogoUrl, '0', '', 'id');
 
