@@ -27,7 +27,16 @@ class Testimonials {
 
         if (!$pages_generated) {
     
-            $url =  get_stylesheet_directory_uri() .'/contents.json';
+            $active_theme = get_option('template');
+
+
+            $sPath = get_template_directory_uri();
+    
+        
+            if ( $active_theme  === 'aios-starter-theme') {
+                $sPath = get_stylesheet_directory_uri();
+            }
+            $url =  $sPath .'/contents.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,
@@ -72,7 +81,7 @@ class Testimonials {
                             if (isset($post_meta->aios_testimonials_video_placeholder)) {
                                   
                                 $extension = !empty($post_meta->extension) ? ''.$post_meta->extension.'/' : '';
-                                $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
+                                $image_url = $sPath . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
     
                                 $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
 

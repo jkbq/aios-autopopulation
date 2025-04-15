@@ -21,7 +21,18 @@ class InitialSetupPage {
         $initialSetupPages = get_option( 'aios_auto_population_default_pages', false );
 
 
-        $url =  get_stylesheet_directory_uri() .'/config.json';
+
+        $active_theme = get_option('template');
+
+
+        $sPath = get_template_directory_uri();
+
+    
+        if ( $active_theme  === 'aios-starter-theme') {
+            $sPath = get_stylesheet_directory_uri();
+        }
+
+        $url =  $sPath .'/config.json';
 
         $response = wp_remote_get($url, array(
             'timeout' => 45,
