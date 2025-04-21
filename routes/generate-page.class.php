@@ -129,7 +129,18 @@ class PagePopulate {
                     $page_id = $sample_page[0]->ID; 
                     wp_delete_post($page_id, true);
                 }
-
+                
+                $privacyPolicypage = get_posts([
+                    'name'        => 'Privacy Policy',
+                    'post_type'   => 'page',
+                    'post_status' => 'draft',
+                    'numberposts' => 1
+                ]);
+                
+                if (!empty($privacyPolicypage)) {
+                    $page_id = $privacyPolicypage[0]->ID; 
+                    wp_delete_post($page_id, true);
+                }
 
                 $defaultsData = AIOS_AUTOPOPULATE_JSON .'/default.json';
             
