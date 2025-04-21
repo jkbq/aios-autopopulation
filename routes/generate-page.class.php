@@ -26,8 +26,6 @@ class PagePopulate {
 
         if (!$pages_generated) {
 
-
-            
             $active_theme = get_option('template');
 
 
@@ -130,6 +128,43 @@ class PagePopulate {
                 if (!empty($sample_page)) {
                     $page_id = $sample_page[0]->ID; 
                     wp_delete_post($page_id, true);
+                }
+
+
+                $defaultsData = AIOS_AUTOPOPULATE_JSON .'/default.json';
+            
+                $response_defaults = wp_remote_get($defaultsData, [
+                    'timeout' => 45,
+                    'blocking' => true,
+                    'cookies' => [],
+                ]);
+                if (is_wp_error($response_defaults)) {
+                    error_log(print_r($response_defaults->get_error_message(), true));
+                    $response_data['status'] = 'error';
+                    $response_data['message'] = 'Error fetching JSON data';
+                } else {
+
+                    $contents = json_decode($response_defaults['body']);
+
+                    foreach ($contents as $key=>$content) {
+
+
+                        foreach ($content as $value) {
+                            // Insert Privacy Policy page
+                            $privacy_policy_page = array(
+                                'post_type'    => 'page',
+                                'post_title'   => $value->post_title,
+                                'post_content' =>  $value->post_content,
+                                'post_status'  => 'publish',
+                                'post_author'  => 1,
+                            );
+
+                            $privacy_policy_id = wp_insert_post($privacy_policy_page);
+
+                           
+                        }
+
+                    }
                 }
             }
         } else {
