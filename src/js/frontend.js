@@ -126,14 +126,17 @@ function showElementAfterAllRequestsComplete() {
     }
 }
 
-
-
 // Add an event listener for beforeunload
 window.addEventListener('beforeunload', function (e) {
     if (isProcessing) {
-
         e.preventDefault();
         e.returnValue = 'There are pending requests. Are you sure you want to leave this page?';
+    }
+});
+
+window.addEventListener('unload', function () {
+    if (isProcessing) {
+        console.log('User exited the page while requests were still processing.');
     }
 });
 
