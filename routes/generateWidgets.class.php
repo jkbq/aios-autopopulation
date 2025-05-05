@@ -212,7 +212,8 @@ class Widgets {
 
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
-            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
+            $aiosRoadmaps['primary_color'] = $roadmapsConfig->primary_color ?? $client_info->primary_color;
+            $aiosRoadmaps['secondary_color'] = $roadmapsConfig->secondary_color ?? $client_info->secondary_color ?? $client_info->primary_color;
             $aiosRoadmaps['hover_color'] = $client_info->roadmap_hover_color ?? $client_info->hover_color ?? '#000000';
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
