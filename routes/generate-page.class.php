@@ -25,7 +25,19 @@ class PagePopulate {
         $response_data['date'] = $dateComplete;
 
         if (!$pages_generated) {
-            $url = get_stylesheet_directory_uri() .'/contents.json';
+
+            $active_theme = get_option('template');
+
+
+            $sPath = get_template_directory_uri();
+    
+        
+            if ( $active_theme  === 'aios-starter-theme') {
+                $sPath = get_stylesheet_directory_uri();
+            }
+            
+            $url = $sPath .'/contents.json';
+            
 			$response = wp_remote_get($url, [
 				'timeout' => 45,
 				'blocking' => true,
@@ -72,7 +84,7 @@ class PagePopulate {
                                 }
 
                                 $extension = !empty($value->extension) ? '' . $value->extension . '/' : '';
-                                $image_url = get_stylesheet_directory_uri() . '/' . $extension . 'images/' . $value->featured_image;
+                                $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
                                 $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
     
                                 if (isset($value->featured_image)) {
@@ -116,6 +128,54 @@ class PagePopulate {
                 if (!empty($sample_page)) {
                     $page_id = $sample_page[0]->ID; 
                     wp_delete_post($page_id, true);
+                }
+                
+                $privacyPolicypage = get_posts([
+                    'name'        => 'Privacy Policy',
+                    'post_type'   => 'page',
+                    'post_status' => 'draft',
+                    'numberposts' => 1
+                ]);
+                
+                if (!empty($privacyPolicypage)) {
+                    $page_id = $privacyPolicypage[0]->ID; 
+                    wp_delete_post($page_id, true);
+                }
+
+                $defaultsData = AIOS_AUTOPOPULATE_JSON .'/default.json';
+            
+                $response_defaults = wp_remote_get($defaultsData, [
+                    'timeout' => 45,
+                    'blocking' => true,
+                    'cookies' => [],
+                ]);
+                if (is_wp_error($response_defaults)) {
+                    error_log(print_r($response_defaults->get_error_message(), true));
+                    $response_data['status'] = 'error';
+                    $response_data['message'] = 'Error fetching JSON data';
+                } else {
+
+                    $contents = json_decode($response_defaults['body']);
+
+                    foreach ($contents as $key=>$content) {
+
+
+                        foreach ($content as $value) {
+                            // Insert Privacy Policy page
+                            $privacy_policy_page = array(
+                                'post_type'    => 'page',
+                                'post_title'   => $value->post_title,
+                                'post_content' =>  $value->post_content,
+                                'post_status'  => 'publish',
+                                'post_author'  => 1,
+                            );
+
+                            $privacy_policy_id = wp_insert_post($privacy_policy_page);
+
+                           
+                        }
+
+                    }
                 }
             }
         } else {

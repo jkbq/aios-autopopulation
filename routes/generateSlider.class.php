@@ -24,7 +24,17 @@ class AiosSlider {
 		if (!$generatedSlideshow) {
 
 
-			$url =  get_stylesheet_directory_uri() .'/config.json';
+			$active_theme = get_option('template');
+
+
+			$sPath = get_template_directory_uri();
+	
+		
+			if ( $active_theme  === 'aios-starter-theme') {
+				$sPath = get_stylesheet_directory_uri();
+			}
+
+			$url =  $sPath .'/config.json';
 
 			$response = wp_remote_get($url, array(
 				'timeout' => 45,
@@ -54,7 +64,7 @@ class AiosSlider {
 
 			$ip_banner_uploaded = false;
 			foreach ( $images as $index => $image ) {
-				$imagesPath = get_stylesheet_directory_uri() . '/' . $image->extension . '/images/';
+				$imagesPath = $sPath . '/' . $image->extension . '/images/';
 				$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'id' );
 
 				$meta = [

@@ -96,7 +96,17 @@ class Widgets {
 
 
 
-            $url =  get_stylesheet_directory_uri() .'/config.json';
+            $active_theme = get_option('template');
+
+
+            $sPath = get_template_directory_uri();
+    
+        
+            if ( $active_theme  === 'aios-starter-theme') {
+                $sPath = get_stylesheet_directory_uri();
+            }
+
+            $url =  $sPath .'/config.json';
 
             $response = wp_remote_get($url, array(
                 'timeout' => 45,
@@ -145,7 +155,7 @@ class Widgets {
 
 
             if($homevaluation->background){
-                $homevaluation_path = get_stylesheet_directory_uri() . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
+                $homevaluation_path = $sPath . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
                 $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
             
                 $home_valuation_settings['background_image'] = $home_valuation_background;
@@ -202,7 +212,8 @@ class Widgets {
 
             /// Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
-            $aiosRoadmaps['primary_color'] = $client_info->primary_color;
+            $aiosRoadmaps['primary_color'] = $roadmapsConfig->primary_color ?? $client_info->primary_color;
+            $aiosRoadmaps['secondary_color'] = $roadmapsConfig->secondary_color ?? $client_info->secondary_color ?? $client_info->primary_color;
             $aiosRoadmaps['hover_color'] = $client_info->roadmap_hover_color ?? $client_info->hover_color ?? '#000000';
 
             update_option( 'aios_testimonials_settings', $testimonials_options );
