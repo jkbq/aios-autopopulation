@@ -206,11 +206,13 @@ class Widgets {
 
             $agents['main_page'] = $get_agents_page->ID;
             $agents['primary_color'] = $agentsConfig->primary_color ?? $client_info->primary_color;
+            $agents['secondary_color'] = $agentsConfig->secondary_color ?? $client_info->secondary_color ?? "#000000";
             $agents['text_color'] = $agentsConfig->text_color ?? '#000000';
+            $agents['secondary_text_color'] = $agentsConfig->secondary_text_color ?? $client_info->secondary_color ?? "#000000";
             $agents['icon_color'] = $agentsConfig->icon_color ?? $client_info->secondary_color ?? $client_info->primary_color;
             $agents['hover_color'] = $agentsConfig->hover_color ?? $client_info->secondary_color ?? $client_info->primary_color;
 
-            /// Roadmaps 
+            // Roadmaps 
             $aiosRoadmaps = get_option('aios_roadmaps_settings');
             $aiosRoadmaps['primary_color'] = $roadmapsConfig->primary_color ?? $client_info->primary_color;
             $aiosRoadmaps['secondary_color'] = $roadmapsConfig->secondary_color ?? $client_info->secondary_color ?? $client_info->primary_color;
