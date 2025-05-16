@@ -151,7 +151,7 @@ class ABOUT_CONTACT_GENERATE
 
                     update_option('contact_options', $contact_options);
 
-                    $generatedResponse = $generatedResponse . (! empty($generatedResponse) ? "and" : "") . " Contact";
+                    $generatedResponse = $generatedResponse . (! empty($generatedResponse) ? " and" : "") . " Contact";
                 }
 
                 $apiResponse['success'] = true;

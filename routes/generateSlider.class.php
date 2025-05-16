@@ -43,7 +43,7 @@ class AiosSlider {
 			));
 
 			$data =  json_decode($response['body']);
-
+			$client_info = $data->config[0]->site_info;
 
 			$slider_data = array(
 				'post_type'     => 'aios-slider',
@@ -61,8 +61,7 @@ class AiosSlider {
 			$images = $data->slideshow[0]->images;
 			$settings = $data->slideshow[0]->settings[0];
 
-
-			$ip_banner_uploaded = false;
+			$ip_banner_uploaded = isset($client_info->innerpage_banner);
 			foreach ( $images as $index => $image ) {
 				$imagesPath = $sPath . '/' . $image->extension . '/images/';
 				$src = media_sideload_image(  $imagesPath . $image->image, null, null, 'id' );

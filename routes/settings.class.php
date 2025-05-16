@@ -254,7 +254,14 @@ class Settings {
 
             update_option('aios_auto_population_initial_setup_assets', true);
 
+            // set featured image banner
+            if (isset($client_info->innerpage_banner)) {
+                $featuredImageBannerPath = $sPath . '/' . $client_info->innerpage_banner->extension . '/images/' . $client_info->innerpage_banner->image;
+                $featuredImageBannerId = media_sideload_image($featuredImageBannerPath, '0', '', 'id');
 
+                update_option( 'aios-metaboxes-default-banner-image', $featuredImageBannerId );
+            }
+            
             $response = array(
                 'success' => true, 
                 'message' => 'Settings Successfully Generated', 
