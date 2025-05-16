@@ -205,6 +205,7 @@ class Widgets {
             }
 
             $agents['main_page'] = $get_agents_page->ID;
+            $agents['breadcrumbs_heirarchy'] = $agentsConfig->breadcrumbs_heirarchy ?? "";
             $agents['primary_color'] = $agentsConfig->primary_color ?? $client_info->primary_color;
             $agents['secondary_color'] = $agentsConfig->secondary_color ?? $client_info->secondary_color ?? "#000000";
             $agents['text_color'] = $agentsConfig->text_color ?? '#000000';
