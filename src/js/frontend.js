@@ -119,11 +119,34 @@ function updateDateComplete(apiName, date) {
 function showElementAfterAllRequestsComplete() {
     const elementToShow = document.getElementById('visit-homepage');
     const elementText = document.getElementById('new-element');
+    const table = document.querySelector('.aios-installation__table');
  
     if (requestQueue.length === 0) {
+        
         elementToShow.style.display = 'block';
-        elementText.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
+        table.style.display = 'none';
+        elementToShow.textContent = 'Your theme setup is already done.';
+        elementText.textContent = 'Please click the link below to proceed, or you will be redirected to the homepage automatically in 30 seconds.';
+
+        let countdown = 30;
+        const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            elementText.textContent = `Please click the link below to proceed, or you will be redirected to the homepage automatically in ${countdown} seconds.`;
+        } else {
+            elementText.textContent = 'Redirecting to homepage...';
+            clearInterval(interval);
+        }
+        }, 1000);
+
+
+        setTimeout(function() {
+            const newUrl = window.location.origin + window.location.pathname.replace(/\/aios-installation.*$/, '');
+            window.location.href = newUrl;
+        }, 30000);
     }
+
+
 }
 
 // Add an event listener for beforeunload
@@ -178,16 +201,6 @@ function updateTable() {
             cell3.textContent = dateComplete;
             newRow.appendChild(cell3);
 
-            // const cell4 = document.createElement('div');
-            // cell4.className = 'aios-installation__table--button';
-            // if (showReRunButton) {
-            //     const reRunButton = document.createElement('button');
-            //     reRunButton.textContent = 'Re-run';
-            //     reRunButton.onclick = () => reRun(apiName, apiUrl, data);
-            //     cell4.appendChild(reRunButton);
-            // }
-            // newRow.appendChild(cell4);
-
             tableBody.appendChild(newRow);
         } else {
             const statusElement = document.getElementById(`status_${apiName}`);
@@ -223,6 +236,7 @@ const apiRequests = [
     { name: 'Slideshow', endpoint: `slider`, showReRunButton: false },
     { name: 'Menu', endpoint: `menu`, showReRunButton: false },
     { name: 'Widgets', endpoint: `widgets`, showReRunButton: true },
+    { name: 'Finalizing Installation', endpoint: `deactivate`, showReRunButton: true },
 ];
 
 apiRequests.forEach(request => {

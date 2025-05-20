@@ -156,6 +156,8 @@ class ABOUT_CONTACT_GENERATE
 
                 $apiResponse['success'] = true;
                 $apiResponse['message'] = empty($generatedResponse) ? "No pages are generated" : "$generatedResponse successfully generated";
+
+                update_option('aios_auto_population_about_contact_generate', true);
             }
         }
 
