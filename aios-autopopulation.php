@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AIOS Auto Population
  * Description: Autopopulate Agentpro and AIX Theme
- * Version: 1.7.2
+ * Version: 2.0.0
  * Author: Agent Image
  * Author URI: https://www.agentimage.com/
  * License: Proprietary
@@ -54,6 +54,7 @@ $fileLoader->load_files([
 	'routes' . DIRECTORY_SEPARATOR . 'initialSetup.class',
 	'routes' . DIRECTORY_SEPARATOR . 'regeneratePage.class',
 	'routes' . DIRECTORY_SEPARATOR . 'settings.class',
+	'routes' . DIRECTORY_SEPARATOR . 'deactivate.class',
 ]);
 
 new App\App(__FILE__);
