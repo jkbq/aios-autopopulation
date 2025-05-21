@@ -118,23 +118,24 @@ function updateDateComplete(apiName, date) {
 
 function showElementAfterAllRequestsComplete() {
     const elementToShow = document.getElementById('visit-homepage');
-    const elementText = document.getElementById('new-element');
+    const elementText = document.querySelector('.textAlert');
     const table = document.querySelector('.aios-installation__table');
+    const newElement = document.querySelector('#new-element');
  
     if (requestQueue.length === 0) {
         
         elementToShow.style.display = 'block';
+        newElement.style.display = 'none';
         table.style.display = 'none';
-        elementToShow.textContent = 'Your theme setup is already done.';
-        elementText.textContent = 'Please click the link below to proceed, or you will be redirected to the homepage automatically in 30 seconds.';
+        elementText.textContent = 'You will be redirected to the homepage automatically in 30 seconds.';
 
         let countdown = 30;
         const interval = setInterval(() => {
         countdown--;
         if (countdown > 0) {
-            elementText.textContent = `Please click the link below to proceed, or you will be redirected to the homepage automatically in ${countdown} seconds.`;
+            elementText.textContent = `You will be redirected to the homepage automatically in ${countdown} seconds.`;
         } else {
-            elementText.textContent = 'Redirecting to homepage...';
+            elementToShow.elementToShow = 'Redirecting to homepage...';
             clearInterval(interval);
         }
         }, 1000);
