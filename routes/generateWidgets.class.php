@@ -159,6 +159,8 @@ class Widgets {
                 $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
             
                 $home_valuation_settings['background_image'] = $home_valuation_background;
+                $home_valuation_settings['source'] = $homevaluation->source;
+
             }
             update_option('aios_home_valuation_settings', $home_valuation_settings);
 
