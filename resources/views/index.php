@@ -1,8 +1,9 @@
 <?php
-   use AIOS\AUTOPOPULATE\Helpers\Helpers;
-   $helpers = new Helpers();
-   $themes = $helpers->agentpro_themes();
-   $apiStatus = $helpers->api_status();
+use AIOS\AUTOPOPULATE\Helpers\Helpers;
+
+$helpers = new Helpers();
+$themes = $helpers->agentpro_themes();
+$apiStatus = $helpers->api_status();
 
 ?>
 <div id="wpui-container-minimalist">
@@ -35,24 +36,24 @@
 
                            <?php
                               $beforeTheme = get_option('aios_autopopulation_theme');
-                              $active_theme = get_option('template');
-                              $active_child_theme = get_option('stylesheet');
+$active_theme = get_option('template');
+$active_child_theme = get_option('stylesheet');
 
-                              $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
-                              
+$active_theme = $active_theme === 'aios-starter-theme' ? $active_child_theme : $active_theme;
 
-                              $currentThenme = '';
-                              foreach ($themes as $theme){  
 
-                               
-                                 $themeName = sanitize_title($theme);
+$currentThenme = '';
+foreach ($themes as $theme) {
 
-                             
 
-                                 $currentThenme .= $active_theme == $themeName ? $theme : '';
-                              }
+    $themeName = sanitize_title($theme);
 
-                           ?>
+
+
+    $currentThenme .= $active_theme == $themeName ? $theme : '';
+}
+
+?>
                            <input type="text" disabled id="selectedTheme" name="aios_population_settings[theme]" value="<?= $currentThenme ?>">
                            
                            </select>
@@ -60,7 +61,7 @@
                         </div>
                      </div>
                      <div class="wpui-col-md-9">
-                        <?php if($active_theme != $beforeTheme) : ?>
+                        <?php if ($active_theme != $beforeTheme) : ?>
                         <a href="#" class="wpui-default-button text-uppercase aios-repopulate-widgets">Generate</a>
                         <?php else :?>
                            <p>Please Download or Activate your new theme <a href="/wp-admin/themes.php">here</a></p>
@@ -87,22 +88,22 @@
                         <p><strong>Date Populated</strong></p>
                      </div>
                   </div>
-                  <?php 
-                     foreach($apiStatus as $key=>$api){
-                        $status = !empty($api['status']) ? 'Generated' : '';
-                        echo '<div class="wpui-row wpui-row-box">
+                  <?php
+                     foreach ($apiStatus as $key => $api) {
+                         $status = !empty($api['status']) ? 'Generated' : '';
+                         echo '<div class="wpui-row wpui-row-box">
                            <div class="wpui-col-md-2">
-                              <p><strong>'.$key.'</strong></p>
+                              <p><strong>' . $key . '</strong></p>
                            </div>
                            <div class="wpui-col-md-1">
-                              <p><strong>'.$status.'</strong></p>
+                              <p><strong>' . $status . '</strong></p>
                            </div>
                            <div class="wpui-col-md-1">
-                              <p><strong>'.$api['date'].'</strong></p>
+                              <p><strong>' . $api['date'] . '</strong></p>
                            </div>
                         </div>';
-                     }     
-                  ?>
+                     }
+?>
                </div>
             </div>
          </div>

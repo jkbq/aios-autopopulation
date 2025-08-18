@@ -1,24 +1,29 @@
-<?php 
+<?php
 
 
-class InitialSetupPage {
-    public function __construct() {
-        add_action('rest_api_init', array($this, 'register_endpoints'));
+
+class InitialSetupPage
+{
+    public function __construct()
+    {
+        add_action('rest_api_init', [$this, 'register_endpoints']);
     }
 
-    public function register_endpoints() {
-        register_rest_route('aios-populate/v1', '/initial-setup-pages', array(
+    public function register_endpoints()
+    {
+        register_rest_route('aios-populate/v1', '/initial-setup-pages', [
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_default_settings'),
-        ));
+            'callback'  => [$this, 'aios_populate_default_settings'],
+        ]);
     }
 
-    public function aios_populate_default_settings($data) {
-        
+    public function aios_populate_default_settings($data)
+    {
+
 
         $dateComplete = get_option('aios_auto_population_default_pages_date', $data['date']);
 
-        $initialSetupPages = get_option( 'aios_auto_population_default_pages', false );
+        $initialSetupPages = get_option('aios_auto_population_default_pages', false);
 
 
 
@@ -27,18 +32,18 @@ class InitialSetupPage {
 
         $sPath = get_template_directory_uri();
 
-    
-        if ( $active_theme  === 'aios-starter-theme') {
+
+        if ($active_theme  === 'aios-starter-theme') {
             $sPath = get_stylesheet_directory_uri();
         }
 
-        $url =  $sPath .'/config.json';
+        $url =  $sPath . '/config.json';
 
-        $response = wp_remote_get($url, array(
+        $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
-            'cookies' => array()
-        ));
+            'cookies' => [],
+        ]);
 
         $data =  json_decode($response['body']);
 
@@ -50,9 +55,9 @@ class InitialSetupPage {
 
             if (file_exists($initial_required) && include_once $initial_required) {
                 $ids = [];
-                if(isset($client_info->has_contact_form)){
+                if (isset($client_info->has_contact_form)) {
                     $ids = [0, 1, 2, 3, 4, 5];
-                }else{
+                } else {
                     $ids = [0, 1, 2, 4, 5];
                 }
                 $aios_initial_setup_generate_default_pages = new aios_initial_setup_generate_default_pages();
@@ -77,7 +82,7 @@ class InitialSetupPage {
             }
 
             update_option('aios_auto_population_default_pages', true);
-            update_option('aios_auto_population_default_pages_date',  $dateComplete);
+            update_option('aios_auto_population_default_pages_date', $dateComplete);
 
 
         } else {
