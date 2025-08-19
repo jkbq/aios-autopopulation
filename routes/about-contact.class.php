@@ -2,13 +2,11 @@
 
 namespace AIOS\AUTOPOPULATE\Routes;
 
-use AIOS\AUTOPOPULATE\Helpers\Helpers;
-
 class ABOUT_CONTACT_GENERATE
 {
     public function __construct()
     {
-        add_action( 'rest_api_init', [$this, 'register_endpoints'] );
+        add_action('rest_api_init', [$this, 'register_endpoints']);
     }
 
     public function register_endpoints()
@@ -22,25 +20,25 @@ class ABOUT_CONTACT_GENERATE
     public function aios_populate_generate_about_contact($data)
     {
         $dateComplete = get_option('aios_auto_population_about_contact_generate_date', $data['date']);
-        update_option('aios_auto_population_about_contact_generate_date',  $dateComplete);
+        update_option('aios_auto_population_about_contact_generate_date', $dateComplete);
 
         $apiResponse = [
             'success' => false,
             'message' => 'About and Contact Failed to Generated',
-            'date' => $dateComplete
+            'date' => $dateComplete,
         ];
 
         $generateAboutContact = get_option('aios_auto_population_about_contact_generate', false);
 
 
-        
+
         $active_theme = get_option('template');
 
 
         $sPath = get_template_directory_uri();
 
-    
-        if ( $active_theme  === 'aios-starter-theme') {
+
+        if ($active_theme  === 'aios-starter-theme') {
             $sPath = get_stylesheet_directory_uri();
         }
 
@@ -49,7 +47,7 @@ class ABOUT_CONTACT_GENERATE
         $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
-            'cookies' => []
+            'cookies' => [],
         ]);
 
         $data =  json_decode($response['body']);
@@ -87,7 +85,8 @@ class ABOUT_CONTACT_GENERATE
                             $about_options[$key] = $productType . '-' . $content;
                         } else {
                             if ($key === "about_overlay_photo") {
-                                $about_options[$key] = media_sideload_image($image_path . $about->about_overlay_photo, $about_options['page_id'], '', 'id');;
+                                $about_options[$key] = media_sideload_image($image_path . $about->about_overlay_photo, $about_options['page_id'], '', 'id');
+                                ;
                             } else {
                                 $about_options[$key] = $content;
                             }
@@ -100,7 +99,7 @@ class ABOUT_CONTACT_GENERATE
                         autoPopulateCustomPages(
                             'about',
                             $about->theme,
-                            true
+                            true,
                         );
                     }
 
@@ -109,12 +108,12 @@ class ABOUT_CONTACT_GENERATE
                     $generatedResponse = "About";
                 }
 
-                // Contact 
+                // Contact
                 $contact = $data->about_contact[0]->contact;
 
                 if (! isset($contact->disabled)) {
                     $contact_options = get_option('contact_options');
-                    
+
                     if (isset($contact->agent_team_photo)) {
                         $contactFormPhotoSrc = $sPath . '/' . $image->extension . '/images/' . $contact->agent_team_photo;
                         $contactFormPhoto = media_sideload_image($contactFormPhotoSrc, $contact_options['page_id'], '', 'id');
@@ -134,8 +133,8 @@ class ABOUT_CONTACT_GENERATE
                         } else {
                             if ($key !== 'agent_team_photo') {
                                 $finalKey = $key === 'address_display' ? 'address-display' : $key;
-                                $contact_options[$finalKey] = $content;        
-                            }         
+                                $contact_options[$finalKey] = $content;
+                            }
                         }
                     }
 
@@ -145,7 +144,7 @@ class ABOUT_CONTACT_GENERATE
                         autoPopulateCustomPages(
                             'contact',
                             $contact->theme,
-                            true
+                            true,
                         );
                     }
 
