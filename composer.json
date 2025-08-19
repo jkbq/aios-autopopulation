@@ -9,6 +9,12 @@
       }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require-dev": {
+      "laravel/pint": "dev-main"
+    },
+    "scripts": {
+      "lint": "pint --test",
+      "lint:fix": "pint"
+    }
   }
   

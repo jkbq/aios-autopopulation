@@ -2,13 +2,11 @@
 
 namespace AIOS\AUTOPOPULATE\Routes;
 
-use AIOS\AUTOPOPULATE\Helpers\Helpers;
-
 class DEACTIVATE_PLUGIN
 {
     public function __construct()
     {
-        add_action( 'rest_api_init', [$this, 'register_endpoints'] );
+        add_action('rest_api_init', [$this, 'register_endpoints']);
     }
 
     public function register_endpoints()
@@ -25,7 +23,7 @@ class DEACTIVATE_PLUGIN
         $plugin_slug = 'aios-autopopulation/aios-autopopulation.php';
 
         deactivate_plugins($plugin_slug);
-        
+
         return rest_ensure_response([
             'success' => true,
             'message' => "Site Generation Completed",

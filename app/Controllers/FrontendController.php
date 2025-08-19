@@ -22,7 +22,7 @@ class autopopulateFrontePage
 
             // Hook into after_switch_theme for additional actions after theme switch
             add_action('after_switch_theme', [$this, 'handleAfterSwitchTheme']);
-            
+
         }
 
         add_action('init', [$this, 'landingpage_checker']);
@@ -37,36 +37,37 @@ class autopopulateFrontePage
 
         add_filter('template_include', [$this, 'aios_install_virtual_include_template']);
 
-    }   
+    }
 
-    public function landingpage_checker () {
+    public function landingpage_checker()
+    {
 
-        $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
+        $current_slug = explode('/', rtrim($_SERVER[ 'REQUEST_URI' ], '\/'));
         $active_theme = get_option('template');
         $active_child_theme = get_option('stylesheet');
 
-        $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
-        
+        $active_theme = $active_theme === 'aios-starter-theme' ? $active_child_theme : $active_theme;
 
-        if(!empty($current_slug[1])){
-            if( $current_slug[1] === $this->virtual_page_slug ){
+
+        if (!empty($current_slug[1])) {
+            if ($current_slug[1] === $this->virtual_page_slug) {
                 update_option('aios_install_setup_visited', 'visited');
 
-                
-                update_option('aios_autopopulation_theme', $active_theme );
+
+                update_option('aios_autopopulation_theme', $active_theme);
 
                 $this->flushRewriteRulesAndPermalinks();
-                
+
             }
         }
     }
-    
+
     /**
      * Handle theme activation logic
      */
     public function handleThemeActivation()
     {
-        $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
+        $current_slug = explode('/', rtrim($_SERVER[ 'REQUEST_URI' ], '\/'));
 
         $aios_install_setup_visited = get_option('aios_install_setup_visited');
         $aios_install_ap_old_visited = get_option('ap_setup_visited');
@@ -75,7 +76,7 @@ class autopopulateFrontePage
         if (!$aios_install_setup_visited && !$aios_install_ap_old_visited && !$aios_install_aix_old_visited) {
             // Your previous redirection logic
             if (is_admin() && isset($_GET['activated']) && $current_slug[1] != $this->virtual_page_slug) {
-            
+
                 $redirect = home_url() . '/' . $this->virtual_page_slug;
                 $this->ap_redirect($redirect);
             }
@@ -182,12 +183,12 @@ class autopopulateFrontePage
     public function aios_install_virtual_enqueue_scripts()
     {
 
-        $current_slug = explode( '/', rtrim( $_SERVER[ 'REQUEST_URI' ], '\/' ) );
+        $current_slug = explode('/', rtrim($_SERVER[ 'REQUEST_URI' ], '\/'));
         $aios_install_setup_visited = get_option('aios_install_setup_visited');
         $wigets_generated = get_option('aios_auto_population_widgets');
-    
-        
-        if ( $current_slug[1] == $this->virtual_page_slug ){
+
+
+        if ($current_slug[1] == $this->virtual_page_slug) {
             wp_enqueue_style(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
             wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
             //dequeue
@@ -195,7 +196,7 @@ class autopopulateFrontePage
         }
 
         if (!$this->aios_install_ap_old_visited && !$this->aios_install_aix_old_visited) {
-            if (!$aios_install_setup_visited || !$wigets_generated){
+            if (!$aios_install_setup_visited || !$wigets_generated) {
                 wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/redirection.min.js', [], time(), true);
             }
         }

@@ -1,21 +1,24 @@
-<?php 
+<?php
 
 namespace AIOS\AUTOPOPULATE\Routes;
-use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
-class RegenerateContents {
-    public function __construct() {
-        add_action('rest_api_init', array($this, 'register_endpoints'));
+class RegenerateContents
+{
+    public function __construct()
+    {
+        add_action('rest_api_init', [$this, 'register_endpoints']);
     }
 
-    public function register_endpoints() {
-        register_rest_route('aios-populate/v1', '/regeneratecontents', array(
+    public function register_endpoints()
+    {
+        register_rest_route('aios-populate/v1', '/regeneratecontents', [
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_repopulate_page'),
-        ));
+            'callback'  => [$this, 'aios_repopulate_page'],
+        ]);
     }
 
-    public function aios_repopulate_page() {
+    public function aios_repopulate_page()
+    {
 
 
         $active_theme = get_option('template');
@@ -23,24 +26,24 @@ class RegenerateContents {
 
         $sPath = get_template_directory_uri();
 
-    
-        if ( $active_theme  === 'aios-starter-theme') {
+
+        if ($active_theme  === 'aios-starter-theme') {
             $sPath = get_stylesheet_directory_uri();
         }
 
-        $url =  $sPath .'/config.json';
+        $url =  $sPath . '/config.json';
 
         $response = wp_remote_get($url, [
             'timeout' => 45,
             'blocking' => true,
-            'cookies' => array()
+            'cookies' => [],
         ]);
 
         $config =  json_decode($response['body']);
         $beforeTheme = get_option('aios_autopopulation_theme');
         $active_theme = get_option('template');
         $active_child_theme = get_option('stylesheet');
-        $active_theme = $active_theme === 'aios-starter-theme' ?  $active_child_theme : $active_theme;
+        $active_theme = $active_theme === 'aios-starter-theme' ? $active_child_theme : $active_theme;
 
         // Default Libraries
         $libraries = $config->config[0]->libraries;
@@ -54,10 +57,10 @@ class RegenerateContents {
         $theme_mods = get_option($old_theme_slug);
         $aios_client_info = get_option('aiis_ci');
 
-        if( $product_type === 'AgentImagex'){
+        if ($product_type === 'AgentImagex') {
             if ($theme_mods !== false) {
                 foreach ($theme_mods as $mod_name => $mod_value) {
-                    if($mod_name !== 'nav_menu_locations'){
+                    if ($mod_name !== 'nav_menu_locations') {
                         set_theme_mod($mod_name, $mod_value);
                     }
                 }
@@ -74,7 +77,7 @@ class RegenerateContents {
 
             // Ensure $theme_mods['nav_menu_locations'] is an array
             if (!isset($theme_mods['nav_menu_locations']) || !is_array($theme_mods['nav_menu_locations'])) {
-                $theme_mods['nav_menu_locations'] = array();
+                $theme_mods['nav_menu_locations'] = [];
             }
 
             // Set the 'primary-menu' location to the 'Main Nav' menu ID
@@ -97,10 +100,10 @@ class RegenerateContents {
                 $aios_client_info['photo'] = wp_get_attachment_image_url($welcome_photo, 'full');
                 update_option('aiis_ci', $aios_client_info);
             }
-            
+
         }
 
-        
+
         if (isset($client_info->banner_title_inside)) {
             $taxonomy_title_option['title']['asiowpfiller'] = 'asiowpfiller';
             $taxonomy_title_option['title']['category'] = 'category';
@@ -173,17 +176,17 @@ class RegenerateContents {
         $communitiesConfig = $config->config[0]->plugins->aios_communities;
 
         // aios-communities
-        update_option( 'communities-themes', ''.$communitiesConfig->theme.'-core' );
-        $aios_enqueue_cdn = get_option( 'aios-enqueue-cdn' );
+        update_option('communities-themes', '' . $communitiesConfig->theme . '-core');
+        $aios_enqueue_cdn = get_option('aios-enqueue-cdn');
 
-        foreach ( $libraries as $key => $value ){
+        foreach ($libraries as $key => $value) {
             $aios_enqueue_cdn[$key] = $value;
         }
 
-        update_option( 'aios-enqueue-cdn', $aios_enqueue_cdn );
+        update_option('aios-enqueue-cdn', $aios_enqueue_cdn);
         $productType = $config->config[0]->product_type;
 
-        // about and contact regenerate 
+        // about and contact regenerate
         $about =  $config->about_contact[0]->about;
         $about_options = get_option('about_options');
 
@@ -196,12 +199,12 @@ class RegenerateContents {
         autoPopulateCustomPages(
             'about',
             $about->theme,
-            true
+            true,
         );
 
         update_option('about_options', $about_options);
 
-        // Contact 
+        // Contact
         $image =  $config->about_contact[0]->image;
         $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
 
@@ -225,7 +228,7 @@ class RegenerateContents {
         autoPopulateCustomPages(
             'contact',
             $contact->theme,
-            true
+            true,
         );
 
         update_option('contact_options', $contact_options);
@@ -236,7 +239,7 @@ class RegenerateContents {
         if ($page_template_about) {
             update_post_meta($about_options['page_id'], '_wp_page_template', $page_template_about);
         }
-        
+
         if ($page_template_contact) {
             update_post_meta($contact_options['page_id'], '_wp_page_template', $page_template_contact);
         }
@@ -245,7 +248,7 @@ class RegenerateContents {
 
         $response = [
             'success' => true,
-            'message' => 'Regenerate Successful'
+            'message' => 'Regenerate Successful',
         ];
 
         return rest_ensure_response($response);

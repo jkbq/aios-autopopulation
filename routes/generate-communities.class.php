@@ -1,49 +1,52 @@
-<?php 
+<?php
 
 namespace AIOS\AUTOPOPULATE\Routes;
-use AIOS\AUTOPOPULATE\Helpers\Helpers;
 
-class Communities {
-    public function __construct() {
-        add_action('rest_api_init', array($this, 'register_endpoints'));
+class Communities
+{
+    public function __construct()
+    {
+        add_action('rest_api_init', [$this, 'register_endpoints']);
     }
 
-    public function register_endpoints() {
-        register_rest_route('aios-populate/v1', '/communities', array(
+    public function register_endpoints()
+    {
+        register_rest_route('aios-populate/v1', '/communities', [
             'methods'   => 'POST',
-            'callback'  => array($this, 'aios_populate_communities'),
-        ));
+            'callback'  => [$this, 'aios_populate_communities'],
+        ]);
     }
 
-    public function aios_populate_communities($data) {
+    public function aios_populate_communities($data)
+    {
 
         $dateComplete = get_option('aios_auto_population_communities_date', $data['date']);
-        
+
         $pages_generated = get_option('aios_auto_population_communities', false);
-        
-        $response_data = array();
+
+        $response_data = [];
 
         $response_data['date'] = $dateComplete;
 
 
         if (!$pages_generated) {
-    
+
 
             $active_theme = get_option('template');
 
             $sPath = get_template_directory_uri();
-        
-            if ( $active_theme  === 'aios-starter-theme') {
+
+            if ($active_theme  === 'aios-starter-theme') {
                 $sPath = get_stylesheet_directory_uri();
             }
-            
-            $url =  $sPath .'/contents.json';
 
-			$response = wp_remote_get($url, array(
-				'timeout' => 45,
-				'blocking' => true,
-				'cookies' => array()
-			));
+            $url =  $sPath . '/contents.json';
+
+            $response = wp_remote_get($url, [
+                'timeout' => 45,
+                'blocking' => true,
+                'cookies' => [],
+            ]);
 
             if (is_wp_error($response)) {
                 error_log(print_r($response->get_error_message(), true));
@@ -52,46 +55,46 @@ class Communities {
             } else {
                 $contents = json_decode($response['body']);
 
-                foreach ($contents as $key=>$content) {
+                foreach ($contents as $key => $content) {
 
-                    if($key === 'aios-communities'){
+                    if ($key === 'aios-communities') {
                         foreach ($content as $value) {
-                            
-                            $post_data = array(
+
+                            $post_data = [
                                 'post_type'    => $value->post_type,
                                 'post_title'   => $value->post_title,
                                 'post_content' =>  $value->post_content,
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
-                            );
-    
+                            ];
+
                             $insert_post = wp_insert_post($post_data);
-                        
+
                             if ($insert_post) {
 
-                                $extension = !empty($value->extension) ? ''.$value->extension.'/' : '';
+                                $extension = !empty($value->extension) ? '' . $value->extension . '/' : '';
                                 $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
-    
+
                                 $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
-    
+
                                 // Set featured image using media_sideload_image
                                 if (isset($value->featured_image)) {
-                                  
-    
+
+
                                     // Check if there is an error in sideloading the image
                                     if (is_wp_error($image_data)) {
                                         error_log('Error sideloading featured image: ' . $image_data->get_error_message());
                                     } else {
                                         // Get the attachment ID from the image data
                                         $image_id = $image_data;
-    
+
                                         // Set the featured image
                                         set_post_thumbnail($insert_post, $image_id);
-    
+
                                         // Debugging: Log the success
                                         error_log('Featured image set for post ID: ' . $insert_post);
                                     }
-    
+
                                     // Set thumbnail
                                     if (!is_wp_error($image_id)) {
                                         set_post_thumbnail($insert_post, $image_id);
@@ -103,7 +106,7 @@ class Communities {
                                 $response_data['status'] = 'success';
                                 $response_data['message'] = 'Communities generated successfully';
 
-                            }else {
+                            } else {
                                 $response_data['status'] = 'error';
                                 $response_data['message'] = 'Error inserting post';
                             }
@@ -112,7 +115,7 @@ class Communities {
                 }
                 // Set the option to indicate that pages have been generated
                 update_option('aios_auto_population_communities', true);
-                update_option('aios_auto_population_communities_date',  $dateComplete);
+                update_option('aios_auto_population_communities_date', $dateComplete);
             }
         } else {
             $response_data['status'] = 'success';
