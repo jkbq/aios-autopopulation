@@ -157,22 +157,23 @@ class Widgets
             // Homevaluation
             $home_valuation_settings = get_option('aios_home_valuation_settings');
 
-
-
             if($homevaluation->background){
                 $homevaluation_path = $sPath . '/' . $homevaluation->extension . '/images/' . $homevaluation->background;
                 $home_valuation_background = media_sideload_image( $homevaluation_path, '0', '', 'id');
-            
                 $home_valuation_settings['background_image'] = $home_valuation_background;
             }
 
-            
+            if($homevaluation->agent_photo){
+                $homevaluation_agent_path = $sPath . '/' . $homevaluation->extension . '/images/' . $homevaluation->agent_photo;
+                $home_valuation_agent_photo = media_sideload_image( $homevaluation_agent_path, '0', '', 'id');
+                $home_valuation_settings['agent_photo'] = $home_valuation_agent_photo;
+            }
+
             foreach ($homevaluation as $key => $value) {
-                if (in_array($key, ['extension', 'background'])) {
+                if (in_array($key, ['extension', 'background', 'agent_photo'])) {
                     continue;
                 }
                 $home_valuation_settings[$key] = $value;
-
             }
             update_option('aios_home_valuation_settings', $home_valuation_settings);
 
