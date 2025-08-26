@@ -182,16 +182,15 @@ class Widgets
             $testimonials_options = get_option('aios_testimonials_settings');
             $testimonial_page = get_page_by_title('Testimonials');
 
+            $testimonials_options['main_page'] = $testimonial_page->ID ;
+
             foreach ($testimonialsConfig as $key => $value) {
 
                 if ($key === 'primary_color') {
                     $testimonials_options[$key] = $client_info->primary_color;
                     continue;
                 }
-                if ($key === 'main_page') {
-                    $testimonials_options[$key] = $testimonial_page->ID ;
-                }
-                if ($key === 'theme') {
+                if ($key === 'main_page' || $key === 'theme') {
                     continue;
                 }
                 $testimonials_options[$key] = $value;
@@ -204,16 +203,15 @@ class Widgets
             $aiosCommunities = get_option('aios_communities_settings');
             $get_communities_page = get_page_by_title('Communities');
 
+            $aiosCommunities['main_page'] = $get_communities_page->ID;
+
             foreach ($communitiesConfig as $key => $value) {
 
                 if ($key === 'primary_color') {
                     $aiosCommunities[$key] = $client_info->primary_color;
                     continue;
                 }
-                if ($key === 'main_page') {
-                    $aiosCommunities[$key] = $get_communities_page->ID;
-                }
-                if ($key === 'theme') {
+                if ($key === 'main_page' || $key === 'theme') {
                     continue;
                 }
                 $aiosCommunities[$key] = $value;
@@ -238,6 +236,9 @@ class Widgets
 
             foreach ($agentsConfig as $key => $value) {
 
+                if ($key === 'main_page') {
+                    continue;
+                }
                 if ($key === 'primary_color' && !empty($value)) {
                     $agents[$key] = $agentsConfig->$key ?? $client_info->primary_color;
 
