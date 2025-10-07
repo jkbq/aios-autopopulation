@@ -131,7 +131,9 @@ class ABOUT_CONTACT_GENERATE
                         if ($key === 'theme') {
                             $contact_options[$key] = $productType . '-' . $content;
                         } else {
-                            if ($key !== 'agent_team_photo') {
+                            if ($key === 'image_accent') {
+                                $contact_options['contact_image_accent'] = media_sideload_image($image_path . $contact->image_accent, $contact_options['page_id'], '', 'id');
+                            } elseif ($key !== 'agent_team_photo') {
                                 $finalKey = $key === 'address_display' ? 'address-display' : $key;
                                 $contact_options[$finalKey] = $content;
                             }
