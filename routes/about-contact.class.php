@@ -128,15 +128,38 @@ class ABOUT_CONTACT_GENERATE
                     }
 
                     foreach ($contact as $key => $content) {
-                        if ($key === 'theme') {
-                            $contact_options[$key] = $productType . '-' . $content;
-                        } else {
-                            if ($key === 'image_accent') {
-                                $contact_options['contact_image_accent'] = media_sideload_image($image_path . $contact->image_accent, $contact_options['page_id'], '', 'id');
-                            } elseif ($key !== 'agent_team_photo') {
+                        switch ($key) {
+                            case 'theme':
+                                $contact_options[$key] = $productType . '-' . $content;
+                                break;
+
+                            case 'image_accent':
+                                $contact_options['contact_image_accent'] = media_sideload_image(
+                                    $image_path . $contact->image_accent,
+                                    $contact_options['page_id'],
+                                    '',
+                                    'id'
+                                );
+                                break;
+
+                            case 'agent_team_photo':
+                                // skip agent team photo - already defined
+                                break;
+
+                            case 'contact_form':
+                                $form_slug = $content;
+                                $form = get_page_by_path($form_slug, OBJECT, 'wpcf7_contact_form');
+
+                                if ($form) {
+                                    $contact_options['contact-theme-form'] = $form->ID;
+                                    update_option('contact-theme-form', $form->ID);
+                                }
+                                break;
+
+                            default:
                                 $finalKey = $key === 'address_display' ? 'address-display' : $key;
                                 $contact_options[$finalKey] = $content;
-                            }
+                                break;
                         }
                     }
 
