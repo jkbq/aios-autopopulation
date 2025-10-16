@@ -265,6 +265,13 @@ class Settings
                 update_option('aios-metaboxes-default-banner-image', $featuredImageBannerId);
             }
 
+            // blog template
+            $blog_template = $data->config[0]->blog_template ?? null;
+            if ($blog_template !== null) {
+                update_option('blog-theme', $blog_template);
+                update_option('aios_blog_template_options', ['activate' => 'false']);
+            }
+
             $response = [
                 'success' => true,
                 'message' => 'Settings Successfully Generated',
