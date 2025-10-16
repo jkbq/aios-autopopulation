@@ -268,7 +268,7 @@ class Settings
             // blog template
             $blog_template = $data->config[0]->blog_template ?? null;
             if ($blog_template !== null) {
-                update_option('blog-theme', $blog_template);
+                update_option('blog-theme', $blog_template->theme);
                 update_option('aios_blog_template_options', ['activate' => 'false']);
             }
 
