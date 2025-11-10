@@ -155,6 +155,11 @@ class ABOUT_CONTACT_GENERATE
                                     update_option('contact-theme-form', $form->ID);
                                 }
                                 break;
+                            
+                            case 'form_title':
+                                $contact_options['contact-theme-form-title'] = sanitize_text_field($content);
+                                update_option('contact-theme-form-title', sanitize_text_field($content));
+                                break;
 
                             default:
                                 $finalKey = $key === 'address_display' ? 'address-display' : $key;
