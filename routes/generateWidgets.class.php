@@ -312,7 +312,18 @@ class Widgets
 
 
             // aios-communities
-            update_option('communities-themes', '' . $communitiesConfig->theme . '-core');
+            if (!empty($communitiesConfig->theme)) {
+                update_option('communities-themes', "{$communitiesConfig->theme}-core");
+            } else {
+                // support individual theme page setting
+                if (!empty($communitiesConfig->main_page)) {
+                    update_option('archive-communities-themes', "{$communitiesConfig->main_page}-core");
+                }
+
+                if (!empty($communitiesConfig->details_page)) {
+                    update_option('single-communities-themes', "{$communitiesConfig->details_page}-core");
+                }
+            }
 
             // aios-agents
             if ($agentsConfig->main_page) {
