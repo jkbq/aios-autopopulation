@@ -14,7 +14,7 @@
 	"dependencies": {
 		"autoprefixer": "^10.4.20",
 		"dotenv": "^16.4.5",
-		"glob": "^11.0.0",
+		"glob": "^11.0.3",
 		"path": "^0.12.7",
 		"postcss-nested": "^7.0.2",
 		"sass": "^1.80.6",
