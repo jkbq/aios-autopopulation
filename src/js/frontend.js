@@ -1,3 +1,5 @@
+(function(){
+
 const requestQueue = [];
 let queueIsRunning = false;
 let isProcessing = false; // New flag to track processing status
@@ -246,3 +248,5 @@ apiRequests.forEach(request => {
 
 // Call updateTable after the initial requests are added
 updateTable();
+
+})();
