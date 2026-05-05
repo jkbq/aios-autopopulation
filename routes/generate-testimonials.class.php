@@ -55,6 +55,46 @@ class Testimonials
                 $contents = json_decode($response['body']);
                 foreach ($contents as $key => $content) {
 
+                    if ($key === 'aios-section-testimonials') {
+                        $generated_ids = [];
+                        foreach ($content as $item) {
+                            $post_meta = $item->meta_input[0] ?? null;
+                            $unique_id = $post_meta->testimonials_section_id ?? null;
+
+                            if (empty($unique_id)) {
+                                $unique_id = aiosnexus_generate_unique_id('custom_unique_id');
+                            }
+
+                            if (empty($post_meta->review_source)) {
+                                continue;
+                            }
+
+                            $review_source = $post_meta->review_source;
+                            $content_fixed = $item->post_content ?? '';
+                            $generated_ids[$review_source] = $unique_id;
+
+                            $post_data = [
+                                'post_type'    => $item->post_type,
+                                'post_title'   => $item->post_title,
+                                'post_content' => $content_fixed,
+                                'post_status'  => 'publish',
+                                'post_author'  => 1,
+                            ];
+
+                            $insert_post = wp_insert_post($post_data);
+
+                            if (is_wp_error($insert_post)) {
+                                continue;
+                            }
+
+                            update_post_meta($insert_post, 'review_source', $review_source);
+                            update_post_meta($insert_post, 'custom_unique_id', $unique_id);
+                        }
+
+                        $response_data['status']  = 'success';
+                        $response_data['message'] = 'Testimonials generated successfully';
+                    }
+
                     if ($key === 'aios-testimonials') {
                         foreach ($content as $value) {
 
@@ -80,16 +120,17 @@ class Testimonials
 
                             update_post_meta($insert_post, 'aios_testimonials_video_url', $post_meta->aios_testimonials_video_url);
                             update_post_meta($insert_post, 'aios_testimonials_video_type', $post_meta->aios_testimonials_video_type);
+                            update_post_meta($insert_post, 'aios_testimonials_featured', $post_meta->aios_testimonials_featured);
 
                             if (isset($post_meta->aios_testimonials_video_placeholder)) {
-
                                 $extension = !empty($post_meta->extension) ? '' . $post_meta->extension . '/' : '';
                                 $image_url = $sPath . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
-
                                 $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
-
                                 update_post_meta($insert_post, 'aios_testimonials_video_placeholder', $image_data);
+                            }
 
+                            if (isset($post_meta->aios_testimonials_featured)) {
+                                update_post_meta($insert_post, 'aios_testimonials_featured', $post_meta->aios_testimonials_featured);
                             }
 
                         }
