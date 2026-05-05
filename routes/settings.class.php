@@ -106,7 +106,7 @@ class Settings
 
                 'clientInformation' => [
                     'contactPersonFullname' => $aios_client_info[ 'name' ],
-                    'contactPhone'          => '+' . ($aios_client_info[ 'country-code-phone' ] ?? '') . $aios_client_info[ 'phone' ],
+                    'contactPhone'          => $aios_client_info[ 'phone' ],
                     'address' => [
                         'street' => $aios_client_info[ 'address_street' ],
                         'suite'  => $aios_client_info[ 'address_unit' ],
@@ -114,8 +114,6 @@ class Settings
                         'state'  => $aios_client_info[ 'address_state' ],
                         'zip'    => $aios_client_info[ 'address_zip' ],
                     ],
-                    'licenseNumberLabel' => 'DRE lic. #',
-                    'dre'               => $aios_client_info[ 'license' ],
                     'socialMediaLinks'  => [
                         ['icon' => 'facebook',  'url' => $aios_client_info[ 'facebook' ]],
                         ['icon' => 'twitter',   'url' => $aios_client_info[ 'twitter' ]],
