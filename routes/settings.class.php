@@ -100,6 +100,41 @@ class Settings
 
             $aios_back_to_top = get_option('aios-back-top');
 
+            $AiosComingSoonOptions = get_option('AiosComingSoonOptions');
+
+            $coming_soon_defaults = [
+
+                'clientInformation' => [
+                    'contactPersonFullname' => $aios_client_info[ 'name' ],
+                    'contactPhone'          => '+' . ($aios_client_info[ 'country-code-phone' ] ?? '') . $aios_client_info[ 'phone' ],
+                    'address' => [
+                        'street' => $aios_client_info[ 'address_street' ],
+                        'suite'  => $aios_client_info[ 'address_unit' ],
+                        'city'   => $aios_client_info[ 'address_city' ],
+                        'state'  => $aios_client_info[ 'address_state' ],
+                        'zip'    => $aios_client_info[ 'address_zip' ],
+                    ],
+                    'licenseNumberLabel' => 'DRE lic. #',
+                    'dre'               => $aios_client_info[ 'license' ],
+                    'socialMediaLinks'  => [
+                        ['icon' => 'facebook',  'url' => $aios_client_info[ 'facebook' ]],
+                        ['icon' => 'twitter',   'url' => $aios_client_info[ 'twitter' ]],
+                        ['icon' => 'instagram', 'url' => $aios_client_info[ 'instagram' ]],
+                        ['icon' => 'youtube',   'url' => $aios_client_info[ 'youtube' ]],
+                        ['icon' => 'linkedin',  'url' => $aios_client_info[ 'linkedin' ]],
+                        ['icon' => 'pinterest', 'url' => $aios_client_info[ 'pinterest' ]],
+                    ],
+                ],
+            ];
+
+            if (empty($AiosComingSoonOptions)) {
+                $AiosComingSoonOptions = $coming_soon_defaults;
+            } else {
+                $AiosComingSoonOptions = array_merge($coming_soon_defaults, $AiosComingSoonOptions);
+            }
+
+            update_option('AiosComingSoonOptions', $AiosComingSoonOptions);
+
 
             if (isset($back_to_top_config)) {
                 $back_to_top_icon = $sPath . '/' . $back_to_top_config->extension . '/images/' . $back_to_top_config->image_icon;
