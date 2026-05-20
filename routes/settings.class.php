@@ -273,7 +273,7 @@ class Settings
             update_option('blogname', '');
             update_option('blogdescription', '');
             update_option('blogname', $aios_client_info[ 'name' ]);
-            update_option('blogdescription', 'Responsive Real Estate WordPress Theme from Agent Image');
+            update_option('blogdescription', '');
 
             // sets permalink custom structure
             update_option('permalink_structure', '/%category%/%postname%/');
