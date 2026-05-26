@@ -17,6 +17,24 @@ class Communities
         ]);
     }
 
+    private static function get_metadata($value)
+    {
+        $meta_input = $value->meta_input[0] ?? [];
+        if (!$meta_input) {
+            return [];
+        }
+
+        // convert media gallery object to arrays
+        if (isset($meta_input->aios_communities_media_gallery)) {
+            $meta_input->aios_communities_media_gallery = json_decode(
+                json_encode($meta_input->aios_communities_media_gallery),
+                true
+            );
+        }
+
+        return $meta_input;
+    }
+
     public function aios_populate_communities($data)
     {
 
@@ -59,13 +77,14 @@ class Communities
 
                     if ($key === 'aios-communities') {
                         foreach ($content as $value) {
-
+                            $meta_input = self::get_metadata($value);
                             $post_data = [
                                 'post_type'    => $value->post_type,
                                 'post_title'   => $value->post_title,
                                 'post_content' =>  $value->post_content,
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
+                                'meta_input'   => $meta_input,
                             ];
 
                             $insert_post = wp_insert_post($post_data);
