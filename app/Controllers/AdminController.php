@@ -55,7 +55,7 @@ class autopopulateAdmin
         add_submenu_page(
             'aios-all-in-one',
             'Autopopulation',
-            '<span style="font-weight: 400;">Auto Population</span>',
+            'AIOS Auto Population',
             "manage_options",
             "aios-autopopulation",
             [$this, 'render'],
