@@ -297,6 +297,17 @@ class Widgets
                 $listings['main_page'] = $get_properties_page->ID;
                 $listings['featured_property_page'] = $get_properties_featured->ID;
                 update_option('listings_settings', $listings);
+
+                $listing_options = [
+                    'background_overlay'         => 'listings_background_overlay',
+                    'background_overlay_opacity' => 'listings_background_overlay_opacity',
+                ];
+
+                foreach ($listing_options as $key => $option_name) {
+                    if (isset($listingsConfig->$key)) {
+                        update_option($option_name, $listingsConfig->$key);
+                    }
+                }
             }
             // Listings Colors
             update_option('listings_results_page_primary_color', $listingsConfig->primary_color ?? $client_info->primary_color);
