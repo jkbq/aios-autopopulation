@@ -66,22 +66,22 @@ class Helpers
         $p = 'aios_auto_population_';
 
         $apiStatus = [
-            "Settings"          => [ "status" => get_option($p . 'initial_setup_assets'),       "date" => get_option($p . 'initial_setup_assets_date') ],
-            "Default Pages"     => [ "status" => get_option($p . 'default_pages'),              "date" => get_option($p . 'default_pages_date') ],
-            "Forms"             => [ "status" => get_option($p . 'form'),                        "date" => get_option($p . 'form_date') ],
-            "Page"              => [ "status" => get_option($p . 'page'),                        "date" => get_option($p . 'page_date') ],
-            "Post"              => [ "status" => get_option($p . 'post'),                        "date" => get_option($p . 'post_date') ],
-            "Testimonials"      => [ "status" => get_option($p . 'testimonials'),               "date" => get_option($p . 'testimonials_date') ],
-            "Communities"       => [ "status" => get_option($p . 'communities'),                "date" => get_option($p . 'communities_date') ],
-            "Agents"            => [ "status" => get_option($p . 'agents'),                     "date" => get_option($p . 'agents_date') ],
-            "Listings"          => [ "status" => get_option($p . 'listings'),                   "date" => get_option($p . 'listings_date') ],
-            "Buyers"            => [ "status" => get_option($p . 'roadmaps_buyers'),            "date" => get_option($p . 'roadmaps_buyers_date') ],
-            "Sellers"           => [ "status" => get_option($p . 'roadmaps_sellers'),           "date" => get_option($p . 'roadmaps_sellers_date') ],
-            "Financing"         => [ "status" => get_option($p . 'roadmaps'),                   "date" => get_option($p . 'roadmaps_date') ],
-            "About and Contact" => [ "status" => get_option($p . 'about_contact_generate'),     "date" => get_option($p . 'about_contact_generate_date') ],
-            "Slideshow"         => [ "status" => get_option($p . 'slider'),                     "date" => get_option($p . 'slider_date') ],
-            "Menu"              => [ "status" => get_option($p . 'menu'),                       "date" => get_option($p . 'menu_date') ],
-            "Widgets"           => [ "status" => get_option($p . 'widgets'),                    "date" => get_option($p . 'widgets_date') ],
+            "Settings"          => [ "status" => get_option($p . 'initial_setup_assets'),       "date" => get_option($p . 'initial_setup_assets_date'),    "endpoint" => "settings" ],
+            "Default Pages"     => [ "status" => get_option($p . 'default_pages'),              "date" => get_option($p . 'default_pages_date'),           "endpoint" => "initial-setup-pages" ],
+            "Forms"             => [ "status" => get_option($p . 'form'),                        "date" => get_option($p . 'form_date'),                    "endpoint" => "form" ],
+            "Page"              => [ "status" => get_option($p . 'page'),                        "date" => get_option($p . 'page_date'),                    "endpoint" => "page-populate" ],
+            "Post"              => [ "status" => get_option($p . 'post'),                        "date" => get_option($p . 'post_date'),                    "endpoint" => "post-populate" ],
+            "Testimonials"      => [ "status" => get_option($p . 'testimonials'),               "date" => get_option($p . 'testimonials_date'),            "endpoint" => "testimonials" ],
+            "Communities"       => [ "status" => get_option($p . 'communities'),                "date" => get_option($p . 'communities_date'),             "endpoint" => "communities" ],
+            "Agents"            => [ "status" => get_option($p . 'agents'),                     "date" => get_option($p . 'agents_date'),                  "endpoint" => "agents" ],
+            "Listings"          => [ "status" => get_option($p . 'listings'),                   "date" => get_option($p . 'listings_date'),                "endpoint" => "listings" ],
+            "Buyers"            => [ "status" => get_option($p . 'roadmaps_buyers'),            "date" => get_option($p . 'roadmaps_buyers_date'),         "endpoint" => "roadmaps-buyers" ],
+            "Sellers"           => [ "status" => get_option($p . 'roadmaps_sellers'),           "date" => get_option($p . 'roadmaps_sellers_date'),        "endpoint" => "roadmaps-sellers" ],
+            "Financing"         => [ "status" => get_option($p . 'roadmaps'),                   "date" => get_option($p . 'roadmaps_date'),                "endpoint" => "roadmaps" ],
+            "About and Contact" => [ "status" => get_option($p . 'about_contact_generate'),     "date" => get_option($p . 'about_contact_generate_date'), "endpoint" => "about-contact" ],
+            "Slideshow"         => [ "status" => get_option($p . 'slider'),                     "date" => get_option($p . 'slider_date'),                  "endpoint" => "slider" ],
+            "Menu"              => [ "status" => get_option($p . 'menu'),                       "date" => get_option($p . 'menu_date'),                    "endpoint" => "menu" ],
+            "Widgets"           => [ "status" => get_option($p . 'widgets'),                    "date" => get_option($p . 'widgets_date'),                 "endpoint" => "widgets" ],
         ];
 
         return $apiStatus;
