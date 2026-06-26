@@ -12,8 +12,9 @@ class Form
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/form', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_form'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_form'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -39,32 +40,19 @@ class Form
         if (!$form_generated) {
 
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
-
-            $sPath = get_template_directory_uri();
-
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-
-            $url = $sPath . '/config.json';
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
+            $json_data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
 
             $contact_form_id_arr = [];
-            if (is_wp_error($response)) {
-                error_log(print_r($response->get_error_message(), true));
+            if ( ! $json_data ) {
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
 
-                $data =  json_decode($response['body']);
-                $formsData = $data->contact_form[0];
+                $formsData = $json_data->contact_form[0];
                 $cf7_current_post_type = 'wpcf7_contact_form';
                 foreach ($formsData as $form) {
 

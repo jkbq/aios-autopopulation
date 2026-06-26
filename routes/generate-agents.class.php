@@ -12,8 +12,9 @@ class Agents
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/agents', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_agents'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_agents'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -30,102 +31,70 @@ class Agents
 
         if (!$pages_generated) {
 
-
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
+            $contents = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('contents.json');
 
-            $sPath = get_template_directory_uri();
-
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-
-            $url = $sPath . '/contents.json';
-
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
-
-            if (is_wp_error($response)) {
-                error_log(print_r($response->get_error_message(), true));
+            if ( ! $contents ) {
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
-                $contents = json_decode($response['body']);
 
                 foreach ($contents as $key => $content) {
 
                     if ($key === 'aios-agents') {
                         foreach ($content as $value) {
 
+                            $raw_meta  = json_decode(json_encode($value->meta_input[0] ?? []), true);
+                            $first     = sanitize_text_field($raw_meta['first_name'] ?? '');
+                            $last      = sanitize_text_field($raw_meta['last_name'] ?? '');
+
                             $post_data = [
-                                'post_type'    => $value->post_type,
-                                'post_title'   => $value->post_title,
-                                'post_content' =>  $value->post_content,
+                                'post_type'    => sanitize_key($value->post_type),
+                                'post_title'   => sanitize_text_field($value->post_title),
+                                'post_content' => wp_kses_post($value->post_content),
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
+                                'meta_input'   => [
+                                    'first_name' => $first,
+                                    'last_name'  => $last,
+                                    'full_name'  => trim("$first $last"),
+                                    'position'   => sanitize_text_field($raw_meta['position'] ?? ''),
+                                    'license'    => sanitize_text_field($raw_meta['license'] ?? ''),
+                                    'email'      => sanitize_email($raw_meta['email_address'] ?? ''),
+                                ],
                             ];
 
                             $insert_post = wp_insert_post($post_data);
 
                             if ($insert_post) {
 
-                                $extension = !empty($value->extension) ? '' . $value->extension . '/' : '';
+                                $extension = !empty($value->extension) ? $value->extension . '/' : '';
                                 $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
 
-                                $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
+                                $existing_id = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_attachment_by_source_url($image_url);
+                                $image_data  = $existing_id > 0 ? $existing_id : media_sideload_image($image_url, $insert_post, '', 'id');
 
-                                // Set featured image using media_sideload_image
                                 if (isset($value->featured_image)) {
-
-
-                                    // Check if there is an error in sideloading the image
                                     if (is_wp_error($image_data)) {
                                         error_log('Error sideloading featured image: ' . $image_data->get_error_message());
                                     } else {
-                                        // Get the attachment ID from the image data
-                                        $image_id = $image_data;
-
-                                        // Set the featured image
-                                        set_post_thumbnail($insert_post, $image_id);
-
-                                        // Debugging: Log the success
-                                        error_log('Featured image set for post ID: ' . $insert_post);
-                                    }
-
-                                    // Set thumbnail
-                                    if (!is_wp_error($image_id)) {
-                                        set_post_thumbnail($insert_post, $image_id);
+                                        set_post_thumbnail($insert_post, $image_data);
                                     }
                                 }
-
 
                                 if ($value->post_type === 'aios-agents') {
+                                    $raw_meta['agentimage_id'] = $image_data;
+                                    update_post_meta($insert_post, '_agent_details', $raw_meta);
 
-                                    $meta_input = json_decode(json_encode($value->meta_input), true);
-                                    $meta_input = $meta_input[0];
-                                    $meta_input['agentimage_id'] = $image_data;
-
-                                    update_post_meta($insert_post, '_agent_details', $meta_input);
-
-                                    update_post_meta($insert_post, 'first_name', $meta_input['first_name']);
-                                    update_post_meta($insert_post, 'last_name', $meta_input['last_name']);
-                                    update_post_meta($insert_post, 'full_name', $meta_input['first_name'] . ' ' . $meta_input['last_name']);
-                                    update_post_meta($insert_post, 'position', $meta_input['position']);
-                                    update_post_meta($insert_post, 'license', $meta_input['license']);
-                                    update_post_meta($insert_post, 'email', $meta_input['email_address']);
-
-                                    if (isset($meta_input['featured']) && ! empty($meta_input['featured'])) {
-                                        update_post_meta($insert_post, 'featured', $meta_input['featured']);
+                                    if ( ! empty($raw_meta['featured']) ) {
+                                        update_post_meta($insert_post, 'featured', $raw_meta['featured']);
                                     }
                                 }
 
-                                // Debugging: Check if post is inserted successfully
-                                error_log('Post inserted with ID: ' . $insert_post);
                                 $response_data['status'] = 'success';
                                 $response_data['message'] = 'Post already generated';
 
@@ -140,7 +109,6 @@ class Agents
                         $response_data['message'] = 'Agents generated successfully';
                     }
                 }
-                // Set the option to indicate that pages have been generated
                 update_option('aios_auto_population_agents', true);
                 update_option('aios_auto_population_agents_date', $dateComplete);
             }

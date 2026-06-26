@@ -12,14 +12,17 @@ class DEACTIVATE_PLUGIN
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/deactivate', [
-            'methods'   => 'POST',
-            'callback'  => [ $this, 'aios_populate_decativate_plugins' ],
+            'methods'             => 'POST',
+            'callback'            => [ $this, 'aios_populate_decativate_plugins' ],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
     public function aios_populate_decativate_plugins($data)
     {
-        // Specify the plugin slug (e.g., 'akismet/akismet.php')
+        \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
+        \AIOS\AUTOPOPULATE\Helpers\RestAuth::clear_install_token();
+
         $plugin_slug = 'aios-autopopulation/aios-autopopulation.php';
 
         deactivate_plugins($plugin_slug);

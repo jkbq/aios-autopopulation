@@ -2,53 +2,47 @@
 
 const requestQueue = [];
 let queueIsRunning = false;
-let isProcessing = false; // New flag to track processing status
+let isProcessing = false;
+let completedSteps = 0;
+const totalSteps = 17;
+let startTime = null;
+let elapsedInterval = null;
 
 const currentDomain = window.location.origin;
 const wordpressApiBaseUrl = `${currentDomain}/wp-json/aios-populate/v1`;
 
 function addToQueue(apiName, apiEndpoint, showReRunButton = true) {
-    // reconstruct api url dynamically
     const apiUrl = `${wordpressApiBaseUrl}/${apiEndpoint}`;
-
-    // date must be set here
-    const data = {
-        date: ''
-    };
-
-    const request = {
-        apiName,
-        apiUrl,
-        data,
-        status: 'On Queue',
-        showReRunButton,
-    };
+    const data = { date: '' };
+    const request = { apiName, apiUrl, data, status: 'On Queue', showReRunButton };
     requestQueue.push(request);
 
     if (!queueIsRunning) {
         queueIsRunning = true;
-        isProcessing = true; // Set processing flag
+        isProcessing = true;
+        if (!startTime) {
+            startTime = Date.now();
+            elapsedInterval = setInterval(() => {
+                const secs = Math.floor((Date.now() - startTime) / 1000);
+                const el = document.getElementById('aios-elapsed');
+                if (el) el.textContent = `${Math.floor(secs / 60)}m ${secs % 60}s elapsed`;
+            }, 1000);
+        }
         processQueue();
     }
-
 }
 
 function processQueue() {
     if (requestQueue.length > 0) {
         const { apiName, apiUrl, data } = requestQueue[0];
 
-
         let currentDate = new Date().toLocaleString();
-
         const request = requestQueue.find(req => req.apiName === apiName);
-        if (request) {
-            request.data.date = currentDate;
-        }
+        if (request) request.data.date = currentDate;
 
+        updateCurrentStep(apiName);
         updateStatus(apiName, 'Generating Please Wait...');
 
-        
-        // Validate and sanitize the apiUrl
         if (!apiUrl.startsWith(currentDomain)) {
             console.error('Invalid API URL:', apiUrl);
             updateStatus(apiName, 'Error: Invalid API URL');
@@ -57,102 +51,132 @@ function processQueue() {
             return;
         }
 
+        const apiEndpoint = apiUrl.replace(wordpressApiBaseUrl + '/', '');
+
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-AIOS-Token': (typeof aiosFrontendData !== 'undefined' && aiosFrontendData.installToken) ? aiosFrontendData.installToken : '',
             },
             body: JSON.stringify(data),
         })
-            .then(response => response.json())
-            .then(result => {
-                // console.log(result);
-                $date = '';
-
-                if (result.date != false) {
-                    $date = result.date;
-
-                } else {
-                    $date = new Date().toLocaleString();
-                }
-
-                updateStatus(apiName, result.message);
-                updateDateComplete(apiName, $date);
-
-                requestQueue.shift();
-                processQueue();
-            })
-            .catch(error => {
-                console.error(error);
-
-                updateStatus(apiName, 'Error');
-
-                requestQueue.shift();
-                processQueue();
-            });
+        .then(response => response.json())
+        .then(result => {
+            let $date = result.date ? result.date : new Date().toLocaleString();
+            updateStatus(apiName, result.message || 'Done');
+            updateDateComplete(apiName, $date);
+            completedSteps++;
+            updateProgress(completedSteps, totalSteps);
+            requestQueue.shift();
+            processQueue();
+        })
+        .catch(error => {
+            console.error(error);
+            updateStatus(apiName, 'Error', apiName, apiEndpoint);
+            requestQueue.shift();
+            processQueue();
+        });
     } else {
         queueIsRunning = false;
-        isProcessing = false; // Reset processing flag
+        isProcessing = false;
         showElementAfterAllRequestsComplete();
     }
 }
 
-function updateStatus(apiName, newStatus) {
-    const statusElement = document.getElementById(`status_${apiName}`);
-    if (statusElement) {
-        statusElement.textContent = newStatus;
+function getStatusIcon(status) {
+    if (status === 'Generating Please Wait...') return '<span class="aios-icon--spinner"></span>';
+    if (status === 'Error' || status.startsWith('Error:')) return '✗';
+    if (status === 'On Queue') return '–';
+    return '✓';
+}
+
+function updateCurrentStep(name) {
+    const banner = document.getElementById('aios-current-step');
+    const nameEl = document.getElementById('aios-current-step-name');
+    if (banner) banner.style.display = 'flex';
+    if (nameEl) {
+        const step = apiRequests.find(r => r.name === name);
+        nameEl.textContent = step ? step.description : name + '...';
+        nameEl.classList.remove('aios-step-name-enter');
+        void nameEl.offsetWidth;
+        nameEl.classList.add('aios-step-name-enter');
+    }
+}
+
+function updateProgress(completed, total) {
+    const pct = Math.round((completed / total) * 100);
+    const fill = document.getElementById('aios-progress-fill');
+    const label = document.getElementById('aios-progress-label');
+    if (fill)  fill.style.width = pct + '%';
+    if (label) label.textContent = `${completed} of ${total} complete`;
+}
+
+function updateStatus(apiName, newStatus, retryApiName, retryEndpoint) {
+    const chip = document.getElementById(`row_${apiName}`);
+    const statusEl = document.getElementById(`status_${apiName}`);
+    if (!statusEl) return;
+
+    if (chip) {
+        chip.classList.remove('is-active', 'is-done', 'is-error');
+        if (newStatus === 'Generating Please Wait...')           chip.classList.add('is-active');
+        else if (newStatus === 'Error' || newStatus.startsWith('Error:')) chip.classList.add('is-error');
+        else if (newStatus !== 'On Queue')                       chip.classList.add('is-done');
+    }
+
+    statusEl.innerHTML = getStatusIcon(newStatus);
+
+    if (retryApiName && (newStatus === 'Error' || newStatus.startsWith('Error:'))) {
+        const retryBtn = document.createElement('button');
+        retryBtn.textContent = 'Retry';
+        retryBtn.className = 'aios-retry-btn';
+        retryBtn.onclick = () => { retryBtn.remove(); addToQueue(retryApiName, retryEndpoint); };
+        if (chip) chip.appendChild(retryBtn);
+        else statusEl.appendChild(retryBtn);
     }
 }
 
 function updateDateComplete(apiName, date) {
-
-    const dateCompleteElement = document.getElementById(`dateComplete_${apiName}`);
-    if (dateCompleteElement) {
-        dateCompleteElement.textContent = date;
-
-        // Update the request data with the completion date
-        const request = requestQueue.find(req => req.apiName === apiName);
-        if (request) {
-            request.data.date = date;
-        }
-    }
+    const chip = document.getElementById(`row_${apiName}`);
+    if (chip) chip.dataset.date = date;
+    const request = requestQueue.find(req => req.apiName === apiName);
+    if (request) request.data.date = date;
 }
 
 function showElementAfterAllRequestsComplete() {
     const elementToShow = document.getElementById('visit-homepage');
-    const elementText = document.querySelector('.textAlert');
-    const table = document.querySelector('.aios-installation__table');
-    const newElement = document.querySelector('#new-element');
- 
+    const elementText   = document.querySelector('.textAlert');
+    const stepsGrid     = document.getElementById('aios-steps');
+    const banner        = document.getElementById('aios-current-step');
+    const newElement    = document.querySelector('#new-element');
+
     if (requestQueue.length === 0) {
-        
+        clearInterval(elapsedInterval);
+        updateProgress(totalSteps, totalSteps);
+
+        if (stepsGrid)  stepsGrid.style.display  = 'none';
+        if (banner)     banner.style.display      = 'none';
+        if (newElement) newElement.style.display  = 'none';
         elementToShow.style.display = 'block';
-        newElement.style.display = 'none';
-        table.style.display = 'none';
         elementText.textContent = 'You will be redirected to the homepage automatically in 30 seconds.';
 
         let countdown = 30;
         const interval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-            elementText.textContent = `You will be redirected to the homepage automatically in ${countdown} seconds.`;
-        } else {
-            elementToShow.elementToShow = 'Redirecting to homepage...';
-            clearInterval(interval);
-        }
+            countdown--;
+            if (countdown > 0) {
+                elementText.textContent = `You will be redirected to the homepage automatically in ${countdown} seconds.`;
+            } else {
+                clearInterval(interval);
+            }
         }, 1000);
-
 
         setTimeout(function() {
             const newUrl = window.location.origin + window.location.pathname.replace(/\/aios-installation.*$/, '');
             window.location.href = newUrl;
         }, 30000);
     }
-
-
 }
 
-// Add an event listener for beforeunload
 window.addEventListener('beforeunload', function (e) {
     if (isProcessing) {
         e.preventDefault();
@@ -166,87 +190,55 @@ window.addEventListener('unload', function () {
     }
 });
 
-// Function to manually trigger re-run for a specific API
-function reRun(apiName, apiUrl, data) {
-    addToQueue(apiName, apiUrl);
-    updateTable(); // Update the table after re-run
-}
+function initSteps() {
+    const container = document.getElementById('aios-steps');
+    if (!container) return;
 
-function updateTable() {
-    const tableBody = document.getElementById('apiTableBody');
+    apiRequests.forEach(({ name }, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'aios-step-chip';
+        chip.id = `row_${name}`;
+        chip.style.animationDelay = (index * 40) + 'ms';
+        chip.addEventListener('animationend', () => {
+            chip.style.animationDelay = '';
+        }, { once: true });
 
-    
-    requestQueue.forEach(({ apiName, status, dateComplete, showReRunButton, apiUrl, data }) => {
+        const iconEl = document.createElement('span');
+        iconEl.className = 'aios-step-chip__icon';
+        iconEl.id = `status_${name}`;
+        iconEl.textContent = '–';
 
+        const nameEl = document.createElement('span');
+        nameEl.className = 'aios-step-chip__name';
+        nameEl.textContent = name;
 
-     
-        let existingRow = document.getElementById(`row_${apiName}`);
-
-        if (!existingRow) {
-            const newRow = document.createElement('div');
-            newRow.className = 'aios-installation__table--row';
-            newRow.id = `row_${apiName}`;
-
-            const cell1 = document.createElement('div');
-            cell1.className = 'aios-installation__table--cell';
-            cell1.textContent = apiName;
-            newRow.appendChild(cell1);
-
-            const cell2 = document.createElement('div');
-            cell2.className = 'aios-installation__table--cell';
-            cell2.id = `status_${apiName}`;
-            cell2.textContent = status;
-            newRow.appendChild(cell2);
-
-            const cell3 = document.createElement('div');
-            cell3.className = 'aios-installation__table--cell';
-            cell3.id = `dateComplete_${apiName}`;
-            cell3.textContent = dateComplete;
-            newRow.appendChild(cell3);
-
-            tableBody.appendChild(newRow);
-        } else {
-            const statusElement = document.getElementById(`status_${apiName}`);
-            const dateCompleteElement = document.getElementById(`dateComplete_${apiName}`);
-
-            if (statusElement) {
-                statusElement.textContent = status;
-            }
-
-            if (dateCompleteElement) {
-                dateCompleteElement.textContent = dateComplete;
-            }
-        }
+        chip.appendChild(iconEl);
+        chip.appendChild(nameEl);
+        container.appendChild(chip);
     });
-
-    showElementAfterAllRequestsComplete();
 }
 
 const apiRequests = [
-    { name: 'Settings', endpoint: `settings`, showReRunButton: false },
-    { name: 'Default Pages', endpoint: `initial-setup-pages`, showReRunButton: false },
-    { name: 'Forms', endpoint: `form`, showReRunButton: false },
-    { name: 'Page', endpoint: `page-populate`, showReRunButton: false },
-    { name: 'Post', endpoint: `post-populate`, showReRunButton: false },
-    { name: 'Testimonials', endpoint: `testimonials`, showReRunButton: false },
-    { name: 'Communities', endpoint: `communities`, showReRunButton: false },
-    { name: 'Agents', endpoint: `agents`, showReRunButton: false },
-    { name: 'Listings', endpoint: `listings`, showReRunButton: false },
-    { name: 'Buyers', endpoint: `roadmaps-buyers`, showReRunButton: false },
-    { name: 'Sellers', endpoint: `roadmaps-sellers`, showReRunButton: false },
-    { name: 'Financing', endpoint: `roadmaps-financing`, showReRunButton: false },
-    { name: 'About and Contact', endpoint: `about-contact`, showReRunButton: false },
-    { name: 'Slideshow', endpoint: `slider`, showReRunButton: false },
-    { name: 'Menu', endpoint: `menu`, showReRunButton: false },
-    { name: 'Widgets', endpoint: `widgets`, showReRunButton: true },
-    { name: 'Finalizing Installation', endpoint: `deactivate`, showReRunButton: true },
+    { name: 'Settings',               endpoint: 'settings',            showReRunButton: false, description: 'Applying theme settings...' },
+    { name: 'Default Pages',          endpoint: 'initial-setup-pages', showReRunButton: false, description: 'Creating default pages...' },
+    { name: 'Forms',                  endpoint: 'form',                showReRunButton: false, description: 'Setting up contact forms...' },
+    { name: 'Page',                   endpoint: 'page-populate',       showReRunButton: false, description: 'Populating site pages...' },
+    { name: 'Post',                   endpoint: 'post-populate',       showReRunButton: false, description: 'Migrating blog posts...' },
+    { name: 'Testimonials',           endpoint: 'testimonials',        showReRunButton: false, description: 'Importing testimonials...' },
+    { name: 'Buyers',                 endpoint: 'roadmaps-buyers',     showReRunButton: false, description: 'Building buyer roadmaps...' },
+    { name: 'Sellers',                endpoint: 'roadmaps-sellers',    showReRunButton: false, description: 'Building seller roadmaps...' },
+    { name: 'Financing',              endpoint: 'roadmaps-financing',  showReRunButton: false, description: 'Building financing roadmaps...' },
+    { name: 'About and Contact',      endpoint: 'about-contact',       showReRunButton: false, description: 'Populating about & contact...' },
+    { name: 'Slideshow',              endpoint: 'slider',              showReRunButton: false, description: 'Configuring slideshow...' },
+    { name: 'Menu',                   endpoint: 'menu',                showReRunButton: false, description: 'Building navigation menus...' },
+    { name: 'Widgets',                endpoint: 'widgets',             showReRunButton: true,  description: 'Configuring sidebar widgets...' },
+    { name: 'Finalizing Installation',endpoint: 'deactivate',          showReRunButton: true,  description: 'Finalizing your installation...' },
 ];
+
+initSteps();
 
 apiRequests.forEach(request => {
     addToQueue(request.name, request.endpoint, request.showReRunButton);
 });
-
-// Call updateTable after the initial requests are added
-updateTable();
 
 })();

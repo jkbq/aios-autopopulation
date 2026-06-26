@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             const headers = {
                                 'Content-Type': 'application/json',
-                                // Add any other custom headers here
+                                'X-WP-Nonce': (typeof data !== 'undefined' && data.nonce) ? data.nonce : '',
                             };
 
                             const postData = {
@@ -79,8 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                 // Process the responses
                                 const dataPromises = responses.map(response => response.json());
-                                const data = await Promise.all(dataPromises);
-
+                                const results = await Promise.all(dataPromises);
 
                                 $buttonStatus = Swal.getPopup().querySelector(".auto-populate-api-status");
                                 $loader = Swal.getPopup().querySelector(".lds-facebook");
@@ -88,6 +87,30 @@ document.addEventListener('DOMContentLoaded', function () {
                                 $loader.style.display = "none";
                                 $title.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
                                 $buttonStatus.style.display = "inline-block";
+
+                                // Poll /status every 5 s to refresh the Logs tab in real time
+                                const statusUrl = `${currentDomain}/wp-json/aios-populate/v1/status`;
+                                const nonce = (typeof data !== 'undefined' && data.nonce) ? data.nonce : '';
+                                const poll = setInterval(async () => {
+                                    try {
+                                        const res = await fetch(statusUrl, {
+                                            headers: { 'X-WP-Nonce': nonce },
+                                        });
+                                        const statuses = await res.json();
+                                        let allDone = true;
+                                        Object.entries(statuses).forEach(([key, api]) => {
+                                            const slug = key.toLowerCase().replace(/\s+/g, '-');
+                                            const statusCell = document.querySelector(`[data-status-cell="${slug}"]`);
+                                            const dateCell   = document.querySelector(`[data-date-cell="${slug}"]`);
+                                            if (statusCell) statusCell.querySelector('strong').textContent = api.status ? 'Generated' : '';
+                                            if (dateCell)   dateCell.querySelector('strong').textContent   = api.date || '';
+                                            if (!api.status) allDone = false;
+                                        });
+                                        if (allDone) clearInterval(poll);
+                                    } catch (e) {
+                                        console.error('Status poll error:', e);
+                                    }
+                                }, 5000);
 
                                 // Continue with further processing or UI updates
                             } catch (error) {

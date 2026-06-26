@@ -12,8 +12,9 @@ class Settings
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/settings', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_default_settings'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_default_settings'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -25,26 +26,11 @@ class Settings
         $activate_initial_setup_assets = get_option('aios_auto_population_initial_setup_assets', false);
 
         $active_theme = get_option('template');
+        $sPath = ( $active_theme === 'aios-starter-theme' )
+            ? get_stylesheet_directory_uri()
+            : get_template_directory_uri();
 
-
-        $sPath = get_template_directory_uri();
-
-
-        if ($active_theme  === 'aios-starter-theme') {
-            $sPath = get_stylesheet_directory_uri();
-        }
-
-
-
-        $url =  $sPath . '/config.json';
-
-        $response = wp_remote_get($url, [
-            'timeout' => 45,
-            'blocking' => true,
-            'cookies' => [],
-        ]);
-
-        $data =  json_decode($response['body']);
+        $data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
 
 
         if ($activate_initial_setup_assets != true) {

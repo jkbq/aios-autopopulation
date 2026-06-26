@@ -91,15 +91,16 @@ foreach ($themes as $theme) {
                   <?php
                      foreach ($apiStatus as $key => $api) {
                          $status = !empty($api['status']) ? 'Generated' : '';
-                         echo '<div class="wpui-row wpui-row-box">
+                         $slug   = esc_attr(sanitize_title($key));
+                         echo '<div class="wpui-row wpui-row-box" data-status-row="' . $slug . '">
                            <div class="wpui-col-md-2">
-                              <p><strong>' . $key . '</strong></p>
+                              <p><strong>' . esc_html($key) . '</strong></p>
                            </div>
-                           <div class="wpui-col-md-1">
-                              <p><strong>' . $status . '</strong></p>
+                           <div class="wpui-col-md-1" data-status-cell="' . $slug . '">
+                              <p><strong>' . esc_html($status) . '</strong></p>
                            </div>
-                           <div class="wpui-col-md-1">
-                              <p><strong>' . $api['date'] . '</strong></p>
+                           <div class="wpui-col-md-1" data-date-cell="' . $slug . '">
+                              <p><strong>' . esc_html($api['date']) . '</strong></p>
                            </div>
                         </div>';
                      }

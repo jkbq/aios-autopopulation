@@ -12,54 +12,47 @@ class Widgets
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/widgets', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_contents'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_contents'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
-    public function widgetGenerator($sidebar, $name, $args = [])
+    /**
+     * Add a widget to the collected sidebar/widget arrays without writing to DB.
+     * Call update_option() once after all widgets are processed.
+     */
+    private function widgetGeneratorBatch( array &$sidebars, array &$all_widget_opts, string $sidebar, string $name, array $args = [] ): void
     {
-        // Get the existing sidebars and widgets
-        $sidebars = get_option('sidebars_widgets');
-
-        // Initialize the sidebars array if it's not set
-        if (!$sidebars) {
-            $sidebars = [];
-        }
-
-        // Initialize the sidebar if it doesn't exist
-        if (!isset($sidebars[$sidebar])) {
+        if ( ! isset( $sidebars[$sidebar] ) ) {
             $sidebars[$sidebar] = [];
         }
 
-        // Get existing widget options
-        $widget_opts = get_option("widget_$name");
-
-        // Check if the widget options are empty
-        if (!$widget_opts || (count($widget_opts) === 1 && isset($widget_opts['_multiwidget']))) {
-            // Start fresh if no widget options exist
-            $widget_opts = ['_multiwidget' => 1];
+        if ( ! isset( $all_widget_opts[$name] ) ) {
+            $widget_opts = get_option("widget_$name", []);
+            if ( ! $widget_opts || ( count($widget_opts) === 1 && isset($widget_opts['_multiwidget']) ) ) {
+                $widget_opts = ['_multiwidget' => 1];
+            }
+            $all_widget_opts[$name] = $widget_opts;
         }
 
-        // Get the next insert id
-        $insert_id = 1;
-        if ($widget_opts) {
-            // Convert array keys to integers
-            $keys = array_map('intval', array_keys($widget_opts));
+        $keys      = array_map('intval', array_keys($all_widget_opts[$name]));
+        $insert_id = max($keys) + 1;
 
-            // Find the maximum key
-            $insert_id = max($keys) + 1;
-        }
+        $all_widget_opts[$name][$insert_id] = $args;
+        $sidebars[$sidebar][]               = $name . '-' . $insert_id;
+    }
 
-        // Add the new widget settings to the stack
-        $widget_opts[$insert_id] = $args;
-
-        // Add the widget to the sidebar
-        $sidebars[$sidebar][] = $name . '-' . strval($insert_id);
-
-        // Update the options
+    /** @deprecated Use widgetGeneratorBatch() for new code. Kept for backward compatibility. */
+    public function widgetGenerator($sidebar, $name, $args = [])
+    {
+        $sidebars         = get_option('sidebars_widgets', []);
+        $all_widget_opts  = [];
+        $this->widgetGeneratorBatch($sidebars, $all_widget_opts, $sidebar, $name, $args);
         update_option('sidebars_widgets', $sidebars);
-        update_option("widget_$name", $widget_opts);
+        foreach ($all_widget_opts as $wname => $wopts) {
+            update_option("widget_$wname", $wopts);
+        }
     }
 
 
@@ -71,6 +64,7 @@ class Widgets
 
         /// Repopulation
         if ($data['repopulate']) {
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
             delete_option('aios_auto_population_widgets');
             delete_option('aios_auto_population_widgets_date');
         }
@@ -84,64 +78,50 @@ class Widgets
         if (!$wigets_generated) {
 
             $registered_sidebars = wp_get_sidebars_widgets();
-            $sidebars_widgets = get_option('sidebars_widgets');
+            $sidebars_widgets    = get_option('sidebars_widgets', []);
+            $deregister_ts       = time();
 
             foreach ($registered_sidebars as $sidebar_id => $widgets) {
-                // Remove all widgets from the current sidebar
                 $sidebars_widgets[$sidebar_id] = [];
-
-                // Update the sidebars_widgets option to reflect the changes
-                update_option('sidebars_widgets', $sidebars_widgets);
-
-                // Optionally, you can update other options to indicate that the sidebar is deregistered
                 update_option($sidebar_id . '-deregistered', 'yes');
-                update_option($sidebar_id . '-deregistered-timestamp', time()); // You can store a timestamp if needed
+                update_option($sidebar_id . '-deregistered-timestamp', $deregister_ts);
             }
-
-
+            update_option('sidebars_widgets', $sidebars_widgets);
 
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
+            $data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
 
-            $sPath = get_template_directory_uri();
+            $widgets = $data->widgets;
 
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-
-            $url =  $sPath . '/config.json';
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
-
-            $data =  json_decode($response['body']);
-
-            $widgets  = $data->widgets;
-
+            $all_widget_opts = [];
 
             foreach ($widgets as $widget_info) {
 
-                // Replace specific content in the $args array
                 if (isset($widget_info->args->pbcw_category)) {
-                    // for blog
                     $widget_info->args->pbcw_category = get_cat_ID('Blog');
                 }
 
                 $widget_args = [];
-
                 foreach ($widget_info->args as $arg_key => $arg_value) {
-                    $widget_args[ $arg_key ]  = $arg_value;
+                    $widget_args[$arg_key] = $arg_value;
                 }
 
-                $widget_install->widgetGenerator(
+                $this->widgetGeneratorBatch(
+                    $sidebars_widgets,
+                    $all_widget_opts,
                     $widget_info->id,
                     $widget_info->type,
                     $widget_args,
                 );
+            }
+
+            update_option('sidebars_widgets', $sidebars_widgets);
+            foreach ($all_widget_opts as $wname => $wopts) {
+                update_option("widget_$wname", $wopts);
             }
 
             $communitiesConfig = $data->config[0]->plugins->aios_communities;

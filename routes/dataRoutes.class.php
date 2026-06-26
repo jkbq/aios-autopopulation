@@ -3,12 +3,14 @@
 
 add_action('rest_api_init', function () {
     register_rest_route('aios-populate/data', '/config', [
-        'methods' => 'GET',
-        'callback' => 'get_json_config',
+        'methods'             => 'GET',
+        'callback'            => 'get_json_config',
+        'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin'],
     ]);
     register_rest_route('aios-populate/data', '/content', [
-        'methods' => 'GET',
-        'callback' => 'get_json_contents',
+        'methods'             => 'GET',
+        'callback'            => 'get_json_contents',
+        'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin'],
     ]);
 });
 

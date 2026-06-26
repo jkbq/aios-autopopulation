@@ -12,8 +12,9 @@ class Testimonials
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/testimonials', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_testimonials'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_testimonials'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -31,28 +32,16 @@ class Testimonials
         if (!$pages_generated) {
 
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
+            $contents = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('contents.json');
 
-            $sPath = get_template_directory_uri();
-
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-            $url =  $sPath . '/contents.json';
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
-
-            if (is_wp_error($response)) {
-                error_log(print_r($response->get_error_message(), true));
+            if ( ! $contents ) {
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
-                $contents = json_decode($response['body']);
                 foreach ($contents as $key => $content) {
 
                     if ($key === 'aios-section-testimonials') {
@@ -74,11 +63,15 @@ class Testimonials
                             $generated_ids[$review_source] = $unique_id;
 
                             $post_data = [
-                                'post_type'    => $item->post_type,
-                                'post_title'   => $item->post_title,
-                                'post_content' => $content_fixed,
+                                'post_type'    => sanitize_key($item->post_type),
+                                'post_title'   => sanitize_text_field($item->post_title),
+                                'post_content' => wp_kses_post($content_fixed),
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
+                                'meta_input'   => [
+                                    'review_source'   => sanitize_text_field($review_source),
+                                    'custom_unique_id' => sanitize_text_field($unique_id),
+                                ],
                             ];
 
                             $insert_post = wp_insert_post($post_data);
@@ -86,9 +79,6 @@ class Testimonials
                             if (is_wp_error($insert_post)) {
                                 continue;
                             }
-
-                            update_post_meta($insert_post, 'review_source', $review_source);
-                            update_post_meta($insert_post, 'custom_unique_id', $unique_id);
                         }
 
                         $response_data['status']  = 'success';
@@ -98,39 +88,36 @@ class Testimonials
                     if ($key === 'aios-testimonials') {
                         foreach ($content as $value) {
 
-                            $contentData = '';
                             if ($value->post_type === 'aios-testimonials') {
                                 $aios_client_info = get_option('aiis_ci');
-                                $contentData = str_replace("ai_client_name", $aios_client_info[ 'name' ], $value->post_content);
+                                $contentData = str_replace("ai_client_name", $aios_client_info['name'] ?? '', $value->post_content);
                             } else {
                                 $contentData = $value->post_content;
                             }
 
+                            $post_meta = $value->meta_input[0];
+
                             $post_data = [
-                                'post_type'    => $value->post_type,
-                                'post_title'   => $value->post_title,
-                                'post_content' => $contentData,
+                                'post_type'    => sanitize_key($value->post_type),
+                                'post_title'   => sanitize_text_field($value->post_title),
+                                'post_content' => wp_kses_post($contentData),
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
+                                'meta_input'   => [
+                                    'aios_testimonials_video_url'  => esc_url_raw($post_meta->aios_testimonials_video_url ?? ''),
+                                    'aios_testimonials_video_type' => sanitize_text_field($post_meta->aios_testimonials_video_type ?? ''),
+                                    'aios_testimonials_featured'   => sanitize_text_field($post_meta->aios_testimonials_featured ?? ''),
+                                ],
                             ];
 
                             $insert_post = wp_insert_post($post_data);
 
-                            $post_meta = $value->meta_input[0];
-
-                            update_post_meta($insert_post, 'aios_testimonials_video_url', $post_meta->aios_testimonials_video_url);
-                            update_post_meta($insert_post, 'aios_testimonials_video_type', $post_meta->aios_testimonials_video_type);
-                            update_post_meta($insert_post, 'aios_testimonials_featured', $post_meta->aios_testimonials_featured);
-
-                            if (isset($post_meta->aios_testimonials_video_placeholder)) {
-                                $extension = !empty($post_meta->extension) ? '' . $post_meta->extension . '/' : '';
-                                $image_url = $sPath . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
-                                $image_data = media_sideload_image($image_url, $insert_post, '', 'id');
+                            if (isset($post_meta->aios_testimonials_video_placeholder) && $insert_post) {
+                                $extension  = !empty($post_meta->extension) ? $post_meta->extension . '/' : '';
+                                $image_url  = $sPath . '/' . $extension . 'images/' . $post_meta->aios_testimonials_video_placeholder;
+                                $existing   = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_attachment_by_source_url($image_url);
+                                $image_data = $existing > 0 ? $existing : media_sideload_image($image_url, $insert_post, '', 'id');
                                 update_post_meta($insert_post, 'aios_testimonials_video_placeholder', $image_data);
-                            }
-
-                            if (isset($post_meta->aios_testimonials_featured)) {
-                                update_post_meta($insert_post, 'aios_testimonials_featured', $post_meta->aios_testimonials_featured);
                             }
 
                         }

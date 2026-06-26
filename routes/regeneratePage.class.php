@@ -12,8 +12,9 @@ class RegenerateContents
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/regeneratecontents', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_repopulate_page'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_repopulate_page'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin'],
         ]);
     }
 

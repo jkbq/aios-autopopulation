@@ -12,8 +12,9 @@ class AiosRoadmapsSellers
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/roadmaps-sellers', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_aios_roadmaps_sellers'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_aios_roadmaps_sellers'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
