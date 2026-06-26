@@ -224,7 +224,6 @@ const apiRequests = [
     { name: 'Forms',                  endpoint: 'form',                showReRunButton: false, description: 'Setting up contact forms...' },
     { name: 'Page',                   endpoint: 'page-populate',       showReRunButton: false, description: 'Populating site pages...' },
     { name: 'Post',                   endpoint: 'post-populate',       showReRunButton: false, description: 'Migrating blog posts...' },
-    { name: 'Testimonials',           endpoint: 'testimonials',        showReRunButton: false, description: 'Importing testimonials...' },
     { name: 'Buyers',                 endpoint: 'roadmaps-buyers',     showReRunButton: false, description: 'Building buyer roadmaps...' },
     { name: 'Sellers',                endpoint: 'roadmaps-sellers',    showReRunButton: false, description: 'Building seller roadmaps...' },
     { name: 'Financing',              endpoint: 'roadmaps-financing',  showReRunButton: false, description: 'Building financing roadmaps...' },
