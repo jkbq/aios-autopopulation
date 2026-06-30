@@ -178,7 +178,6 @@ class Widgets
 
             update_option('aios_testimonials_settings', $testimonials_options);
 
-
             // Communities
             $aiosCommunities = get_option('aios_communities_settings');
             $get_communities_page = get_page_by_title('Communities');
@@ -328,7 +327,11 @@ class Widgets
 
             if ($testimonialsConfig->theme) {
                 // aios-testimonials
-                update_option('testimonials-themes', '' . $testimonialsConfig->theme . '-core');
+                $testimonials_theme = $testimonialsConfig->theme . '-core';
+                if ($testimonials_theme === 'clarity-core') {
+                    $testimonials_theme = 'default-core';
+                }
+                update_option('testimonials-themes', $testimonials_theme);
             }
 
             if ($listingsConfig->main_page) {

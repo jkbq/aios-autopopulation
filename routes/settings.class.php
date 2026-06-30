@@ -34,6 +34,8 @@ class Settings
 
 
         if ($activate_initial_setup_assets != true) {
+            $productType = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_product_type($data);
+
             // Default Libraries
             $libraries = $data->config[0]->libraries;
 
@@ -58,7 +60,7 @@ class Settings
             $aios_banner_taxonomies['banner']['category'] = 'category';
             update_option('aios-metaboxes-banner-taxonomies', $aios_banner_taxonomies);
 
-            update_option('aios_custom_login_screen', 'agentpro');
+            update_option('aios_custom_login_screen', \AIOS\AUTOPOPULATE\Helpers\Helpers::get_login_screen_slug($productType));
             update_option('aios_auto_p_metabox', '1');
 
             // Initial Setup - Quick Search
@@ -157,7 +159,6 @@ class Settings
             update_option('aios-back-top', $aios_back_to_top);
 
 
-            $productType = $data->product_type;
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
                 "twitter" => 'https://www.twitter.com/agentimage',

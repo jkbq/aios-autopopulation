@@ -182,6 +182,34 @@ class Helpers
     }
 
     /**
+     * Resolve product_type from theme config.json (root or config[0]).
+     */
+    public static function get_product_type( ?object $config ): string
+    {
+        if ( ! $config ) {
+            return '';
+        }
+
+        if ( ! empty( $config->product_type ) ) {
+            return (string) $config->product_type;
+        }
+
+        if ( ! empty( $config->config[0]->product_type ) ) {
+            return (string) $config->config[0]->product_type;
+        }
+
+        return '';
+    }
+
+    /**
+     * Map theme product_type to aios_custom_login_screen option value.
+     */
+    public static function get_login_screen_slug( string $product_type ): string
+    {
+        return $product_type === 'AgentImagex' ? 'aix' : 'agentpro';
+    }
+
+    /**
      * Sanitize the core fields of a post data array before wp_insert_post().
      */
     public static function sanitize_post_data( array $data ): array
