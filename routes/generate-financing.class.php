@@ -12,8 +12,9 @@ class AiosRoadmapsFinancing
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/roadmaps-financing', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_aios_roadmaps'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_aios_roadmaps'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 

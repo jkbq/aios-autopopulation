@@ -12,8 +12,9 @@ class PagePopulate
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/page-populate', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_page'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_page'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -27,29 +28,16 @@ class PagePopulate
         if (!$pages_generated) {
 
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
+            $contents = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('contents.json');
 
-            $sPath = get_template_directory_uri();
-
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-
-            $url = $sPath . '/contents.json';
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
-
-            if (is_wp_error($response)) {
-                error_log(print_r($response->get_error_message(), true));
+            if ( ! $contents ) {
                 $response_data['status'] = 'error';
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
-                $contents = json_decode($response['body']);
 
                 foreach ($contents as $key => $content) {
 
@@ -142,20 +130,11 @@ class PagePopulate
                     wp_delete_post($page_id, true);
                 }
 
-                $defaultsData = AIOS_AUTOPOPULATE_JSON . '/default.json';
+                $defaultsPath = AIOS_AUTOPOPULATE_DIR . 'routes' . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.json';
+                $defaults_contents = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_local_json($defaultsPath);
 
-                $response_defaults = wp_remote_get($defaultsData, [
-                    'timeout' => 45,
-                    'blocking' => true,
-                    'cookies' => [],
-                ]);
-                if (is_wp_error($response_defaults)) {
-                    error_log(print_r($response_defaults->get_error_message(), true));
-                    $response_data['status'] = 'error';
-                    $response_data['message'] = 'Error fetching JSON data';
-                } else {
-
-                    $contents = json_decode($response_defaults['body']);
+                if ( $defaults_contents ) {
+                    $contents = $defaults_contents;
 
                     foreach ($contents as $key => $content) {
 

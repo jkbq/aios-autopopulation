@@ -12,8 +12,9 @@ class AiosSlider
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/slider', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_aios_slider'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_aios_slider'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -26,26 +27,12 @@ class AiosSlider
 
         if (!$generatedSlideshow) {
 
-
             $active_theme = get_option('template');
+            $sPath = ( $active_theme === 'aios-starter-theme' )
+                ? get_stylesheet_directory_uri()
+                : get_template_directory_uri();
 
-
-            $sPath = get_template_directory_uri();
-
-
-            if ($active_theme  === 'aios-starter-theme') {
-                $sPath = get_stylesheet_directory_uri();
-            }
-
-            $url =  $sPath . '/config.json';
-
-            $response = wp_remote_get($url, [
-                'timeout' => 45,
-                'blocking' => true,
-                'cookies' => [],
-            ]);
-
-            $data =  json_decode($response['body']);
+            $data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
             $client_info = $data->config[0]->site_info;
 
             $slider_data = [
@@ -67,7 +54,9 @@ class AiosSlider
             $ip_banner_uploaded = isset($client_info->innerpage_banner);
             foreach ($images as $index => $image) {
                 $imagesPath = $sPath . '/' . $image->extension . '/images/';
-                $src = media_sideload_image($imagesPath . $image->image, null, null, 'id');
+                $image_full_url = $imagesPath . $image->image;
+                $existing_src   = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_attachment_by_source_url($image_full_url);
+                $src            = $existing_src > 0 ? $existing_src : media_sideload_image($image_full_url, null, null, 'id');
 
                 $meta = [
                     'type'    => 'image',

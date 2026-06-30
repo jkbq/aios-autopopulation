@@ -67,6 +67,10 @@ class autopopulateFrontePage
      */
     public function handleThemeActivation()
     {
+        if ( ! \AIOS\AUTOPOPULATE\Helpers\Helpers::is_aios_theme() ) {
+            return;
+        }
+
         $current_slug = explode('/', rtrim($_SERVER[ 'REQUEST_URI' ], '\/'));
 
         $aios_install_setup_visited = get_option('aios_install_setup_visited');
@@ -191,12 +195,16 @@ class autopopulateFrontePage
         if ($current_slug[1] == $this->virtual_page_slug) {
             wp_enqueue_style(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'css/frontend.min.css', [], time());
             wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/frontend.min.js', [], time(), true);
+            wp_localize_script(AIOS_AUTOPOPULATE_URL, 'aiosFrontendData', [
+                'installToken' => \AIOS\AUTOPOPULATE\Helpers\RestAuth::generate_install_token(),
+            ]);
             //dequeue
             wp_dequeue_script('aios-starter-theme-script');
         }
 
         if (!$this->aios_install_ap_old_visited && !$this->aios_install_aix_old_visited) {
-            if (!$aios_install_setup_visited || !$wigets_generated) {
+            if ((!$aios_install_setup_visited || !$wigets_generated)
+                && \AIOS\AUTOPOPULATE\Helpers\Helpers::is_aios_theme()) {
                 wp_enqueue_script(AIOS_AUTOPOPULATE_URL, AIOS_AUTOPOPULATE_RESOURCES . 'js/redirection.min.js', [], time(), true);
             }
         }

@@ -16,8 +16,8 @@ $apiStatus = $helpers->api_status();
          <div class="wpui-tabs-header">
             <ul>
                <li><a data-id="settings" href="#" class="active-panel">Settings</a></li>
+               <li><a data-id="repopulate" href="#" class="active-panel">Repopulate</a></li>
                <li><a data-id="logs" href="#" class="active-panel">Logs</a></li>
-              
             </ul>
          </div>
          <!-- END: Header -->
@@ -72,6 +72,52 @@ foreach ($themes as $theme) {
                </div>
             </div>
 
+            <!-- Repopulate Tab -->
+            <div data-id="repopulate" class="wpui-tabs-content repopulate" style="display: block;">
+               <div class="wpui-tabs-title">Repopulate</div>
+               <div class="wpui-tabs-container">
+
+                  <div class="wpui-row wpui-row-box list-of-logs-heading">
+                     <div class="wpui-col-md-2">
+                        <p><strong>Section</strong></p>
+                     </div>
+                     <div class="wpui-col-md-1">
+                        <p><strong>Status</strong></p>
+                     </div>
+                     <div class="wpui-col-md-1">
+                        <p><strong>Action</strong></p>
+                     </div>
+                  </div>
+
+                  <?php foreach ($apiStatus as $key => $api) :
+                      $repop_status   = !empty($api['status']) ? 'Generated' : '—';
+                      $repop_slug     = esc_attr(sanitize_title($key));
+                      $repop_endpoint = esc_attr($api['endpoint']);
+                      $repop_label    = esc_html($key);
+                  ?>
+                  <div class="wpui-row wpui-row-box" id="repopulate-row-<?= $repop_slug ?>">
+                     <div class="wpui-col-md-2">
+                        <p><strong><?= $repop_label ?></strong></p>
+                     </div>
+                     <div class="wpui-col-md-1">
+                        <p class="aios-repopulate-status <?= !empty($api['status']) ? 'is-generated' : '' ?>"
+                           data-repop-status="<?= $repop_slug ?>"><?= $repop_status ?></p>
+                     </div>
+                     <div class="wpui-col-md-1">
+                        <button class="aios-repopulate-route-btn"
+                                data-endpoint="<?= $repop_endpoint ?>"
+                                data-name="<?= $repop_label ?>"
+                                data-slug="<?= $repop_slug ?>">
+                           Repopulate
+                        </button>
+                     </div>
+                  </div>
+                  <?php endforeach; ?>
+
+               </div>
+            </div>
+
+            <!-- Logs Tab -->
             <div data-id="logs" class="wpui-tabs-content logs" style="display: block;">
                <div class="wpui-tabs-title">Logs</div>
 
@@ -91,15 +137,16 @@ foreach ($themes as $theme) {
                   <?php
                      foreach ($apiStatus as $key => $api) {
                          $status = !empty($api['status']) ? 'Generated' : '';
-                         echo '<div class="wpui-row wpui-row-box">
+                         $slug   = esc_attr(sanitize_title($key));
+                         echo '<div class="wpui-row wpui-row-box" data-status-row="' . $slug . '">
                            <div class="wpui-col-md-2">
-                              <p><strong>' . $key . '</strong></p>
+                              <p><strong>' . esc_html($key) . '</strong></p>
                            </div>
-                           <div class="wpui-col-md-1">
-                              <p><strong>' . $status . '</strong></p>
+                           <div class="wpui-col-md-1" data-status-cell="' . $slug . '">
+                              <p><strong>' . esc_html($status) . '</strong></p>
                            </div>
-                           <div class="wpui-col-md-1">
-                              <p><strong>' . $api['date'] . '</strong></p>
+                           <div class="wpui-col-md-1" data-date-cell="' . $slug . '">
+                              <p><strong>' . esc_html($api['date']) . '</strong></p>
                            </div>
                         </div>';
                      }

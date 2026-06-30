@@ -12,8 +12,9 @@ class Settings
     public function register_endpoints()
     {
         register_rest_route('aios-populate/v1', '/settings', [
-            'methods'   => 'POST',
-            'callback'  => [$this, 'aios_populate_default_settings'],
+            'methods'             => 'POST',
+            'callback'            => [$this, 'aios_populate_default_settings'],
+            'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
@@ -25,29 +26,16 @@ class Settings
         $activate_initial_setup_assets = get_option('aios_auto_population_initial_setup_assets', false);
 
         $active_theme = get_option('template');
+        $sPath = ( $active_theme === 'aios-starter-theme' )
+            ? get_stylesheet_directory_uri()
+            : get_template_directory_uri();
 
-
-        $sPath = get_template_directory_uri();
-
-
-        if ($active_theme  === 'aios-starter-theme') {
-            $sPath = get_stylesheet_directory_uri();
-        }
-
-
-
-        $url =  $sPath . '/config.json';
-
-        $response = wp_remote_get($url, [
-            'timeout' => 45,
-            'blocking' => true,
-            'cookies' => [],
-        ]);
-
-        $data =  json_decode($response['body']);
+        $data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
 
 
         if ($activate_initial_setup_assets != true) {
+            $productType = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_product_type($data);
+
             // Default Libraries
             $libraries = $data->config[0]->libraries;
 
@@ -72,7 +60,7 @@ class Settings
             $aios_banner_taxonomies['banner']['category'] = 'category';
             update_option('aios-metaboxes-banner-taxonomies', $aios_banner_taxonomies);
 
-            update_option('aios_custom_login_screen', 'agentpro');
+            update_option('aios_custom_login_screen', \AIOS\AUTOPOPULATE\Helpers\Helpers::get_login_screen_slug($productType));
             update_option('aios_auto_p_metabox', '1');
 
             // Initial Setup - Quick Search
@@ -171,7 +159,6 @@ class Settings
             update_option('aios-back-top', $aios_back_to_top);
 
 
-            $productType = $data->product_type;
             $default_social_media_links = [
                 "facebook" => 'https://www.facebook.com/AgentImage',
                 "twitter" => 'https://www.twitter.com/agentimage',

@@ -23,16 +23,24 @@
 			<a href="<?= do_shortcode('[blogurl]')?>" id="visit-homepage">Visit homepage</a>
 
             <div class="aios-installation__content">
-                <p id="new-element">Please wait for<strong> as we setup your theme files...</strong></p><br>
-				<div class="aios-installation__table">
-					<div class="aios-installation__table--header">
-						<div class="aios-installation__table--cell">API Name</div>
-						<div class="aios-installation__table--cell">Status</div>
-						<div class="aios-installation__table--cell">Date Complete</div>
-					</div>
+                <p id="new-element">Please wait for<strong> as we setup your theme files...</strong></p>
 
-					<div id="apiTableBody"></div>
-				</div>				
+                <div class="aios-progress-bar">
+                    <div class="aios-progress-bar__track">
+                        <div class="aios-progress-bar__fill" id="aios-progress-fill" style="width:0%"></div>
+                    </div>
+                    <div class="aios-progress-bar__meta">
+                        <span id="aios-progress-label">0 of 17 complete</span>
+                        <span id="aios-elapsed"></span>
+                    </div>
+                </div>
+
+				<div class="aios-current-step" id="aios-current-step">
+					<span class="aios-current-step__spinner"></span>
+					<span id="aios-current-step-name"></span>
+				</div>
+
+				<div class="aios-steps" id="aios-steps"></div>
             </div>
         </div>
 		<div class="aios-installation__footer">
