@@ -254,6 +254,7 @@ class Settings
             $aios_initial_setup_modules[ 'classic-editor' ] = 'yes';
             $aios_initial_setup_modules[ 'classic-editor-widget' ] = 'yes';
             $aios_initial_setup_modules[ 'contact-form-7-floating-tooltip-fix' ] = 'yes';
+            $aios_initial_setup_modules[ 'pojo-css-fixes' ] = 'yes';
             update_option('aios_initial_setup_modules', $aios_initial_setup_modules);
 
             // updates blog name and description
@@ -290,6 +291,12 @@ class Settings
             if ($blog_template !== null) {
                 update_option('blog-theme', $blog_template->theme);
                 update_option('aios_blog_template_options', ['activate' => 'true']);
+            }
+
+            // pojo accessibility settings
+            if ( class_exists( 'Pojo_Accessibility' ) ) {
+                update_option( 'pojo_a11y_focusable', 'enable' );
+                update_option( 'pojo_a11y_toolbar', 'visible-desktop' );
             }
 
             $response = [
