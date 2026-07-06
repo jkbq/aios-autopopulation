@@ -299,58 +299,6 @@ class Settings
                 update_option( 'pojo_a11y_toolbar', 'visible-desktop' );
             }
 
-            // generate privacy policy content
-            if (
-                isset($data->config[0]->aios_privacy_policy) &&
-                class_exists(\AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::class)
-            ) {
-                $privacy = (array) $data->config[0]->aios_privacy_policy;
-                $settings = [
-                    'override_headings'  => $privacy['override_headings'] ?? '',
-                    'override_body_text' => $privacy['override_body_text'] ?? '',
-                    'client_name'        => $privacy['client_name'] ?? '',
-                    'legal_name'         => $privacy['legal_name'] ?? '',
-                    'address'            => $privacy['address'] ?? '',
-                    'email'              => $privacy['email'] ?? '',
-                    'phone'              => $privacy['phone'] ?? '',
-                    'policy_url' => do_shortcode(
-                        str_replace('[blogurl]', home_url(), $privacy['policy_url'] ?? '')
-                    ),
-                    'opt_idx'            => ! empty($privacy['opt_idx']),
-                    'opt_analytics'      => ! empty($privacy['opt_analytics']),
-                    'opt_crm'            => ! empty($privacy['opt_crm']),
-                    'opt_cookies'        => ! empty($privacy['opt_cookies']),
-                    'opt_euuk'           => ! empty($privacy['opt_euuk']),
-                    'opt_ccpa'           => ! empty($privacy['opt_ccpa']),
-                ];
-
-                // Save the settings
-                update_option(REPP_OPTION, $settings);
-
-                // Generate the initial privacy policy content
-                $html = \AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::fromSettings(
-                    array_merge(
-                        $settings,
-                        [
-                            'updated_date'   => date_i18n(get_option('date_format')),
-                            'editable_field' => false,
-                        ]
-                    )
-                )->render();
-
-                // Save the generated HTML
-                update_option(REPP_OPTION_CONTENT, wp_kses_post($html));
-            }
-
-            $page_id = (int) get_option('wp_page_for_privacy_policy');
-
-            if ($page_id) {
-                wp_delete_post($page_id, true); // true = permanently delete
-
-                // Clear the WordPress privacy page setting
-                delete_option('wp_page_for_privacy_policy');
-            }
-
             $response = [
                 'success' => true,
                 'message' => 'Settings Successfully Generated',

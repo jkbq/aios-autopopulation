@@ -68,6 +68,7 @@ class Helpers
         $apiStatus = [
             "Settings"          => [ "status" => get_option($p . 'initial_setup_assets'),       "date" => get_option($p . 'initial_setup_assets_date'),    "endpoint" => "settings" ],
             "Default Pages"     => [ "status" => get_option($p . 'default_pages'),              "date" => get_option($p . 'default_pages_date'),           "endpoint" => "initial-setup-pages" ],
+            "Privacy Policy"    => [ "status" => get_option($p . 'privacy_policy'),           "date" => get_option($p . 'privacy_policy_date'),        "endpoint" => "privacy-policy" ],
             "Forms"             => [ "status" => get_option($p . 'form'),                        "date" => get_option($p . 'form_date'),                    "endpoint" => "form" ],
             "Page"              => [ "status" => get_option($p . 'page'),                        "date" => get_option($p . 'page_date'),                    "endpoint" => "page-populate" ],
             "Post"              => [ "status" => get_option($p . 'post'),                        "date" => get_option($p . 'post_date'),                    "endpoint" => "post-populate" ],
