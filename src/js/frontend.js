@@ -4,7 +4,7 @@ const requestQueue = [];
 let queueIsRunning = false;
 let isProcessing = false;
 let completedSteps = 0;
-const totalSteps = 17;
+const totalSteps = 15;
 let startTime = null;
 let elapsedInterval = null;
 
@@ -221,6 +221,7 @@ function initSteps() {
 const apiRequests = [
     { name: 'Settings',               endpoint: 'settings',            showReRunButton: false, description: 'Applying theme settings...' },
     { name: 'Default Pages',          endpoint: 'initial-setup-pages', showReRunButton: false, description: 'Creating default pages...' },
+    { name: 'Privacy Policy',         endpoint: 'privacy-policy',      showReRunButton: false, description: 'Generating privacy policy...' },
     { name: 'Forms',                  endpoint: 'form',                showReRunButton: false, description: 'Setting up contact forms...' },
     { name: 'Page',                   endpoint: 'page-populate',       showReRunButton: false, description: 'Populating site pages...' },
     { name: 'Post',                   endpoint: 'post-populate',       showReRunButton: false, description: 'Migrating blog posts...' },
