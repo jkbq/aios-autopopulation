@@ -22,12 +22,15 @@ class PrivacyPolicy
 
     public function populate($data)
     {
-        if (!empty($data['repopulate'])) {
+        $repopulate = $this->get_request_param($data, 'repopulate');
+
+        if ($repopulate) {
             delete_option('aios_auto_population_privacy_policy');
             delete_option('aios_auto_population_privacy_policy_date');
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
         }
 
-        $dateComplete = get_option('aios_auto_population_privacy_policy_date', $data['date'] ?? '');
+        $dateComplete = get_option('aios_auto_population_privacy_policy_date', $this->get_request_param($data, 'date', ''));
         $already_done = get_option('aios_auto_population_privacy_policy', false);
 
         if ($already_done) {
@@ -39,10 +42,10 @@ class PrivacyPolicy
             ]);
         }
 
-        if (!class_exists(\AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::class)) {
+        if (!$this->ensure_privacy_renderer()) {
             return rest_ensure_response([
                 'success' => false,
-                'message' => 'Privacy Policy renderer is not available',
+                'message' => 'Privacy Policy renderer is not available. Ensure aios-initial-setup includes the privacy-policy module.',
                 'date'    => $dateComplete,
                 'skipped' => true,
             ]);
@@ -50,10 +53,16 @@ class PrivacyPolicy
 
         $config = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
 
-        if (!$config || !isset($config->config[0]->aios_privacy_policy)) {
-            update_option('aios_auto_population_privacy_policy', true);
-            update_option('aios_auto_population_privacy_policy_date', $dateComplete);
+        if (!$config) {
+            return rest_ensure_response([
+                'success' => false,
+                'message' => 'Failed to load theme config.json',
+                'date'    => $dateComplete,
+                'skipped' => true,
+            ]);
+        }
 
+        if (!isset($config->config[0]->aios_privacy_policy)) {
             return rest_ensure_response([
                 'success' => true,
                 'message' => 'No privacy policy config in theme; skipped',
@@ -96,7 +105,7 @@ class PrivacyPolicy
         update_option($this->option_content_key(), wp_kses_post($html));
 
         $page_id = $this->with_publish_capability(function () {
-            return $this->upsert_privacy_page();
+            return $this->publish_privacy_page();
         });
 
         if ($page_id) {
@@ -109,13 +118,26 @@ class PrivacyPolicy
 
         return rest_ensure_response([
             'success'     => true,
-            'message'     => 'Privacy Policy generated successfully',
+            'message'     => $page_id ? 'Privacy Policy generated successfully' : 'Privacy Policy settings saved but page could not be created',
             'date'        => $dateComplete,
             'page_id'     => $page_id ?: null,
             'post_status' => $page_id ? get_post_status($page_id) : null,
             'post_name'   => $page_id ? get_post_field('post_name', $page_id) : null,
             'skipped'     => false,
         ]);
+    }
+
+    private function get_request_param($data, string $key, $default = null)
+    {
+        if ($data instanceof \WP_REST_Request) {
+            return $data->get_param($key) ?? $default;
+        }
+
+        if (is_array($data) && array_key_exists($key, $data)) {
+            return $data[$key];
+        }
+
+        return $default;
     }
 
     private function option_key(): string
@@ -126,6 +148,46 @@ class PrivacyPolicy
     private function option_content_key(): string
     {
         return defined('REPP_OPTION_CONTENT') ? REPP_OPTION_CONTENT : 'aios_privacy_policy_content';
+    }
+
+    private function ensure_privacy_renderer(): bool
+    {
+        if (class_exists(\AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::class)) {
+            return true;
+        }
+
+        if (!defined('AIOS_INITIAL_SETUP_DIR')) {
+            return false;
+        }
+
+        $controllers_dir = AIOS_INITIAL_SETUP_DIR . 'app' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'privacy-policy' . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR;
+        $renderer_file   = $controllers_dir . 'RendererController.php';
+
+        if (!file_exists($renderer_file)) {
+            return false;
+        }
+
+        if (!defined('REPP_OPTION')) {
+            define('REPP_API_NAMESPACE', 'aios/v1/privacy-policy');
+            define('REPP_OPTION', 'aios_privacy_policy');
+            define('REPP_OPTION_CONTENT', 'aios_privacy_policy_content');
+        }
+
+        require_once $renderer_file;
+
+        $shortcode_file = $controllers_dir . 'ShortcodeController.php';
+        if (file_exists($shortcode_file) && !shortcode_exists('aios_privacy_policy')) {
+            require_once $shortcode_file;
+            new \AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\ShortcodeController();
+        }
+
+        $page_file = $controllers_dir . 'PageController.php';
+        if (file_exists($page_file) && !has_filter('the_content', [\AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\PageController::class, 'render_shortcode_in_selected_page'])) {
+            require_once $page_file;
+            new \AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\PageController();
+        }
+
+        return class_exists(\AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::class);
     }
 
     private function with_publish_capability(callable $callback)
@@ -155,24 +217,26 @@ class PrivacyPolicy
         return !empty($admins) ? (int) $admins[0] : 1;
     }
 
-    private function upsert_privacy_page(): int
+    /**
+     * Publish the WordPress default Privacy Policy page and return its ID.
+     * PageController in aios-initial-setup injects policy content via selected_page.
+     */
+    private function publish_privacy_page(): int
     {
-        $shortcode = '[aios_privacy_policy]';
-        $page_id   = $this->find_existing_privacy_page_id();
+        $page_id = $this->find_existing_privacy_page_id();
 
         if ($page_id > 0) {
             wp_update_post([
-                'ID'           => $page_id,
-                'post_content' => $shortcode,
-                'post_status'  => 'publish',
-                'post_name'    => self::PAGE_SLUG,
+                'ID'          => $page_id,
+                'post_status' => 'publish',
+                'post_name'   => self::PAGE_SLUG,
             ]);
         } else {
             $inserted = wp_insert_post([
                 'post_type'    => 'page',
                 'post_title'   => 'Privacy Policy',
                 'post_name'    => self::PAGE_SLUG,
-                'post_content' => $shortcode,
+                'post_content' => '[aios_privacy_policy]',
                 'post_status'  => 'publish',
                 'post_author'  => $this->get_admin_user_id(),
             ]);
@@ -186,7 +250,12 @@ class PrivacyPolicy
 
         $this->ensure_published_page($page_id);
 
-        delete_option('wp_page_for_privacy_policy');
+        if (get_post_status($page_id) !== 'publish') {
+            error_log('AIOS Autopopulate: Privacy Policy page ' . $page_id . ' could not be published; leaving wp_page_for_privacy_policy untouched.');
+            return 0;
+        }
+
+        update_option('wp_page_for_privacy_policy', $page_id);
         clean_post_cache($page_id);
 
         return $page_id;

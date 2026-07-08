@@ -123,16 +123,21 @@ class PagePopulate
                     || ($config && isset($config->config[0]->aios_privacy_policy));
 
                 if (!$skip_static_privacy) {
-                    $privacyPolicypage = get_posts([
-                        'name'        => 'Privacy Policy',
-                        'post_type'   => 'page',
-                        'post_status' => 'draft',
-                        'numberposts' => 1,
-                    ]);
+                    $existing_privacy_page_id = (int) get_option('wp_page_for_privacy_policy');
 
-                    if (!empty($privacyPolicypage)) {
-                        $page_id = $privacyPolicypage[0]->ID;
-                        wp_delete_post($page_id, true);
+                    if (!$existing_privacy_page_id || !get_post($existing_privacy_page_id)) {
+                        $privacyPolicypage = get_posts([
+                            'name'        => 'privacy-policy',
+                            'post_type'   => 'page',
+                            'post_status' => ['publish', 'draft', 'private', 'pending'],
+                            'numberposts' => 1,
+                        ]);
+
+                        $existing_privacy_page_id = !empty($privacyPolicypage) ? (int) $privacyPolicypage[0]->ID : 0;
+                    }
+
+                    if ($existing_privacy_page_id) {
+                        wp_delete_post($existing_privacy_page_id, true);
                     }
 
                     $defaultsPath = AIOS_AUTOPOPULATE_DIR . 'routes' . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.json';
@@ -146,12 +151,19 @@ class PagePopulate
                                 $privacy_policy_page = [
                                     'post_type'    => 'page',
                                     'post_title'   => $value->post_title,
+                                    'post_name'    => 'privacy-policy',
                                     'post_content' => $value->post_content,
                                     'post_status'  => 'publish',
                                     'post_author'  => 1,
                                 ];
 
-                                wp_insert_post($privacy_policy_page);
+                                $privacy_page_id = wp_insert_post($privacy_policy_page);
+
+                                if (!is_wp_error($privacy_page_id) && $privacy_page_id && get_post_status($privacy_page_id) === 'publish') {
+                                    update_option('wp_page_for_privacy_policy', $privacy_page_id);
+                                } else {
+                                    error_log('AIOS Autopopulate: static Privacy Policy page could not be published; leaving wp_page_for_privacy_policy untouched.');
+                                }
                             }
                         }
                     }
