@@ -118,44 +118,6 @@ class PagePopulate
                     wp_delete_post($page_id, true);
                 }
 
-                $config = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
-                $skip_static_privacy = get_option('aios_auto_population_privacy_policy', false)
-                    || ($config && isset($config->config[0]->aios_privacy_policy));
-
-                if (!$skip_static_privacy) {
-                    $privacyPolicypage = get_posts([
-                        'name'        => 'Privacy Policy',
-                        'post_type'   => 'page',
-                        'post_status' => 'draft',
-                        'numberposts' => 1,
-                    ]);
-
-                    if (!empty($privacyPolicypage)) {
-                        $page_id = $privacyPolicypage[0]->ID;
-                        wp_delete_post($page_id, true);
-                    }
-
-                    $defaultsPath = AIOS_AUTOPOPULATE_DIR . 'routes' . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.json';
-                    $defaults_contents = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_local_json($defaultsPath);
-
-                    if ($defaults_contents) {
-                        $contents = $defaults_contents;
-
-                        foreach ($contents as $key => $content) {
-                            foreach ($content as $value) {
-                                $privacy_policy_page = [
-                                    'post_type'    => 'page',
-                                    'post_title'   => $value->post_title,
-                                    'post_content' => $value->post_content,
-                                    'post_status'  => 'publish',
-                                    'post_author'  => 1,
-                                ];
-
-                                wp_insert_post($privacy_policy_page);
-                            }
-                        }
-                    }
-                }
             }
         } else {
             $response_data['status'] = 'success';

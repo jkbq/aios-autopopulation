@@ -118,22 +118,42 @@ class Helpers
         }
 
         $active_theme = get_option('template');
-        $sPath        = ( $active_theme === 'aios-starter-theme' )
+        $theme_dir    = ( $active_theme === 'aios-starter-theme' )
+            ? get_stylesheet_directory()
+            : get_template_directory();
+
+        $file_path = $theme_dir . DIRECTORY_SEPARATOR . $filename;
+        if ( file_exists( $file_path ) ) {
+            $json = file_get_contents( $file_path );
+            if ( $json !== false ) {
+                $data = json_decode( $json );
+                if ( $data !== null ) {
+                    set_transient( $cache_key, $data, $ttl );
+                    return $data;
+                }
+            }
+        }
+
+        $sPath = ( $active_theme === 'aios-starter-theme' )
             ? get_stylesheet_directory_uri()
             : get_template_directory_uri();
 
         $response = wp_remote_get( $sPath . '/' . $filename, [
-            'timeout'  => 45,
-            'blocking' => true,
-            'cookies'  => [],
-        ]);
+            'timeout'   => 45,
+            'blocking'  => true,
+            'cookies'   => [],
+            'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+        ] );
 
         if ( is_wp_error( $response ) ) {
             return null;
         }
 
         $data = json_decode( $response['body'] );
-        set_transient( $cache_key, $data, $ttl );
+        if ( $data !== null ) {
+            set_transient( $cache_key, $data, $ttl );
+        }
+
         return $data;
     }
 
