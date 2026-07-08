@@ -4,6 +4,8 @@ namespace AIOS\AUTOPOPULATE\Routes;
 
 class PrivacyPolicy
 {
+    private const PAGE_SLUG = 'privacy-policy';
+
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'register_endpoints']);
@@ -93,13 +95,10 @@ class PrivacyPolicy
         update_option($this->option_key(), $settings);
         update_option($this->option_content_key(), wp_kses_post($html));
 
-        $wp_privacy_page_id = (int) get_option('wp_page_for_privacy_policy');
-        if ($wp_privacy_page_id) {
-            wp_delete_post($wp_privacy_page_id, true);
-            delete_option('wp_page_for_privacy_policy');
-        }
+        $page_id = $this->with_publish_capability(function () {
+            return $this->upsert_privacy_page();
+        });
 
-        $page_id = $this->upsert_privacy_page();
         if ($page_id) {
             $settings['selected_page'] = (string) $page_id;
             update_option($this->option_key(), $settings);
@@ -109,11 +108,13 @@ class PrivacyPolicy
         update_option('aios_auto_population_privacy_policy_date', $dateComplete);
 
         return rest_ensure_response([
-            'success' => true,
-            'message' => 'Privacy Policy generated successfully',
-            'date'    => $dateComplete,
-            'page_id' => $page_id ?: null,
-            'skipped' => false,
+            'success'     => true,
+            'message'     => 'Privacy Policy generated successfully',
+            'date'        => $dateComplete,
+            'page_id'     => $page_id ?: null,
+            'post_status' => $page_id ? get_post_status($page_id) : null,
+            'post_name'   => $page_id ? get_post_field('post_name', $page_id) : null,
+            'skipped'     => false,
         ]);
     }
 
@@ -127,48 +128,114 @@ class PrivacyPolicy
         return defined('REPP_OPTION_CONTENT') ? REPP_OPTION_CONTENT : 'aios_privacy_policy_content';
     }
 
+    private function with_publish_capability(callable $callback)
+    {
+        $previous_user = get_current_user_id();
+        $admin_id      = $this->get_admin_user_id();
+
+        if ($admin_id > 0) {
+            wp_set_current_user($admin_id);
+        }
+
+        try {
+            return $callback();
+        } finally {
+            wp_set_current_user($previous_user);
+        }
+    }
+
+    private function get_admin_user_id(): int
+    {
+        $admins = get_users([
+            'role'   => 'administrator',
+            'number' => 1,
+            'fields' => 'ID',
+        ]);
+
+        return !empty($admins) ? (int) $admins[0] : 1;
+    }
+
     private function upsert_privacy_page(): int
     {
         $shortcode = '[aios_privacy_policy]';
-        $page      = get_page_by_path('privacy-policy');
+        $page_id   = $this->find_existing_privacy_page_id();
 
-        if ($page) {
+        if ($page_id > 0) {
             wp_update_post([
-                'ID'           => $page->ID,
+                'ID'           => $page_id,
                 'post_content' => $shortcode,
                 'post_status'  => 'publish',
+                'post_name'    => self::PAGE_SLUG,
             ]);
-
-            return (int) $page->ID;
-        }
-
-        $draft_pages = get_posts([
-            'post_type'   => 'page',
-            'post_status' => 'draft',
-            'numberposts' => 1,
-            'name'        => 'privacy-policy',
-        ]);
-
-        if (!empty($draft_pages)) {
-            wp_update_post([
-                'ID'           => $draft_pages[0]->ID,
+        } else {
+            $inserted = wp_insert_post([
+                'post_type'    => 'page',
+                'post_title'   => 'Privacy Policy',
+                'post_name'    => self::PAGE_SLUG,
                 'post_content' => $shortcode,
                 'post_status'  => 'publish',
+                'post_author'  => $this->get_admin_user_id(),
             ]);
 
-            return (int) $draft_pages[0]->ID;
+            if (is_wp_error($inserted) || !$inserted) {
+                return 0;
+            }
+
+            $page_id = (int) $inserted;
         }
 
-        $page_id = wp_insert_post([
-            'post_type'    => 'page',
-            'post_title'   => 'Privacy Policy',
-            'post_name'    => 'privacy-policy',
-            'post_content' => $shortcode,
-            'post_status'  => 'publish',
-            'post_author'  => 1,
+        $this->ensure_published_page($page_id);
+
+        delete_option('wp_page_for_privacy_policy');
+        clean_post_cache($page_id);
+
+        return $page_id;
+    }
+
+    private function ensure_published_page(int $page_id): void
+    {
+        if (get_post_status($page_id) !== 'publish') {
+            wp_publish_post($page_id);
+        }
+
+        if (get_post_field('post_name', $page_id) !== self::PAGE_SLUG) {
+            wp_update_post([
+                'ID'        => $page_id,
+                'post_name' => self::PAGE_SLUG,
+            ]);
+        }
+    }
+
+    private function find_existing_privacy_page_id(): int
+    {
+        $wp_id = (int) get_option('wp_page_for_privacy_policy');
+        if ($wp_id > 0 && get_post($wp_id)) {
+            return $wp_id;
+        }
+
+        $by_slug = get_posts([
+            'post_type'      => 'page',
+            'post_status'    => ['publish', 'draft', 'private', 'pending'],
+            'name'           => self::PAGE_SLUG,
+            'posts_per_page' => 1,
+            'orderby'        => 'ID',
+            'order'          => 'ASC',
         ]);
 
-        return is_wp_error($page_id) ? 0 : (int) $page_id;
+        if (!empty($by_slug)) {
+            return (int) $by_slug[0]->ID;
+        }
+
+        global $wpdb;
+
+        $by_title = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'page' AND post_title = %s AND post_status IN ('publish', 'draft', 'private', 'pending') ORDER BY ID ASC LIMIT 1",
+                'Privacy Policy'
+            )
+        );
+
+        return $by_title > 0 ? $by_title : 0;
     }
 }
 
