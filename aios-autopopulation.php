@@ -3,7 +3,7 @@
 /**
  * Plugin Name: AIOS Auto Population
  * Description: Autopopulate Agentpro and AIX Theme
- * Version: 2.3.2
+ * Version: 2.3.3
  * Author: Agent Image
  * Author URI: https://www.agentimage.com/
  * License: Proprietary
