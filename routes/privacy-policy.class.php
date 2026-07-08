@@ -6,6 +6,28 @@ class PrivacyPolicy
 {
     private const PAGE_SLUG = 'privacy-policy';
 
+    /**
+     * Privacy policy settings applied to every theme. Previously only themes with an
+     * `aios_privacy_policy` block in config.json got a generated policy (most themes
+     * had none); this is that same block, now applied uniformly instead of per-theme.
+     */
+    private const DEFAULT_SETTINGS = [
+        'override_headings'  => 'yes',
+        'override_body_text' => 'yes',
+        'client_name'        => '[ai_company_name]',
+        'legal_name'         => '[ai_company_name]',
+        'address'            => "[ai_client_address type='compact']",
+        'email'              => '[ai_client_email]{default-email}[/ai_client_email]',
+        'phone'              => '[ai_client_phone]{default-phone}[/ai_client_phone]',
+        'policy_url'         => '[blogurl]/privacy-policy',
+        'opt_idx'            => false,
+        'opt_analytics'      => false,
+        'opt_crm'            => false,
+        'opt_cookies'        => false,
+        'opt_euuk'           => false,
+        'opt_ccpa'           => false,
+    ];
+
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'register_endpoints']);
@@ -27,7 +49,6 @@ class PrivacyPolicy
         if ($repopulate) {
             delete_option('aios_auto_population_privacy_policy');
             delete_option('aios_auto_population_privacy_policy_date');
-            \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
         }
 
         $dateComplete = get_option('aios_auto_population_privacy_policy_date', $this->get_request_param($data, 'date', ''));
@@ -51,45 +72,10 @@ class PrivacyPolicy
             ]);
         }
 
-        $config = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
-
-        if (!$config) {
-            return rest_ensure_response([
-                'success' => false,
-                'message' => 'Failed to load theme config.json',
-                'date'    => $dateComplete,
-                'skipped' => true,
-            ]);
-        }
-
-        if (!isset($config->config[0]->aios_privacy_policy)) {
-            return rest_ensure_response([
-                'success' => true,
-                'message' => 'No privacy policy config in theme; skipped',
-                'date'    => $dateComplete,
-                'skipped' => true,
-            ]);
-        }
-
-        $privacy  = (array) $config->config[0]->aios_privacy_policy;
-        $settings = [
-            'override_headings'  => $privacy['override_headings'] ?? '',
-            'override_body_text' => $privacy['override_body_text'] ?? '',
-            'client_name'        => $privacy['client_name'] ?? '',
-            'legal_name'         => $privacy['legal_name'] ?? '',
-            'address'            => $privacy['address'] ?? '',
-            'email'              => $privacy['email'] ?? '',
-            'phone'              => $privacy['phone'] ?? '',
-            'policy_url'         => do_shortcode(
-                str_replace('[blogurl]', home_url(), $privacy['policy_url'] ?? '')
-            ),
-            'opt_idx'            => !empty($privacy['opt_idx']),
-            'opt_analytics'      => !empty($privacy['opt_analytics']),
-            'opt_crm'            => !empty($privacy['opt_crm']),
-            'opt_cookies'        => !empty($privacy['opt_cookies']),
-            'opt_euuk'           => !empty($privacy['opt_euuk']),
-            'opt_ccpa'           => !empty($privacy['opt_ccpa']),
-        ];
+        $settings = self::DEFAULT_SETTINGS;
+        $settings['policy_url'] = do_shortcode(
+            str_replace('[blogurl]', home_url(), $settings['policy_url'])
+        );
 
         $html = \AiosInitialSetup\App\Modules\PrivacyPolicy\Controllers\RendererController::fromSettings(
             array_merge(
@@ -104,8 +90,10 @@ class PrivacyPolicy
         update_option($this->option_key(), $settings);
         update_option($this->option_content_key(), wp_kses_post($html));
 
+        // Existing pages are left alone here; PageController (aios-initial-setup) injects
+        // the rendered content at display time based on `selected_page`, matched below.
         $page_id = $this->with_publish_capability(function () {
-            return $this->publish_privacy_page();
+            return $this->publish_privacy_page('[aios_privacy_policy]');
         });
 
         if ($page_id) {
@@ -219,9 +207,11 @@ class PrivacyPolicy
 
     /**
      * Publish the WordPress default Privacy Policy page and return its ID.
-     * PageController in aios-initial-setup injects policy content via selected_page.
+     * If reusing an existing page, its content is left untouched — aios-initial-setup's
+     * PageController injects the rendered policy content via `selected_page` instead.
+     * $new_page_content is only used if a page has to be created from scratch.
      */
-    private function publish_privacy_page(): int
+    private function publish_privacy_page(string $new_page_content): int
     {
         $page_id = $this->find_existing_privacy_page_id();
 
@@ -236,7 +226,7 @@ class PrivacyPolicy
                 'post_type'    => 'page',
                 'post_title'   => 'Privacy Policy',
                 'post_name'    => self::PAGE_SLUG,
-                'post_content' => '[aios_privacy_policy]',
+                'post_content' => $new_page_content,
                 'post_status'  => 'publish',
                 'post_author'  => $this->get_admin_user_id(),
             ]);
