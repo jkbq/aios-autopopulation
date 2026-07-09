@@ -172,6 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (statusCell) statusCell.querySelector('strong').textContent = 'Generated';
                 if (dateCell)   dateCell.querySelector('strong').textContent   = response.date || new Date().toLocaleString();
 
+                refreshCannedCounts();
+
                 Swal.fire({
                     title: name + ' repopulated!',
                     icon: 'success',
@@ -192,38 +194,45 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    function updateCannedUi(section, slug) {
-        if (section === 'all') {
-            document.querySelectorAll('.aios-delete-canned-btn').forEach(function (btn) {
-                btn.disabled = true;
-            });
-            document.querySelectorAll('[data-canned-count]').forEach(function (el) {
-                el.textContent = '0 item(s)';
-            });
-            const toolbarInfo = document.querySelector('.aios-repopulate-toolbar__info strong');
-            if (toolbarInfo) toolbarInfo.textContent = '0';
-            return;
-        }
+    function refreshCannedCounts() {
+        return fetch(currentDomain + '/wp-json/aios-populate/v1/canned-content-counts', {
+            headers: { 'X-WP-Nonce': nonce },
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            const total = data.total || 0;
+            const sections = data.sections || {};
 
-        const btn = document.querySelector('.aios-delete-canned-btn[data-section="' + section + '"]');
-        if (btn) {
-            btn.disabled = true;
-        }
+            const toolbarCount = document.querySelector('[data-canned-count="all"]');
+            if (toolbarCount) toolbarCount.textContent = String(total);
+
+            const allBtn = document.querySelector('.aios-delete-all-btn');
+            if (allBtn) {
+                const hasContent = total > 0 || Object.values(sections).some(function (s) {
+                    return s.can_delete;
+                });
+                allBtn.disabled = !hasContent;
+            }
+
+            Object.keys(sections).forEach(function (slug) {
+                const info = sections[slug];
+                const countEl = document.querySelector('[data-canned-count="' + slug + '"]');
+                if (countEl) countEl.textContent = info.count + ' item(s)';
+
+                const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + slug + '"]');
+                if (deleteBtn) deleteBtn.disabled = !info.can_delete;
+            });
+
+            return data;
+        });
+    }
+
+    function applyCannedDeleteUi(section, slug) {
+        const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + section + '"]');
+        if (deleteBtn) deleteBtn.disabled = true;
 
         const sectionCount = document.querySelector('[data-canned-count="' + section + '"]');
-        if (sectionCount) {
-            sectionCount.textContent = '0 item(s)';
-        }
-
-        let total = 0;
-        document.querySelectorAll('[data-canned-count]').forEach(function (item) {
-            const match = item.textContent.match(/(\d+)/);
-            if (match) total += parseInt(match[1], 10);
-        });
-        const toolbarInfo = document.querySelector('.aios-repopulate-toolbar__info strong');
-        if (toolbarInfo) toolbarInfo.textContent = String(total);
-        const allBtn = document.querySelector('.aios-delete-all-btn');
-        if (allBtn) allBtn.disabled = total === 0;
+        if (sectionCount) sectionCount.textContent = '0 item(s)';
 
         if (slug) {
             const repopStatus = document.querySelector('[data-repop-status="' + slug + '"]');
@@ -283,13 +292,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 btn.textContent = originalText;
 
                 if (section === 'all') {
-                    updateCannedUi('all');
                     document.querySelectorAll('.aios-delete-canned-btn[data-slug]').forEach(function (item) {
-                        updateCannedUi(item.dataset.section, item.dataset.slug);
+                        applyCannedDeleteUi(item.dataset.section, item.dataset.slug);
                     });
+                    const toolbarCount = document.querySelector('[data-canned-count="all"]');
+                    if (toolbarCount) toolbarCount.textContent = '0';
+                    const allBtn = document.querySelector('.aios-delete-all-btn');
+                    if (allBtn) allBtn.disabled = true;
                 } else {
-                    updateCannedUi(section, slug);
+                    applyCannedDeleteUi(section, slug);
                 }
+
+                refreshCannedCounts();
 
                 Swal.fire({
                     title: name + ' deleted',

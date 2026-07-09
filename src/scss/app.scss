@@ -3,7 +3,9 @@
     display: none;
     float: none;
 }
-
+.aios-settings-section{
+    margin-top: 10px;
+}
 .lds-facebook {
     display: inline-block;
     position: relative;
@@ -121,6 +123,58 @@
     color: #555;
 }
 
+.aios-manage-table {
+    width: 100%;
+
+    .aios-manage-table__row {
+        display: grid;
+        grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) minmax(110px, 1fr) minmax(220px, 2.5fr);
+        gap: 12px 32px;
+        align-items: center;
+        padding: 14px 24px;
+        margin: 0;
+
+        > [class*="wpui-col"] {
+            width: 100% !important;
+            max-width: none !important;
+            flex: none !important;
+            float: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .list-of-logs-heading {
+        padding-bottom: 12px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #dce3ef;
+        background: #f7f9fc;
+
+        p {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+        }
+    }
+
+    .aios-manage-table__row:not(.list-of-logs-heading) {
+        border-bottom: 1px solid #eef2f6;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .aios-repopulate-actions {
+        justify-content: flex-start;
+    }
+}
+
 .aios-settings-section {
     margin-bottom: 28px;
 
@@ -174,11 +228,15 @@
 .aios-theme-card__body {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .aios-theme-card__badge {
     display: inline-block;
-    margin-bottom: 8px;
+    align-self: flex-start;
+    margin: 0;
     padding: 3px 10px;
     font-size: 11px;
     font-weight: 700;
@@ -203,15 +261,21 @@
 }
 
 .aios-theme-card__name {
-    margin: 0 0 4px;
+    margin: 0;
+    padding: 0;
     font-size: 18px;
     font-weight: 700;
     color: #1a1a1a;
     line-height: 1.3;
 }
 
+#wpui-container-minimalist .aios-theme-card__name {
+    margin: 0;
+    padding: 0;
+}
+
 .aios-theme-card__meta {
-    margin: 0 0 6px;
+    margin: 0;
     font-size: 13px;
     color: #6b7280;
 }
@@ -262,16 +326,38 @@
     padding: 8px 16px;
     font-size: 13px;
     font-weight: 600;
+    line-height: 1.4;
     color: #003784;
     background: #fff;
     border: 1px solid #003784;
     border-radius: 6px;
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    box-shadow: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-    &:hover {
-        color: #fff;
-        background: #003784;
+    &:hover,
+    &:focus {
+        color: #fff !important;
+        background: #003784 !important;
+        border-color: #003784 !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    &:active {
+        color: #fff !important;
+        background: #00255a !important;
+        border-color: #00255a !important;
+    }
+}
+
+#wpui-container-minimalist a.aios-theme-link-btn {
+    &:hover,
+    &:focus,
+    &:active {
+        color: #fff !important;
+        text-decoration: none !important;
     }
 }
 

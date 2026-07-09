@@ -90,7 +90,7 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                            <span class="aios-theme-card__badge <?= esc_attr($badge_class) ?>">
                               <?= esc_html($badge_label) ?>
                            </span>
-                           <h5 class="aios-theme-card__name"><?= esc_html($currentThemeName) ?></h5>
+                           <p class="aios-theme-card__name"><?= esc_html($currentThemeName) ?></p>
                            <p class="aios-theme-card__meta"><?= esc_html($active_theme) ?></p>
                            <?php if ($beforeTheme) : ?>
                            <p class="aios-theme-card__populated">
@@ -122,7 +122,7 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
 
                      <div class="aios-repopulate-toolbar">
                         <div class="aios-repopulate-toolbar__info">
-                           <strong><?= (int) $cannedTotal ?></strong> tracked canned item(s)
+                           <strong data-canned-count="all"><?= (int) $cannedTotal ?></strong> tracked canned item(s)
                         </div>
                         <button type="button"
                                 class="aios-delete-canned-btn aios-delete-all-btn"
@@ -133,7 +133,8 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                         </button>
                      </div>
 
-                     <div class="wpui-row wpui-row-box list-of-logs-heading">
+                     <div class="aios-manage-table">
+                     <div class="wpui-row wpui-row-box list-of-logs-heading aios-manage-table__row">
                         <div class="wpui-col-md-2">
                            <p><strong>Section</strong></p>
                         </div>
@@ -157,7 +158,7 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                          $canned_count   = $canned_row ? (int) $canned_row['count'] : 0;
                          $can_delete     = $canned_row && ($canned_count > 0 || $canned_row['generated']);
                      ?>
-                     <div class="wpui-row wpui-row-box" id="repopulate-row-<?= $repop_slug ?>">
+                     <div class="wpui-row wpui-row-box aios-manage-table__row" id="repopulate-row-<?= $repop_slug ?>">
                         <div class="wpui-col-md-2">
                            <p><strong><?= $repop_label ?></strong></p>
                         </div>
@@ -196,6 +197,7 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                         </div>
                      </div>
                      <?php endforeach; ?>
+                     </div>
                   </div>
 
                </div>

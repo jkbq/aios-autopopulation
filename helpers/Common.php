@@ -412,4 +412,29 @@ class Helpers
         return $rows;
     }
 
+    /**
+     * Canned content counts for live admin UI updates.
+     */
+    public static function canned_content_status_payload(): array
+    {
+        $rows  = self::canned_content_rows();
+        $total = 0;
+        $sections = [];
+
+        foreach ($rows as $row) {
+            $total += (int) $row['count'];
+            $sections[$row['slug']] = [
+                'count'      => (int) $row['count'],
+                'generated'  => (bool) $row['generated'],
+                'repop_slug' => $row['repop_slug'],
+                'can_delete' => $row['count'] > 0 || $row['generated'],
+            ];
+        }
+
+        return [
+            'total'    => $total,
+            'sections' => $sections,
+        ];
+    }
+
 }
