@@ -4,6 +4,15 @@ use AIOS\AUTOPOPULATE\Helpers\Helpers;
 $helpers = new Helpers();
 $themes = $helpers->agentpro_themes();
 $apiStatus = $helpers->api_status();
+$cannedContentRows = Helpers::canned_content_rows();
+$cannedByName = [];
+foreach ($cannedContentRows as $row) {
+    $cannedByName[$row['name']] = $row;
+}
+$cannedTotal = array_sum(array_column($cannedContentRows, 'count'));
+$cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
+    return $carry || $row['count'] > 0 || $row['generated'];
+}, false);
 
 ?>
 <div id="wpui-container-minimalist">
@@ -16,7 +25,6 @@ $apiStatus = $helpers->api_status();
          <div class="wpui-tabs-header">
             <ul>
                <li><a data-id="settings" href="#" class="active-panel">Settings</a></li>
-               <li><a data-id="repopulate" href="#" class="active-panel">Repopulate</a></li>
                <li><a data-id="logs" href="#" class="active-panel">Logs</a></li>
             </ul>
          </div>
@@ -25,94 +33,170 @@ $apiStatus = $helpers->api_status();
          <div class="wpui-tabs-body">
             <!-- Loader -->
 
-            <!-- Contents -->
+            <!-- Settings Tab -->
             <div data-id="settings" class="wpui-tabs-content settings" style="display: block;">
                <div class="wpui-tabs-title">Settings</div>
                <div class="wpui-tabs-container">
-                  <!-- BEGIN: Row Box -->
-                  <div class="wpui-row wpui-row-box">
-                     <div class="wpui-col-md-3">
-                        <div class="form-group">
 
-                           <?php
-                              $beforeTheme = get_option('aios_autopopulation_theme');
-$active_theme = get_option('template');
-$active_child_theme = get_option('stylesheet');
+                  <div class="aios-settings-section">
+                     <h5 class="aios-settings-section__title">Theme</h5>
+                     <?php
+                        $beforeTheme        = get_option('aios_autopopulation_theme');
+                        $template           = get_option('template');
+                        $active_child_theme = get_option('stylesheet');
+                        $active_theme       = $template === 'aios-starter-theme' ? $active_child_theme : $template;
+                        $wp_theme           = wp_get_theme($active_child_theme);
+                        $theme_display_name = $wp_theme->get('Name') ?: $active_theme;
+                        $theme_screenshot   = $wp_theme->get_screenshot();
+                        $is_ready           = $active_theme !== $beforeTheme;
 
-$active_theme = $active_theme === 'aios-starter-theme' ? $active_child_theme : $active_theme;
+                        $currentThemeName = '';
+                        foreach ($themes as $theme) {
+                            if (sanitize_title($theme) === $active_theme) {
+                                $currentThemeName = $theme;
+                                break;
+                            }
+                        }
+                        if ($currentThemeName === '') {
+                            $currentThemeName = $theme_display_name;
+                        }
 
+                        $populatedThemeName = '';
+                        if ($beforeTheme) {
+                            foreach ($themes as $theme) {
+                                if (sanitize_title($theme) === $beforeTheme) {
+                                    $populatedThemeName = $theme;
+                                    break;
+                                }
+                            }
+                            if ($populatedThemeName === '') {
+                                $populatedThemeName = $beforeTheme;
+                            }
+                        }
 
-$currentThenme = '';
-foreach ($themes as $theme) {
-
-
-    $themeName = sanitize_title($theme);
-
-
-
-    $currentThenme .= $active_theme == $themeName ? $theme : '';
-}
-
-?>
-                           <input type="text" disabled id="selectedTheme" name="aios_population_settings[theme]" value="<?= $currentThenme ?>">
-                           
-                           </select>
-                           <label for="selectedTheme">Current Active Theme</label>
+                        $badge_class = $is_ready ? 'is-ready' : 'is-current';
+                        $badge_label = $is_ready ? 'Ready to generate' : 'Population up to date';
+                     ?>
+                     <div class="aios-theme-card">
+                        <div class="aios-theme-card__screenshot">
+                           <?php if ($theme_screenshot) : ?>
+                           <img src="<?= esc_url($theme_screenshot) ?>"
+                                alt="<?= esc_attr($theme_display_name) ?>">
+                           <?php else : ?>
+                           <div class="aios-theme-card__placeholder" aria-hidden="true"></div>
+                           <?php endif; ?>
+                        </div>
+                        <div class="aios-theme-card__body">
+                           <span class="aios-theme-card__badge <?= esc_attr($badge_class) ?>">
+                              <?= esc_html($badge_label) ?>
+                           </span>
+                           <h5 class="aios-theme-card__name"><?= esc_html($currentThemeName) ?></h5>
+                           <p class="aios-theme-card__meta"><?= esc_html($active_theme) ?></p>
+                           <?php if ($beforeTheme) : ?>
+                           <p class="aios-theme-card__populated">
+                              Last populated: <?= esc_html($populatedThemeName) ?>
+                           </p>
+                           <?php endif; ?>
+                        </div>
+                        <div class="aios-theme-card__actions">
+                           <?php if ($is_ready) : ?>
+                           <button type="button"
+                                   class="aios-theme-generate-btn aios-repopulate-widgets">
+                              Generate Theme Setup
+                           </button>
+                           <?php else : ?>
+                           <p class="aios-theme-card__hint">
+                              Theme setup is current. Switch to a different theme to run setup again.
+                           </p>
+                           <a href="<?= esc_url(admin_url('themes.php')) ?>"
+                              class="aios-theme-link-btn">
+                              Go to Themes
+                           </a>
+                           <?php endif; ?>
                         </div>
                      </div>
-                     <div class="wpui-col-md-9">
-                        <?php if ($active_theme != $beforeTheme) : ?>
-                        <a href="#" class="wpui-default-button text-uppercase aios-repopulate-widgets">Generate</a>
-                        <?php else :?>
-                           <p>Please Download or Activate your new theme <a href="/wp-admin/themes.php">here</a></p>
-                        <?php endif; ?>
-                     </div>
-                  </div>
-                  <!-- END: Row Box -->
-               </div>
-            </div>
-
-            <!-- Repopulate Tab -->
-            <div data-id="repopulate" class="wpui-tabs-content repopulate" style="display: block;">
-               <div class="wpui-tabs-title">Repopulate</div>
-               <div class="wpui-tabs-container">
-
-                  <div class="wpui-row wpui-row-box list-of-logs-heading">
-                     <div class="wpui-col-md-2">
-                        <p><strong>Section</strong></p>
-                     </div>
-                     <div class="wpui-col-md-1">
-                        <p><strong>Status</strong></p>
-                     </div>
-                     <div class="wpui-col-md-1">
-                        <p><strong>Action</strong></p>
-                     </div>
                   </div>
 
-                  <?php foreach ($apiStatus as $key => $api) :
-                      $repop_status   = !empty($api['status']) ? 'Generated' : '—';
-                      $repop_slug     = esc_attr(sanitize_title($key));
-                      $repop_endpoint = esc_attr($api['endpoint']);
-                      $repop_label    = esc_html($key);
-                  ?>
-                  <div class="wpui-row wpui-row-box" id="repopulate-row-<?= $repop_slug ?>">
-                     <div class="wpui-col-md-2">
-                        <p><strong><?= $repop_label ?></strong></p>
-                     </div>
-                     <div class="wpui-col-md-1">
-                        <p class="aios-repopulate-status <?= !empty($api['status']) ? 'is-generated' : '' ?>"
-                           data-repop-status="<?= $repop_slug ?>"><?= $repop_status ?></p>
-                     </div>
-                     <div class="wpui-col-md-1">
-                        <button class="aios-repopulate-route-btn"
-                                data-endpoint="<?= $repop_endpoint ?>"
-                                data-name="<?= $repop_label ?>"
-                                data-slug="<?= $repop_slug ?>">
-                           Repopulate
+                  <div class="aios-settings-section">
+                     <h5 class="aios-settings-section__title">Manage Content</h5>
+
+                     <div class="aios-repopulate-toolbar">
+                        <div class="aios-repopulate-toolbar__info">
+                           <strong><?= (int) $cannedTotal ?></strong> tracked canned item(s)
+                        </div>
+                        <button type="button"
+                                class="aios-delete-canned-btn aios-delete-all-btn"
+                                data-section="all"
+                                data-name="All Canned Content"
+                                <?= ! $cannedHasContent ? 'disabled' : '' ?>>
+                           Delete All Canned Content
                         </button>
                      </div>
+
+                     <div class="wpui-row wpui-row-box list-of-logs-heading">
+                        <div class="wpui-col-md-2">
+                           <p><strong>Section</strong></p>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <p><strong>Status</strong></p>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <p><strong>Canned</strong></p>
+                        </div>
+                        <div class="wpui-col-md-2">
+                           <p><strong>Action</strong></p>
+                        </div>
+                     </div>
+
+                     <?php foreach ($apiStatus as $key => $api) :
+                         $repop_status   = !empty($api['status']) ? 'Generated' : '—';
+                         $repop_slug     = esc_attr(sanitize_title($key));
+                         $repop_endpoint = esc_attr($api['endpoint']);
+                         $repop_label    = esc_html($key);
+                         $canned_row     = $cannedByName[$key] ?? null;
+                         $canned_count   = $canned_row ? (int) $canned_row['count'] : 0;
+                         $can_delete     = $canned_row && ($canned_count > 0 || $canned_row['generated']);
+                     ?>
+                     <div class="wpui-row wpui-row-box" id="repopulate-row-<?= $repop_slug ?>">
+                        <div class="wpui-col-md-2">
+                           <p><strong><?= $repop_label ?></strong></p>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <p class="aios-repopulate-status <?= !empty($api['status']) ? 'is-generated' : '' ?>"
+                              data-repop-status="<?= $repop_slug ?>"><?= $repop_status ?></p>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <?php if ($canned_row) : ?>
+                           <p class="aios-canned-count"
+                              data-canned-count="<?= esc_attr($canned_row['slug']) ?>">
+                              <?= $canned_count ?> item(s)
+                           </p>
+                           <?php else : ?>
+                           <p>—</p>
+                           <?php endif; ?>
+                        </div>
+                        <div class="wpui-col-md-2 aios-repopulate-actions">
+                           <button type="button"
+                                   class="aios-repopulate-route-btn"
+                                   data-endpoint="<?= $repop_endpoint ?>"
+                                   data-name="<?= $repop_label ?>"
+                                   data-slug="<?= $repop_slug ?>">
+                              Repopulate
+                           </button>
+                           <?php if ($canned_row) : ?>
+                           <button type="button"
+                                   class="aios-delete-canned-btn"
+                                   data-section="<?= esc_attr($canned_row['slug']) ?>"
+                                   data-name="<?= esc_attr($canned_row['name']) ?>"
+                                   data-slug="<?= $repop_slug ?>"
+                                   <?= ! $can_delete ? 'disabled' : '' ?>>
+                              Delete
+                           </button>
+                           <?php endif; ?>
+                        </div>
+                     </div>
+                     <?php endforeach; ?>
                   </div>
-                  <?php endforeach; ?>
 
                </div>
             </div>

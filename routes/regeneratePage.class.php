@@ -185,71 +185,15 @@ class RegenerateContents
         }
 
         update_option('aios-enqueue-cdn', $aios_enqueue_cdn);
-        $productType = $config->config[0]->product_type;
 
-        // about and contact regenerate
-        $about =  $config->about_contact[0]->about;
-        $about_options = get_option('about_options');
-
-        $aios_client_info['photo'] = wp_get_attachment_image_url($about_options['agent_team_photo'], 'full');
-        update_option('aiis_ci', $aios_client_info);
-
-        $about_options['theme'] = $productType . '-' . $about->theme;
-        update_option('about-theme', $productType . '-' . $about->theme);
-
-        autoPopulateCustomPages(
-            'about',
-            $about->theme,
-            true,
-        );
-
-        update_option('about_options', $about_options);
-
-        // Contact
-        $image =  $config->about_contact[0]->image;
-        $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
-
-        $background_image_url = $sPath . '/' . $extension . 'images/' . $image->background;
-
-        $contact =  $config->about_contact[0]->contact;
-        $contact_options = get_option('contact_options');
-
-        if ($contact_options['theme'] !== 'agent-pro-element') {
-            if ($contact->theme === "element") {
-                $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
-                $contact_options['agent_team_photo'] = $backgroundImage;
-            }
-        }
-
-        $contact_options['theme'] = $productType . '-' . $contact->theme;
-        $contact_options['address-display'] = $contact->address_display;
-
-        update_option('contact-theme', $productType . '-' . $contact->theme);
-
-        autoPopulateCustomPages(
-            'contact',
-            $contact->theme,
-            true,
-        );
-
-        update_option('contact_options', $contact_options);
-
-        $page_template_about = $config->about_contact[0]->page_template_about;
-        $page_template_contact = $config->about_contact[0]->page_template_contact;
-
-        if ($page_template_about) {
-            update_post_meta($about_options['page_id'], '_wp_page_template', $page_template_about);
-        }
-
-        if ($page_template_contact) {
-            update_post_meta($contact_options['page_id'], '_wp_page_template', $page_template_contact);
-        }
+        $aboutContactResult = \AIOS\AUTOPOPULATE\Services\AboutContactPopulator::runRefresh($config, $sPath);
 
         update_option('aios_autopopulation_theme', $active_theme);
 
         $response = [
             'success' => true,
             'message' => 'Regenerate Successful',
+            'about_contact' => $aboutContactResult,
         ];
 
         return rest_ensure_response($response);

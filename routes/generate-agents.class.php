@@ -43,6 +43,8 @@ class Agents
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
 
+                $generated_ids = [];
+
                 foreach ($contents as $key => $content) {
 
                     if ($key === 'aios-agents') {
@@ -71,6 +73,7 @@ class Agents
                             $insert_post = wp_insert_post($post_data);
 
                             if ($insert_post) {
+                                $generated_ids[] = (int) $insert_post;
 
                                 $extension = !empty($value->extension) ? $value->extension . '/' : '';
                                 $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
@@ -109,6 +112,7 @@ class Agents
                         $response_data['message'] = 'Agents generated successfully';
                     }
                 }
+                update_option('aios_auto_population_agents_ids', $generated_ids);
                 update_option('aios_auto_population_agents', true);
                 update_option('aios_auto_population_agents_date', $dateComplete);
             }
