@@ -48,6 +48,8 @@ class Testimonials
             return rest_ensure_response($response_data);
         }
 
+        $this->apply_testimonials_theme_from_config();
+
         // Section templates are always retained — only create missing ones.
         if (! empty($contents->{'aios-section-testimonials'})) {
             $this->populate_testimonial_sections($contents->{'aios-section-testimonials'});
@@ -192,6 +194,26 @@ class Testimonials
         }
 
         return $generated_ids;
+    }
+
+    /**
+     * Map testimonials theme from config; equinox themes use the default template.
+     */
+    private function apply_testimonials_theme_from_config(): void
+    {
+        $config = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
+
+        if (empty($config->config[0]->plugins->aios_testimonials->theme)) {
+            return;
+        }
+
+        $theme = sanitize_key($config->config[0]->plugins->aios_testimonials->theme);
+
+        if ($theme === 'equinox') {
+            $theme = 'default';
+        }
+
+        update_option('testimonials-themes', $theme . '-core');
     }
 }
 new Testimonials();

@@ -272,7 +272,7 @@ class PluginSettingsPopulator
 
         if (! empty($testimonialsConfig->theme)) {
             $testimonials_theme = $testimonialsConfig->theme . '-core';
-            if ($testimonials_theme === 'clarity-core') {
+            if ($testimonials_theme === 'clarity-core' || $testimonials_theme === 'equinox-core') {
                 $testimonials_theme = 'default-core';
             }
             update_option('testimonials-themes', $testimonials_theme);
