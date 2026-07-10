@@ -4,7 +4,7 @@ const requestQueue = [];
 let queueIsRunning = false;
 let isProcessing = false;
 let completedSteps = 0;
-const totalSteps = 15;
+const totalSteps = 18;
 let startTime = null;
 let elapsedInterval = null;
 
@@ -226,6 +226,9 @@ const apiRequests = [
     { name: 'Page',                   endpoint: 'page-populate',       showReRunButton: false, description: 'Populating site pages...' },
     { name: 'Post',                   endpoint: 'post-populate',       showReRunButton: false, description: 'Migrating blog posts...' },
     { name: 'Testimonials',           endpoint: 'testimonials',        showReRunButton: false, description: 'Importing testimonials...' },
+    { name: 'Communities',            endpoint: 'communities',         showReRunButton: false, description: 'Setting up communities...' },
+    { name: 'Agents',                 endpoint: 'agents',              showReRunButton: false, description: 'Importing agents...' },
+    { name: 'Listings',               endpoint: 'listings',            showReRunButton: false, description: 'Importing listings...' },
     { name: 'Buyers',                 endpoint: 'roadmaps-buyers',     showReRunButton: false, description: 'Building buyer roadmaps...' },
     { name: 'Sellers',                endpoint: 'roadmaps-sellers',    showReRunButton: false, description: 'Building seller roadmaps...' },
     { name: 'Financing',              endpoint: 'roadmaps-financing',  showReRunButton: false, description: 'Building financing roadmaps...' },

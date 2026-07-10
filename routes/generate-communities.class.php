@@ -62,6 +62,8 @@ class Communities
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
 
+                $generated_ids = [];
+
                 foreach ($contents as $key => $content) {
 
                     if ($key === 'aios-communities') {
@@ -79,6 +81,7 @@ class Communities
                             $insert_post = wp_insert_post($post_data);
 
                             if ($insert_post) {
+                                $generated_ids[] = (int) $insert_post;
 
                                 $extension = !empty($value->extension) ? $value->extension . '/' : '';
                                 $image_url = $sPath . '/' . $extension . 'images/' . $value->featured_image;
@@ -122,6 +125,7 @@ class Communities
                         }
                     }
                 }
+                update_option('aios_auto_population_communities_ids', $generated_ids);
                 // Set the option to indicate that pages have been generated
                 update_option('aios_auto_population_communities', true);
                 update_option('aios_auto_population_communities_date', $dateComplete);

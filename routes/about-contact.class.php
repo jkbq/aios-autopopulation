@@ -13,169 +13,43 @@ class ABOUT_CONTACT_GENERATE
     {
         register_rest_route('aios-populate/v1', '/about-contact', [
             'methods'             => 'POST',
-            'callback'            => [ $this, 'aios_populate_generate_about_contact' ],
+            'callback'            => [$this, 'aios_populate_generate_about_contact'],
             'permission_callback' => [\AIOS\AUTOPOPULATE\Helpers\RestAuth::class, 'require_admin_or_install_token'],
         ]);
     }
 
     public function aios_populate_generate_about_contact($data)
     {
-        $dateComplete = get_option('aios_auto_population_about_contact_generate_date', $data['date']);
-        update_option('aios_auto_population_about_contact_generate_date', $dateComplete);
+        $dateComplete = get_option('aios_auto_population_about_contact_generate_date', $data['date'] ?? '');
 
         $apiResponse = [
             'success' => false,
             'message' => 'About and Contact Failed to Generated',
-            'date' => $dateComplete,
+            'date'    => $dateComplete,
         ];
 
         $generateAboutContact = get_option('aios_auto_population_about_contact_generate', false);
 
+        if ($generateAboutContact == true) {
+            return rest_ensure_response($apiResponse);
+        }
 
+        $sPath  = \AIOS\AUTOPOPULATE\Services\PopulateService::getThemeUri();
+        $config = \AIOS\AUTOPOPULATE\Services\PopulateService::getConfig();
 
-        $active_theme = get_option('template');
-        $sPath = ( $active_theme === 'aios-starter-theme' )
-            ? get_stylesheet_directory_uri()
-            : get_template_directory_uri();
+        if (! $config) {
+            $apiResponse['message'] = 'Error fetching theme config';
+            return rest_ensure_response($apiResponse);
+        }
 
-        $data = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
+        $result = \AIOS\AUTOPOPULATE\Services\AboutContactPopulator::runInitial($config, $sPath);
 
-        if ($generateAboutContact != true) {
-            $config = $data->config;
-            $productType = $config[0]->product_type;
-
-            $image = $data->about_contact[0]->image;
-
-            $extension = !empty($image->extension) ? '' . $image->extension . '/' : '';
-            $image_path = $sPath . '/' . $extension . 'images/';
-            $image_url = $image_path . $image->image_name;
-
-            $background_image_url = $sPath . '/' . $extension . 'images/' . $image->background;
-
-            $aios_client_info = get_option('aiis_ci');
-
-            if ($data->about_contact) {
-                // About
-                $about = $data->about_contact[0]->about;
-                $generatedResponse = "";
-
-                if (! isset($about->disabled)) {
-                    $about_options = get_option('about_options');
-
-                    // for profile photo
-                    $agentPhoto = media_sideload_image($image_path . $image->image_name, $about_options['page_id'], '', 'id');
-                    $about_options['agent_team_photo'] = $agentPhoto;
-                    $aios_client_info['photo'] = wp_get_attachment_image_url($agentPhoto, 'full');
-                    update_option('aiis_ci', $aios_client_info);
-
-                    foreach ($about as $key => $content) {
-                        if ($key === 'theme') {
-                            $about_options[$key] = $productType . '-' . $content;
-                        } else {
-                            if ($key === "about_overlay_photo") {
-                                $about_options[$key] = media_sideload_image($image_path . $about->about_overlay_photo, $about_options['page_id'], '', 'id');
-                                ;
-                            } else {
-                                $about_options[$key] = $content;
-                            }
-                        }
-                    }
-
-                    update_option('about-theme', $productType . '-' . $about->theme);
-
-                    if (function_exists('autoPopulateCustomPages')) {
-                        autoPopulateCustomPages(
-                            'about',
-                            $about->theme,
-                            true,
-                        );
-                    }
-
-                    update_option('about_options', $about_options);
-
-                    $generatedResponse = "About";
-                }
-
-                // Contact
-                $contact = $data->about_contact[0]->contact;
-
-                if (! isset($contact->disabled)) {
-                    $contact_options = get_option('contact_options');
-
-                    if (isset($contact->agent_team_photo)) {
-                        $contactFormPhotoSrc = $sPath . '/' . $image->extension . '/images/' . $contact->agent_team_photo;
-                        $contactFormPhoto = media_sideload_image($contactFormPhotoSrc, $contact_options['page_id'], '', 'id');
-                        $contact_options['agent_team_photo'] = $contactFormPhoto;
-                    } else {
-                        if ($contact->theme !== "element") {
-                            $contact_options['agent_team_photo'] = $agentPhoto;
-                        } else {
-                            $backgroundImage = media_sideload_image($background_image_url, $contact_options['page_id'], '', 'id');
-                            $contact_options['agent_team_photo'] = $backgroundImage;
-                        }
-                    }
-
-                    foreach ($contact as $key => $content) {
-                        switch ($key) {
-                            case 'theme':
-                                $contact_options[$key] = $productType . '-' . $content;
-                                break;
-
-                            case 'image_accent':
-                                $contact_options['contact_image_accent'] = media_sideload_image(
-                                    $image_path . $contact->image_accent,
-                                    $contact_options['page_id'],
-                                    '',
-                                    'id'
-                                );
-                                break;
-
-                            case 'agent_team_photo':
-                                // skip agent team photo - already defined
-                                break;
-
-                            case 'contact_form':
-                                $form_slug = $content;
-                                $form = get_page_by_path($form_slug, OBJECT, 'wpcf7_contact_form');
-
-                                if ($form) {
-                                    $contact_options['contact-theme-form'] = $form->ID;
-                                    update_option('contact-theme-form', $form->ID);
-                                }
-                                break;
-                            
-                            case 'form_title':
-                                $contact_options['contact-theme-form-title'] = sanitize_text_field($content);
-                                update_option('contact-theme-form-title', sanitize_text_field($content));
-                                break;
-
-                            default:
-                                $finalKey = $key === 'address_display' ? 'address-display' : $key;
-                                $contact_options[$finalKey] = $content;
-                                break;
-                        }
-                    }
-
-                    update_option('contact-theme', $productType . '-' . $contact->theme);
-
-                    if (function_exists('autoPopulateCustomPages')) {
-                        autoPopulateCustomPages(
-                            'contact',
-                            $contact->theme,
-                            true,
-                        );
-                    }
-
-                    update_option('contact_options', $contact_options);
-
-                    $generatedResponse = $generatedResponse . (! empty($generatedResponse) ? " and" : "") . " Contact";
-                }
-
-                $apiResponse['success'] = true;
-                $apiResponse['message'] = empty($generatedResponse) ? "No pages are generated" : "$generatedResponse successfully generated";
-
-                update_option('aios_auto_population_about_contact_generate', true);
-            }
+        if ($result['ok']) {
+            $apiResponse['success'] = true;
+            $apiResponse['message'] = $result['message'];
+            $apiResponse['date']    = $dateComplete ?: ($data['date'] ?? '');
+            update_option('aios_auto_population_about_contact_generate', true);
+            update_option('aios_auto_population_about_contact_generate_date', $apiResponse['date']);
         }
 
         return rest_ensure_response($apiResponse);

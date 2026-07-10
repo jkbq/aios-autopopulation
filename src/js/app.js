@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 buttonsStyling: false
             });
             swalWithBootstrapButtons.fire({
-                title: "Are you sure?",
-                text: "Doing This will Delete Form, Current Menu and Slideshow",
+                title: "Apply theme setup?",
+                text: "This will update sidebar widgets, plugin theme settings, and About/Contact templates for the new theme. Menus, forms, and existing content will not be changed.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Proceed!",
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: "Please wait for as we setup your theme ",
+                        title: "Please wait while we apply your theme setup",
                         html: `<div class="lds-facebook"><div></div><div></div><div></div></div><a href="${currentDomain}" class="wpui-secondary-button text-uppercase auto-populate-api-status">Visit Homepage</a>`,
                         showConfirmButton: false,
                         allowOutsideClick: false,
@@ -42,10 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
 
                             const fetchData = async () => {
-                                const url1 = `${currentDomain}/wp-json/aios-populate/v1/widgets`;
-                                const url2 = `${currentDomain}/wp-json/aios-populate/v1/form`;
-                                const url3 = `${currentDomain}/wp-json/aios-populate/v1/menu`;
-                                const url4 = `${currentDomain}/wp-json/aios-populate/v1/regeneratecontents`;
+                                const themeSetupUrl = `${currentDomain}/wp-json/aios-populate/v1/theme-setup`;
+                                const statusUrl = `${currentDomain}/wp-json/aios-populate/v1/status`;
 
                                 const headers = {
                                     'Content-Type': 'application/json',
@@ -53,52 +51,50 @@ document.addEventListener('DOMContentLoaded', function () {
                                 };
 
                                 const postData = {
-                                    repopulate: true,
                                     date: new Date().toLocaleString()
                                 };
 
                                 try {
-                                    const requests = [url1, url2, url3, url4].map(url =>
-                                        fetch(url, {
-                                            method: 'POST',
-                                            headers,
-                                            body: JSON.stringify(postData),
-                                        })
-                                    );
+                                    const response = await fetch(themeSetupUrl, {
+                                        method: 'POST',
+                                        headers,
+                                        body: JSON.stringify(postData),
+                                    });
 
-                                    const responses = await Promise.all(requests);
-                                    const dataPromises = responses.map(response => response.json());
-                                    const results = await Promise.all(dataPromises);
+                                    const result = await response.json();
 
                                     $buttonStatus = Swal.getPopup().querySelector(".auto-populate-api-status");
                                     $loader = Swal.getPopup().querySelector(".lds-facebook");
                                     $title = Swal.getPopup().querySelector(".swal2-title");
                                     $loader.style.display = "none";
-                                    $title.textContent = 'Your theme setup is already done. Please click the link below to proceed.';
+                                    $title.textContent = result.message || 'Theme setup applied successfully.';
                                     $buttonStatus.style.display = "inline-block";
 
-                                    // Poll /status every 5s to refresh the Logs tab
-                                    const statusUrl = `${currentDomain}/wp-json/aios-populate/v1/status`;
                                     const poll = setInterval(async () => {
                                         try {
                                             const res = await fetch(statusUrl, {
                                                 headers: { 'X-WP-Nonce': nonce },
                                             });
                                             const statuses = await res.json();
-                                            let allDone = true;
                                             Object.entries(statuses).forEach(([key, api]) => {
                                                 const slug = key.toLowerCase().replace(/\s+/g, '-');
                                                 const statusCell = document.querySelector(`[data-status-cell="${slug}"]`);
                                                 const dateCell   = document.querySelector(`[data-date-cell="${slug}"]`);
+                                                const repopStatus = document.querySelector(`[data-repop-status="${slug}"]`);
                                                 if (statusCell) statusCell.querySelector('strong').textContent = api.status ? 'Generated' : '';
                                                 if (dateCell)   dateCell.querySelector('strong').textContent   = api.date || '';
-                                                if (!api.status) allDone = false;
+                                                if (repopStatus && api.status) {
+                                                    repopStatus.textContent = 'Generated';
+                                                    repopStatus.classList.add('is-generated');
+                                                }
                                             });
-                                            if (allDone) clearInterval(poll);
+                                            clearInterval(poll);
                                         } catch (e) {
                                             console.error('Status poll error:', e);
                                         }
-                                    }, 5000);
+                                    }, 2000);
+
+                                    setTimeout(() => location.reload(), 2500);
 
                                 } catch (error) {
                                     console.error('Error fetching data:', error);
@@ -176,6 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (statusCell) statusCell.querySelector('strong').textContent = 'Generated';
                 if (dateCell)   dateCell.querySelector('strong').textContent   = response.date || new Date().toLocaleString();
 
+                refreshCannedCounts();
+
                 Swal.fire({
                     title: name + ' repopulated!',
                     icon: 'success',
@@ -190,6 +188,138 @@ document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     title: 'Error',
                     text: 'Repopulation failed. Check the browser console for details.',
+                    icon: 'error',
+                });
+            });
+        });
+    });
+
+    function refreshCannedCounts() {
+        return fetch(currentDomain + '/wp-json/aios-populate/v1/canned-content-counts', {
+            headers: { 'X-WP-Nonce': nonce },
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            const total = data.total || 0;
+            const sections = data.sections || {};
+
+            const toolbarCount = document.querySelector('[data-canned-count="all"]');
+            if (toolbarCount) toolbarCount.textContent = String(total);
+
+            const allBtn = document.querySelector('.aios-delete-all-btn');
+            if (allBtn) {
+                const hasContent = total > 0 || Object.values(sections).some(function (s) {
+                    return s.can_delete;
+                });
+                allBtn.disabled = !hasContent;
+            }
+
+            Object.keys(sections).forEach(function (slug) {
+                const info = sections[slug];
+                const countEl = document.querySelector('[data-canned-count="' + slug + '"]');
+                if (countEl) countEl.textContent = info.count + ' item(s)';
+
+                const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + slug + '"]');
+                if (deleteBtn) deleteBtn.disabled = !info.can_delete;
+            });
+
+            return data;
+        });
+    }
+
+    function applyCannedDeleteUi(section, slug) {
+        const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + section + '"]');
+        if (deleteBtn) deleteBtn.disabled = true;
+
+        const sectionCount = document.querySelector('[data-canned-count="' + section + '"]');
+        if (sectionCount) sectionCount.textContent = '0 item(s)';
+
+        if (slug) {
+            const repopStatus = document.querySelector('[data-repop-status="' + slug + '"]');
+            if (repopStatus) {
+                repopStatus.textContent = '—';
+                repopStatus.classList.remove('is-generated');
+            }
+
+            const statusCell = document.querySelector('[data-status-cell="' + slug + '"]');
+            const dateCell   = document.querySelector('[data-date-cell="' + slug + '"]');
+            if (statusCell) statusCell.querySelector('strong').textContent = '';
+            if (dateCell)   dateCell.querySelector('strong').textContent   = '';
+        }
+    }
+
+    // ── Delete canned content buttons ─────────────────────────────────────────
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.aios-delete-canned-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+
+        const section = btn.dataset.section;
+        const name    = btn.dataset.name;
+        const slug    = btn.dataset.slug || '';
+
+        Swal.fire({
+            title: 'Delete ' + name + '?',
+            text: 'This will permanently remove tracked canned content for this section.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                cancelButton: 'btn btn-success',
+            },
+            buttonsStyling: false,
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Deleting…';
+
+            fetch(currentDomain + '/wp-json/aios-populate/v1/delete-canned-content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': nonce,
+                },
+                body: JSON.stringify({ section: section }),
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (response) {
+                btn.textContent = originalText;
+
+                if (section === 'all') {
+                    document.querySelectorAll('.aios-delete-canned-btn[data-slug]').forEach(function (item) {
+                        applyCannedDeleteUi(item.dataset.section, item.dataset.slug);
+                    });
+                    const toolbarCount = document.querySelector('[data-canned-count="all"]');
+                    if (toolbarCount) toolbarCount.textContent = '0';
+                    const allBtn = document.querySelector('.aios-delete-all-btn');
+                    if (allBtn) allBtn.disabled = true;
+                } else {
+                    applyCannedDeleteUi(section, slug);
+                }
+
+                refreshCannedCounts();
+
+                Swal.fire({
+                    title: name + ' deleted',
+                    text: response.message || 'Canned content removed.',
+                    icon: 'success',
+                    timer: 2500,
+                    showConfirmButton: false,
+                });
+            })
+            .catch(function (err) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                console.error('Delete canned content error:', err);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Delete failed. Check the browser console for details.',
                     icon: 'error',
                 });
             });

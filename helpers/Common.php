@@ -244,4 +244,197 @@ class Helpers
         ];
     }
 
+    /**
+     * Canned content sections that track generated post IDs for safe deletion.
+     */
+    public static function canned_content_sections(): array
+    {
+        $p = 'aios_auto_population_';
+
+        return [
+            'Post' => [
+                'slug'          => 'post',
+                'ids_option'    => $p . 'post_ids',
+                'status_option' => $p . 'post',
+                'date_option'   => $p . 'post_date',
+                'post_type'     => 'post',
+            ],
+            'Testimonials' => [
+                'slug'          => 'testimonials',
+                'ids_option'    => $p . 'testimonials_ids',
+                'status_option' => $p . 'testimonials',
+                'date_option'   => $p . 'testimonials_date',
+                'post_type'     => 'aios-testimonials',
+            ],
+            'Communities' => [
+                'slug'          => 'communities',
+                'ids_option'    => $p . 'communities_ids',
+                'status_option' => $p . 'communities',
+                'date_option'   => $p . 'communities_date',
+                'post_type'     => 'aios-communities',
+            ],
+            'Agents' => [
+                'slug'          => 'agents',
+                'ids_option'    => $p . 'agents_ids',
+                'status_option' => $p . 'agents',
+                'date_option'   => $p . 'agents_date',
+                'post_type'     => 'aios-agents',
+            ],
+            'Listings' => [
+                'slug'          => 'listings',
+                'ids_option'    => $p . 'listings_ids',
+                'status_option' => $p . 'listings',
+                'date_option'   => $p . 'listings_date',
+                'post_type'     => 'aios-listings',
+            ],
+        ];
+    }
+
+    /**
+     * @return int[] Stored generated post IDs for a canned content section.
+     */
+    public static function get_canned_content_ids( string $ids_option ): array
+    {
+        $ids = get_option( $ids_option, [] );
+
+        if ( ! is_array( $ids ) ) {
+            return [];
+        }
+
+        return array_values( array_filter( array_map( 'absint', $ids ) ) );
+    }
+
+    /**
+     * Delete tracked canned posts for a section and return the number removed.
+     */
+    public static function delete_canned_content_by_ids( string $ids_option, string $post_type ): int
+    {
+        $ids     = self::get_canned_content_ids( $ids_option );
+        $deleted = 0;
+
+        foreach ( $ids as $id ) {
+            if ( $id > 0 && get_post_type( $id ) === $post_type && wp_delete_post( $id, true ) ) {
+                $deleted++;
+            }
+        }
+
+        delete_option( $ids_option );
+
+        return $deleted;
+    }
+
+    /**
+     * Delete canned content for one section and reset its population status.
+     *
+     * @return array{deleted: int, section: string, count: int}
+     */
+    public static function delete_canned_content_section( string $slug ): array
+    {
+        $config = null;
+
+        foreach ( self::canned_content_sections() as $section ) {
+            if ( $section['slug'] === $slug ) {
+                $config = $section;
+                break;
+            }
+        }
+
+        if ( ! $config ) {
+            return [
+                'deleted' => 0,
+                'section' => $slug,
+                'count'   => 0,
+            ];
+        }
+
+        $ids     = self::get_canned_content_ids( $config['ids_option'] );
+        $deleted = self::delete_canned_content_by_ids( $config['ids_option'], $config['post_type'] );
+
+        delete_option( $config['status_option'] );
+        delete_option( $config['date_option'] );
+
+        return [
+            'deleted' => $deleted,
+            'section' => $slug,
+            'count'   => count( $ids ),
+        ];
+    }
+
+    /**
+     * Delete canned content across all tracked sections.
+     *
+     * @return array<string, array{deleted: int, section: string, count: int}>
+     */
+    public static function delete_all_canned_content(): array
+    {
+        $results = [];
+
+        foreach ( self::canned_content_sections() as $section ) {
+            $results[ $section['slug'] ] = self::delete_canned_content_section( $section['slug'] );
+        }
+
+        return $results;
+    }
+
+    /**
+     * Count tracked canned posts per section for the admin UI.
+     */
+    public static function canned_content_counts(): array
+    {
+        $counts = [];
+
+        foreach ( self::canned_content_sections() as $name => $section ) {
+            $counts[ $name ] = count( self::get_canned_content_ids( $section['ids_option'] ) );
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Admin rows for the Canned Content tab.
+     */
+    public static function canned_content_rows(): array
+    {
+        $api_status = ( new self() )->api_status();
+        $counts     = self::canned_content_counts();
+        $rows       = [];
+
+        foreach ( self::canned_content_sections() as $name => $section ) {
+            $rows[] = [
+                'name'      => $name,
+                'slug'      => $section['slug'],
+                'count'     => $counts[ $name ] ?? 0,
+                'generated' => ! empty( $api_status[ $name ]['status'] ),
+                'repop_slug'=> sanitize_title( $name ),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Canned content counts for live admin UI updates.
+     */
+    public static function canned_content_status_payload(): array
+    {
+        $rows  = self::canned_content_rows();
+        $total = 0;
+        $sections = [];
+
+        foreach ($rows as $row) {
+            $total += (int) $row['count'];
+            $sections[$row['slug']] = [
+                'count'      => (int) $row['count'],
+                'generated'  => (bool) $row['generated'],
+                'repop_slug' => $row['repop_slug'],
+                'can_delete' => $row['count'] > 0 || $row['generated'],
+            ];
+        }
+
+        return [
+            'total'    => $total,
+            'sections' => $sections,
+        ];
+    }
+
 }

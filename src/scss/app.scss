@@ -3,7 +3,9 @@
     display: none;
     float: none;
 }
-
+.aios-settings-section{
+    margin-top: 10px;
+}
 .lds-facebook {
     display: inline-block;
     position: relative;
@@ -69,6 +71,294 @@
     font-weight: 600;
     color: #888;
     &.is-generated { color: #2e7d32; }
+}
+
+.aios-repopulate-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.aios-canned-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+.aios-delete-canned-btn {
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: #c62828;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    &:hover:not(:disabled) { background: #8e0000; }
+    &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+.aios-delete-all-btn {
+    padding: 10px 22px;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+.aios-repopulate-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px 18px;
+    background: #f7f9fc;
+    border: 1px solid #e3e8f0;
+    border-radius: 6px;
+}
+
+.aios-repopulate-toolbar__info {
+    font-size: 14px;
+    color: #555;
+}
+
+.aios-manage-table {
+    width: 100%;
+
+    .aios-manage-table__row {
+        display: grid;
+        grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) minmax(110px, 1fr) minmax(220px, 2.5fr);
+        gap: 12px 32px;
+        align-items: center;
+        padding: 14px 24px;
+        margin: 0;
+
+        > [class*="wpui-col"] {
+            width: 100% !important;
+            max-width: none !important;
+            flex: none !important;
+            float: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .list-of-logs-heading {
+        padding-bottom: 12px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #dce3ef;
+        background: #f7f9fc;
+
+        p {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+        }
+    }
+
+    .aios-manage-table__row:not(.list-of-logs-heading) {
+        border-bottom: 1px solid #eef2f6;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .aios-repopulate-actions {
+        justify-content: flex-start;
+    }
+}
+
+.aios-settings-section {
+    margin-bottom: 28px;
+
+    &:not(:first-child) {
+        padding-top: 8px;
+        border-top: 1px solid #e5e5e5;
+    }
+}
+
+.aios-settings-section__title {
+    margin: 0 0 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #003784;
+}
+
+.aios-theme-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 22px;
+    background: #fff;
+    border: 1px solid #dce3ef;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 55, 132, 0.06);
+}
+
+.aios-theme-card__screenshot {
+    flex-shrink: 0;
+    width: 120px;
+    height: 90px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #eef2f8;
+    border: 1px solid #e3e8f0;
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.aios-theme-card__placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e8eef6 0%, #d4deec 100%);
+}
+
+.aios-theme-card__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.aios-theme-card__badge {
+    display: inline-block;
+    align-self: flex-start;
+    margin: 0;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-radius: 999px;
+
+    &.is-ready {
+        color: #1b5e20;
+        background: #e8f5e9;
+    }
+
+    &.is-current {
+        color: #37474f;
+        background: #eceff1;
+    }
+
+    &.is-pending {
+        color: #e65100;
+        background: #fff3e0;
+    }
+}
+
+.aios-theme-card__name {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.3;
+}
+
+#wpui-container-minimalist .aios-theme-card__name {
+    margin: 0;
+    padding: 0;
+}
+
+.aios-theme-card__meta {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.aios-theme-card__populated {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+}
+
+.aios-theme-card__actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 220px;
+    text-align: right;
+}
+
+.aios-theme-card__hint {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.aios-theme-generate-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: #003784;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: #00255a;
+    }
+}
+
+.aios-theme-link-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #003784;
+    background: #fff;
+    border: 1px solid #003784;
+    border-radius: 6px;
+    text-decoration: none;
+    box-shadow: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+        color: #fff !important;
+        background: #003784 !important;
+        border-color: #003784 !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    &:active {
+        color: #fff !important;
+        background: #00255a !important;
+        border-color: #00255a !important;
+    }
+}
+
+#wpui-container-minimalist a.aios-theme-link-btn {
+    &:hover,
+    &:focus,
+    &:active {
+        color: #fff !important;
+        text-decoration: none !important;
+    }
 }
 
 .btn{

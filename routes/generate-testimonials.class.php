@@ -23,9 +23,7 @@ class Testimonials
         $is_repopulate = ! empty($data['repopulate']);
 
         if ($is_repopulate) {
-            $this->delete_populated_testimonial_posts();
-            delete_option('aios_auto_population_testimonials');
-            delete_option('aios_auto_population_testimonials_date');
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::delete_canned_content_section('testimonials');
             \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
         }
 
@@ -50,6 +48,8 @@ class Testimonials
             return rest_ensure_response($response_data);
         }
 
+        $this->apply_testimonials_theme_from_config();
+
         // Section templates are always retained — only create missing ones.
         if (! empty($contents->{'aios-section-testimonials'})) {
             $this->populate_testimonial_sections($contents->{'aios-section-testimonials'});
@@ -70,44 +70,24 @@ class Testimonials
             $response_data['status']  = 'success';
             $response_data['message'] = 'Testimonials repopulated successfully';
         } elseif (! $pages_generated) {
+            $generated_ids = [];
+
+            if (! empty($contents->{'aios-testimonials'})) {
+                $generated_ids = $this->populate_testimonial_posts($contents->{'aios-testimonials'}, $sPath);
+            }
+
+            update_option('aios_auto_population_testimonials_ids', $generated_ids);
             update_option('aios_auto_population_testimonials', true);
             update_option('aios_auto_population_testimonials_date', $dateComplete);
 
             $response_data['status']  = 'success';
-            $response_data['message'] = 'Testimonial sections generated successfully';
+            $response_data['message'] = 'Testimonials generated successfully';
         } else {
             $response_data['status']  = 'success';
-            $response_data['message'] = 'Testimonial sections already generated';
+            $response_data['message'] = 'Testimonials already generated';
         }
 
         return rest_ensure_response($response_data);
-    }
-
-    /**
-     * Remove autopopulated review posts only — never testimonial sections.
-     */
-    private function delete_populated_testimonial_posts(): void
-    {
-        $ids = get_option('aios_auto_population_testimonials_ids', []);
-
-        if (! is_array($ids) || empty($ids)) {
-            $ids = get_posts([
-                'post_type'      => 'aios-testimonials',
-                'posts_per_page' => -1,
-                'post_status'    => 'any',
-                'fields'         => 'ids',
-            ]);
-        }
-
-        foreach ($ids as $id) {
-            $id = (int) $id;
-
-            if ($id > 0 && get_post_type($id) === 'aios-testimonials') {
-                wp_delete_post($id, true);
-            }
-        }
-
-        delete_option('aios_auto_population_testimonials_ids');
     }
 
     private function find_section_by_unique_id(string $unique_id): int
@@ -214,6 +194,26 @@ class Testimonials
         }
 
         return $generated_ids;
+    }
+
+    /**
+     * Map testimonials theme from config; equinox themes use the default template.
+     */
+    private function apply_testimonials_theme_from_config(): void
+    {
+        $config = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_theme_json('config.json');
+
+        if (empty($config->config[0]->plugins->aios_testimonials->theme)) {
+            return;
+        }
+
+        $theme = sanitize_key($config->config[0]->plugins->aios_testimonials->theme);
+
+        if ($theme === 'equinox') {
+            $theme = 'default';
+        }
+
+        update_option('testimonials-themes', $theme . '-core');
     }
 }
 new Testimonials();
