@@ -9,10 +9,9 @@ $cannedByName = [];
 foreach ($cannedContentRows as $row) {
     $cannedByName[$row['name']] = $row;
 }
-$cannedTotal = array_sum(array_column($cannedContentRows, 'count'));
-$cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
-    return $carry || $row['count'] > 0 || $row['generated'];
-}, false);
+$cannedUnmodifiedTotal = array_sum(array_column($cannedContentRows, 'unmodified'));
+$cannedEditedTotal = array_sum(array_column($cannedContentRows, 'edited'));
+$cannedHasUnmodified = $cannedUnmodifiedTotal > 0;
 
 ?>
 <div id="wpui-container-minimalist">
@@ -122,14 +121,16 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
 
                      <div class="aios-repopulate-toolbar">
                         <div class="aios-repopulate-toolbar__info">
-                           <strong data-canned-count="all"><?= (int) $cannedTotal ?></strong> tracked canned item(s)
+                           <strong data-canned-count="all"><?= (int) $cannedUnmodifiedTotal ?></strong> unmodified canned items
+                           <span class="aios-repopulate-toolbar__edited"
+                                 data-canned-edited-total><?php if ( $cannedEditedTotal > 0 ) : ?> · <?= (int) $cannedEditedTotal ?> edited<?php endif; ?></span>
                         </div>
                         <button type="button"
                                 class="aios-delete-canned-btn aios-delete-all-btn"
                                 data-section="all"
-                                data-name="All Canned Content"
-                                <?= ! $cannedHasContent ? 'disabled' : '' ?>>
-                           Delete All Canned Content
+                                data-name="canned content"
+                                <?= ! $cannedHasUnmodified ? 'disabled' : '' ?>>
+                           Delete unmodified canned content
                         </button>
                      </div>
 
@@ -142,10 +143,16 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                            <p><strong>Status</strong></p>
                         </div>
                         <div class="wpui-col-md-1">
-                           <p><strong>Canned</strong></p>
+                           <p><strong>Unmodified</strong></p>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <p><strong>Edited</strong></p>
                         </div>
                         <div class="wpui-col-md-2">
                            <p><strong>Action</strong></p>
+                        </div>
+                        <div class="wpui-col-md-2">
+                           <p><strong>Delete</strong></p>
                         </div>
                      </div>
 
@@ -155,8 +162,9 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                          $repop_endpoint = esc_attr($api['endpoint']);
                          $repop_label    = esc_html($key);
                          $canned_row     = $cannedByName[$key] ?? null;
-                         $canned_count   = $canned_row ? (int) $canned_row['count'] : 0;
-                         $can_delete     = $canned_row && ($canned_count > 0 || $canned_row['generated']);
+                         $canned_unmodified = $canned_row ? (int) $canned_row['unmodified'] : 0;
+                         $canned_edited  = $canned_row ? (int) $canned_row['edited'] : 0;
+                         $can_delete     = $canned_row && $canned_unmodified > 0;
                      ?>
                      <div class="wpui-row wpui-row-box aios-manage-table__row" id="repopulate-row-<?= $repop_slug ?>">
                         <div class="wpui-col-md-2">
@@ -170,7 +178,17 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                            <?php if ($canned_row) : ?>
                            <p class="aios-canned-count"
                               data-canned-count="<?= esc_attr($canned_row['slug']) ?>">
-                              <?= $canned_count ?> item(s)
+                              <?= (int) $canned_unmodified ?>
+                           </p>
+                           <?php else : ?>
+                           <p>—</p>
+                           <?php endif; ?>
+                        </div>
+                        <div class="wpui-col-md-1">
+                           <?php if ($canned_row) : ?>
+                           <p class="aios-canned-edited"
+                              data-canned-edited="<?= esc_attr($canned_row['slug']) ?>">
+                              <?= (int) $canned_edited ?>
                            </p>
                            <?php else : ?>
                            <p>—</p>
@@ -184,6 +202,8 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                                    data-slug="<?= $repop_slug ?>">
                               Repopulate
                            </button>
+                        </div>
+                        <div class="wpui-col-md-2 aios-delete-actions">
                            <?php if ($canned_row) : ?>
                            <button type="button"
                                    class="aios-delete-canned-btn"
@@ -191,8 +211,10 @@ $cannedHasContent = array_reduce($cannedContentRows, function ($carry, $row) {
                                    data-name="<?= esc_attr($canned_row['name']) ?>"
                                    data-slug="<?= $repop_slug ?>"
                                    <?= ! $can_delete ? 'disabled' : '' ?>>
-                              Delete
+                              Delete unmodified
                            </button>
+                           <?php else : ?>
+                           <p>—</p>
                            <?php endif; ?>
                         </div>
                      </div>

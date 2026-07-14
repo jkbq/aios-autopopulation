@@ -20,6 +20,12 @@ class Agents
 
     public function aios_populate_agents($data)
     {
+        $is_repopulate = ! empty($data['repopulate']);
+
+        if ($is_repopulate) {
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::prepare_canned_section_for_repopulate('agents');
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
+        }
 
         $dateComplete = get_option('aios_auto_population_agents_date', $data['date']);
 
@@ -98,6 +104,8 @@ class Agents
                                     }
                                 }
 
+                                \AIOS\AUTOPOPULATE\Helpers\Helpers::mark_canned_content_baseline( (int) $insert_post );
+
                                 $response_data['status'] = 'success';
                                 $response_data['message'] = 'Post already generated';
 
@@ -112,7 +120,11 @@ class Agents
                         $response_data['message'] = 'Agents generated successfully';
                     }
                 }
-                update_option('aios_auto_population_agents_ids', $generated_ids);
+                \AIOS\AUTOPOPULATE\Helpers\Helpers::store_canned_content_ids(
+                    'aios_auto_population_agents_ids',
+                    $generated_ids,
+                    $is_repopulate
+                );
                 update_option('aios_auto_population_agents', true);
                 update_option('aios_auto_population_agents_date', $dateComplete);
             }

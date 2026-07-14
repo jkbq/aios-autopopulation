@@ -290,6 +290,8 @@ class Helpers
         ];
     }
 
+    const CANNED_MODIFIED_BASELINE_META = '_aios_canned_modified_baseline';
+
     /**
      * @return int[] Stored generated post IDs for a canned content section.
      */
@@ -305,30 +307,175 @@ class Helpers
     }
 
     /**
-     * Delete tracked canned posts for a section and return the number removed.
+     * Stamp the current post_modified_gmt after a canned item is fully generated.
      */
-    public static function delete_canned_content_by_ids( string $ids_option, string $post_type ): int
+    public static function mark_canned_content_baseline( int $post_id ): void
     {
-        $ids     = self::get_canned_content_ids( $ids_option );
-        $deleted = 0;
-
-        foreach ( $ids as $id ) {
-            if ( $id > 0 && get_post_type( $id ) === $post_type && wp_delete_post( $id, true ) ) {
-                $deleted++;
-            }
+        if ( $post_id <= 0 ) {
+            return;
         }
 
-        delete_option( $ids_option );
+        // Ensure we read the latest modified timestamp after thumbnails/meta updates.
+        clean_post_cache( $post_id );
+        $post = get_post( $post_id );
 
-        return $deleted;
+        if ( ! $post ) {
+            return;
+        }
+
+        update_post_meta( $post_id, self::CANNED_MODIFIED_BASELINE_META, $post->post_modified_gmt );
     }
 
     /**
-     * Delete canned content for one section and reset its population status.
-     *
-     * @return array{deleted: int, section: string, count: int}
+     * Whether a post has a real (non-autosave) revision — strong signal of a user edit.
      */
-    public static function delete_canned_content_section( string $slug ): array
+    public static function canned_content_has_revisions( int $post_id ): bool
+    {
+        if ( $post_id <= 0 || ! post_type_supports( get_post_type( $post_id ), 'revisions' ) ) {
+            return false;
+        }
+
+        $revisions = wp_get_post_revisions( $post_id, [
+            'check_enabled' => true,
+        ] );
+
+        if ( empty( $revisions ) ) {
+            return false;
+        }
+
+        foreach ( $revisions as $revision ) {
+            if ( wp_is_post_autosave( $revision ) ) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a tracked canned post is still unmodified since generation.
+     *
+     * Checked in real time from post data: revisions, _edit_last, and modified-date baseline.
+     */
+    public static function is_canned_content_unmodified( int $post_id ): bool
+    {
+        if ( $post_id <= 0 ) {
+            return false;
+        }
+
+        $post = get_post( $post_id );
+
+        if ( ! $post ) {
+            return false;
+        }
+
+        if ( self::canned_content_has_revisions( $post_id ) ) {
+            return false;
+        }
+
+        if ( ! empty( get_post_meta( $post_id, '_edit_last', true ) ) ) {
+            return false;
+        }
+
+        $baseline = get_post_meta( $post_id, self::CANNED_MODIFIED_BASELINE_META, true );
+
+        if ( $baseline !== '' && $baseline !== false && $baseline !== null ) {
+            return (string) $post->post_modified_gmt === (string) $baseline;
+        }
+
+        // Legacy items with no baseline and no edit markers: treat as unmodified.
+        return true;
+    }
+
+    /**
+     * Split tracked IDs into unmodified vs edited.
+     *
+     * @param int[] $ids
+     * @return array{unmodified: int[], edited: int[]}
+     */
+    public static function classify_canned_content_ids( array $ids ): array
+    {
+        $unmodified = [];
+        $edited     = [];
+
+        foreach ( $ids as $id ) {
+            $id = absint( $id );
+
+            if ( $id <= 0 ) {
+                continue;
+            }
+
+            if ( ! get_post( $id ) ) {
+                continue;
+            }
+
+            if ( self::is_canned_content_unmodified( $id ) ) {
+                $unmodified[] = $id;
+            } else {
+                $edited[] = $id;
+            }
+        }
+
+        return [
+            'unmodified' => $unmodified,
+            'edited'     => $edited,
+        ];
+    }
+
+    /**
+     * Delete tracked canned posts for a section.
+     *
+     * @param bool $unmodified_only When true (default), preserve edited posts.
+     * @return array{deleted: int, unmodified: int, edited: int, remaining: int[]}
+     */
+    public static function delete_canned_content_by_ids( string $ids_option, string $post_type, bool $unmodified_only = true ): array
+    {
+        $ids        = self::get_canned_content_ids( $ids_option );
+        $classified = self::classify_canned_content_ids( $ids );
+        $deleted    = 0;
+
+        if ( $unmodified_only ) {
+            $to_delete = $classified['unmodified'];
+            $remaining = $classified['edited'];
+        } else {
+            $to_delete = $ids;
+            $remaining = [];
+        }
+
+        foreach ( $to_delete as $id ) {
+            if ( $id > 0 && get_post_type( $id ) === $post_type && wp_delete_post( $id, true ) ) {
+                $deleted++;
+            } elseif ( $unmodified_only && $id > 0 && get_post( $id ) ) {
+                // Keep any unmodified ID that failed to delete.
+                $remaining[] = $id;
+            }
+        }
+
+        $remaining = array_values( array_unique( array_map( 'absint', $remaining ) ) );
+
+        if ( empty( $remaining ) ) {
+            delete_option( $ids_option );
+        } else {
+            update_option( $ids_option, $remaining );
+        }
+
+        return [
+            'deleted'    => $deleted,
+            'unmodified' => count( $classified['unmodified'] ),
+            'edited'     => count( $classified['edited'] ),
+            'remaining'  => $remaining,
+        ];
+    }
+
+    /**
+     * Delete canned content for one section.
+     *
+     * @param bool $unmodified_only When true (default), preserve edited posts and keep status if any remain.
+     * @return array{deleted: int, section: string, count: int, unmodified: int, edited: int, remaining: int}
+     */
+    public static function delete_canned_content_section( string $slug, bool $unmodified_only = true ): array
     {
         $config = null;
 
@@ -341,29 +488,79 @@ class Helpers
 
         if ( ! $config ) {
             return [
-                'deleted' => 0,
-                'section' => $slug,
-                'count'   => 0,
+                'deleted'    => 0,
+                'section'    => $slug,
+                'count'      => 0,
+                'unmodified' => 0,
+                'edited'     => 0,
+                'remaining'  => 0,
             ];
         }
 
-        $ids     = self::get_canned_content_ids( $config['ids_option'] );
-        $deleted = self::delete_canned_content_by_ids( $config['ids_option'], $config['post_type'] );
+        $result    = self::delete_canned_content_by_ids( $config['ids_option'], $config['post_type'], $unmodified_only );
+        $remaining = count( $result['remaining'] );
 
-        delete_option( $config['status_option'] );
-        delete_option( $config['date_option'] );
+        if ( $remaining === 0 ) {
+            delete_option( $config['status_option'] );
+            delete_option( $config['date_option'] );
+        }
 
         return [
-            'deleted' => $deleted,
-            'section' => $slug,
-            'count'   => count( $ids ),
+            'deleted'    => $result['deleted'],
+            'section'    => $slug,
+            'count'      => $remaining,
+            'unmodified' => $result['unmodified'],
+            'edited'     => $result['edited'],
+            'remaining'  => $remaining,
         ];
     }
 
     /**
-     * Delete canned content across all tracked sections.
+     * Prepare a canned section for repopulate: remove unmodified only, keep edited, clear status so generate can run.
      *
-     * @return array<string, array{deleted: int, section: string, count: int}>
+     * @return array{deleted: int, section: string, count: int, unmodified: int, edited: int, remaining: int}
+     */
+    public static function prepare_canned_section_for_repopulate( string $slug ): array
+    {
+        $result = self::delete_canned_content_section( $slug, true );
+
+        foreach ( self::canned_content_sections() as $section ) {
+            if ( $section['slug'] === $slug ) {
+                delete_option( $section['status_option'] );
+                delete_option( $section['date_option'] );
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Persist canned IDs, optionally merging with remaining (edited) IDs already stored.
+     *
+     * @param int[] $new_ids
+     */
+    public static function store_canned_content_ids( string $ids_option, array $new_ids, bool $merge_existing = false ): void
+    {
+        $ids = array_map( 'absint', $new_ids );
+
+        if ( $merge_existing ) {
+            $ids = array_merge( self::get_canned_content_ids( $ids_option ), $ids );
+        }
+
+        $ids = array_values( array_unique( array_filter( $ids ) ) );
+
+        if ( empty( $ids ) ) {
+            delete_option( $ids_option );
+        } else {
+            update_option( $ids_option, $ids );
+        }
+    }
+
+    /**
+     * Delete unmodified canned content across all tracked sections.
+     *
+     * @return array<string, array{deleted: int, section: string, count: int, unmodified: int, edited: int, remaining: int}>
      */
     public static function delete_all_canned_content(): array
     {
@@ -378,13 +575,22 @@ class Helpers
 
     /**
      * Count tracked canned posts per section for the admin UI.
+     *
+     * @return array<string, array{count: int, unmodified: int, edited: int}>
      */
     public static function canned_content_counts(): array
     {
         $counts = [];
 
         foreach ( self::canned_content_sections() as $name => $section ) {
-            $counts[ $name ] = count( self::get_canned_content_ids( $section['ids_option'] ) );
+            $ids        = self::get_canned_content_ids( $section['ids_option'] );
+            $classified = self::classify_canned_content_ids( $ids );
+
+            $counts[ $name ] = [
+                'count'      => count( $ids ),
+                'unmodified' => count( $classified['unmodified'] ),
+                'edited'     => count( $classified['edited'] ),
+            ];
         }
 
         return $counts;
@@ -400,12 +606,20 @@ class Helpers
         $rows       = [];
 
         foreach ( self::canned_content_sections() as $name => $section ) {
+            $section_counts = $counts[ $name ] ?? [
+                'count'      => 0,
+                'unmodified' => 0,
+                'edited'     => 0,
+            ];
+
             $rows[] = [
-                'name'      => $name,
-                'slug'      => $section['slug'],
-                'count'     => $counts[ $name ] ?? 0,
-                'generated' => ! empty( $api_status[ $name ]['status'] ),
-                'repop_slug'=> sanitize_title( $name ),
+                'name'       => $name,
+                'slug'       => $section['slug'],
+                'count'      => $section_counts['count'],
+                'unmodified' => $section_counts['unmodified'],
+                'edited'     => $section_counts['edited'],
+                'generated'  => ! empty( $api_status[ $name ]['status'] ),
+                'repop_slug' => sanitize_title( $name ),
             ];
         }
 
@@ -417,23 +631,31 @@ class Helpers
      */
     public static function canned_content_status_payload(): array
     {
-        $rows  = self::canned_content_rows();
-        $total = 0;
-        $sections = [];
+        $rows            = self::canned_content_rows();
+        $total           = 0;
+        $total_unmodified = 0;
+        $total_edited    = 0;
+        $sections        = [];
 
-        foreach ($rows as $row) {
-            $total += (int) $row['count'];
-            $sections[$row['slug']] = [
+        foreach ( $rows as $row ) {
+            $total            += (int) $row['count'];
+            $total_unmodified += (int) $row['unmodified'];
+            $total_edited     += (int) $row['edited'];
+            $sections[ $row['slug'] ] = [
                 'count'      => (int) $row['count'],
+                'unmodified' => (int) $row['unmodified'],
+                'edited'     => (int) $row['edited'],
                 'generated'  => (bool) $row['generated'],
                 'repop_slug' => $row['repop_slug'],
-                'can_delete' => $row['count'] > 0 || $row['generated'],
+                'can_delete' => (int) $row['unmodified'] > 0,
             ];
         }
 
         return [
-            'total'    => $total,
-            'sections' => $sections,
+            'total'      => $total,
+            'unmodified' => $total_unmodified,
+            'edited'     => $total_edited,
+            'sections'   => $sections,
         ];
     }
 

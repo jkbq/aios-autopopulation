@@ -73,13 +73,15 @@
     &.is-generated { color: #2e7d32; }
 }
 
-.aios-repopulate-actions {
+.aios-repopulate-actions,
+.aios-delete-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.aios-canned-count {
+.aios-canned-count,
+.aios-canned-edited {
     font-size: 13px;
     font-weight: 600;
     color: #555;
@@ -96,6 +98,7 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.15s ease;
+    white-space: nowrap;
     &:hover:not(:disabled) { background: #8e0000; }
     &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
@@ -128,8 +131,14 @@
 
     .aios-manage-table__row {
         display: grid;
-        grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) minmax(110px, 1fr) minmax(220px, 2.5fr);
-        gap: 12px 32px;
+        grid-template-columns:
+            minmax(140px, 1.6fr)
+            minmax(90px, 0.8fr)
+            minmax(90px, 0.8fr)
+            minmax(80px, 0.7fr)
+            minmax(120px, 1fr)
+            minmax(150px, 1.2fr);
+        gap: 12px 20px;
         align-items: center;
         padding: 14px 24px;
         margin: 0;

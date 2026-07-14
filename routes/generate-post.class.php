@@ -20,6 +20,12 @@ class PostPopulate
 
     public function aios_populate_post_populate($data)
     {
+        $is_repopulate = ! empty($data['repopulate']);
+
+        if ($is_repopulate) {
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::prepare_canned_section_for_repopulate('post');
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
+        }
 
         $dateComplete = get_option('aios_auto_population_post_date', $data['date']);
 
@@ -108,6 +114,8 @@ class PostPopulate
                                     }
                                 }
 
+                                \AIOS\AUTOPOPULATE\Helpers\Helpers::mark_canned_content_baseline( (int) $insert_post );
+
                                 // Debugging: Check if post is inserted successfully
                                 error_log('Post inserted with ID: ' . $insert_post);
                                 $response_data['status'] = 'success';
@@ -124,7 +132,11 @@ class PostPopulate
                         $response_data['message'] = 'Post generated successfully';
                     }
                 }
-                update_option('aios_auto_population_post_ids', $generated_ids);
+                \AIOS\AUTOPOPULATE\Helpers\Helpers::store_canned_content_ids(
+                    'aios_auto_population_post_ids',
+                    $generated_ids,
+                    $is_repopulate
+                );
                 // Set the option to indicate that pages have been generated
                 update_option('aios_auto_population_post', true);
                 update_option('aios_auto_population_post_date', $dateComplete);

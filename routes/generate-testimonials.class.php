@@ -23,7 +23,7 @@ class Testimonials
         $is_repopulate = ! empty($data['repopulate']);
 
         if ($is_repopulate) {
-            \AIOS\AUTOPOPULATE\Helpers\Helpers::delete_canned_content_section('testimonials');
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::prepare_canned_section_for_repopulate('testimonials');
             \AIOS\AUTOPOPULATE\Helpers\Helpers::clear_theme_json_cache();
         }
 
@@ -62,7 +62,11 @@ class Testimonials
                 $generated_ids = $this->populate_testimonial_posts($contents->{'aios-testimonials'}, $sPath);
             }
 
-            update_option('aios_auto_population_testimonials_ids', $generated_ids);
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::store_canned_content_ids(
+                'aios_auto_population_testimonials_ids',
+                $generated_ids,
+                true
+            );
             update_option('aios_auto_population_testimonials', true);
             update_option('aios_auto_population_testimonials_date', $data['date'] ?? $dateComplete);
 
@@ -76,7 +80,11 @@ class Testimonials
                 $generated_ids = $this->populate_testimonial_posts($contents->{'aios-testimonials'}, $sPath);
             }
 
-            update_option('aios_auto_population_testimonials_ids', $generated_ids);
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::store_canned_content_ids(
+                'aios_auto_population_testimonials_ids',
+                $generated_ids,
+                false
+            );
             update_option('aios_auto_population_testimonials', true);
             update_option('aios_auto_population_testimonials_date', $dateComplete);
 
@@ -191,6 +199,8 @@ class Testimonials
                 $image_data = $existing > 0 ? $existing : media_sideload_image($image_url, $insert_post, '', 'id');
                 update_post_meta($insert_post, 'aios_testimonials_video_placeholder', $image_data);
             }
+
+            \AIOS\AUTOPOPULATE\Helpers\Helpers::mark_canned_content_baseline( (int) $insert_post );
         }
 
         return $generated_ids;

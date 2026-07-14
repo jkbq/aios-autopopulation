@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Swal.fire({
             title: 'Repopulate ' + name + '?',
-            text: 'This will overwrite existing data for this section.',
+            text: 'Unmodified canned content will be replaced. Edited items will be kept.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, repopulate',
@@ -200,24 +200,30 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-            const total = data.total || 0;
+            const unmodified = data.unmodified || 0;
+            const edited = data.edited || 0;
             const sections = data.sections || {};
 
             const toolbarCount = document.querySelector('[data-canned-count="all"]');
-            if (toolbarCount) toolbarCount.textContent = String(total);
+            if (toolbarCount) toolbarCount.textContent = String(unmodified);
+
+            const editedTotalEl = document.querySelector('[data-canned-edited-total]');
+            if (editedTotalEl) {
+                editedTotalEl.textContent = edited > 0 ? ' · ' + edited + ' edited' : '';
+            }
 
             const allBtn = document.querySelector('.aios-delete-all-btn');
             if (allBtn) {
-                const hasContent = total > 0 || Object.values(sections).some(function (s) {
-                    return s.can_delete;
-                });
-                allBtn.disabled = !hasContent;
+                allBtn.disabled = unmodified <= 0;
             }
 
             Object.keys(sections).forEach(function (slug) {
                 const info = sections[slug];
                 const countEl = document.querySelector('[data-canned-count="' + slug + '"]');
-                if (countEl) countEl.textContent = info.count + ' item(s)';
+                if (countEl) countEl.textContent = String(info.unmodified || 0);
+
+                const editedEl = document.querySelector('[data-canned-edited="' + slug + '"]');
+                if (editedEl) editedEl.textContent = String(info.edited || 0);
 
                 const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + slug + '"]');
                 if (deleteBtn) deleteBtn.disabled = !info.can_delete;
@@ -227,14 +233,48 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function applyCannedDeleteUi(section, slug) {
+    // Live re-check while Manage Content is open (pauses when the tab is hidden).
+    if (document.querySelector('.aios-manage-table')) {
+        const CANNED_POLL_MS = 10000;
+        let cannedPollTimer = null;
+
+        function startCannedPoll() {
+            if (cannedPollTimer || document.hidden) return;
+            cannedPollTimer = setInterval(function () {
+                if (!document.hidden) refreshCannedCounts();
+            }, CANNED_POLL_MS);
+        }
+
+        function stopCannedPoll() {
+            if (!cannedPollTimer) return;
+            clearInterval(cannedPollTimer);
+            cannedPollTimer = null;
+        }
+
+        refreshCannedCounts();
+        startCannedPoll();
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopCannedPoll();
+            } else {
+                refreshCannedCounts();
+                startCannedPoll();
+            }
+        });
+    }
+
+    function applyCannedDeleteUi(section, slug, hasEdited) {
         const deleteBtn = document.querySelector('.aios-delete-canned-btn[data-section="' + section + '"]');
         if (deleteBtn) deleteBtn.disabled = true;
 
         const sectionCount = document.querySelector('[data-canned-count="' + section + '"]');
-        if (sectionCount) sectionCount.textContent = '0 item(s)';
+        if (sectionCount) sectionCount.textContent = '0';
 
-        if (slug) {
+        if (slug && !hasEdited) {
+            const editedEl = document.querySelector('[data-canned-edited="' + section + '"]');
+            if (editedEl) editedEl.textContent = '0';
+
             const repopStatus = document.querySelector('[data-repop-status="' + slug + '"]');
             if (repopStatus) {
                 repopStatus.textContent = '—';
@@ -259,9 +299,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const name    = btn.dataset.name;
         const slug    = btn.dataset.slug || '';
 
+        const confirmTitle = section === 'all'
+            ? 'Delete unmodified canned content?'
+            : 'Delete unmodified ' + name + '?';
+
         Swal.fire({
-            title: 'Delete ' + name + '?',
-            text: 'This will permanently remove tracked canned content for this section.',
+            title: confirmTitle,
+            text: 'Only unmodified items will be removed. Edited content will be retained.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete',
@@ -293,21 +337,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (section === 'all') {
                     document.querySelectorAll('.aios-delete-canned-btn[data-slug]').forEach(function (item) {
-                        applyCannedDeleteUi(item.dataset.section, item.dataset.slug);
+                        applyCannedDeleteUi(item.dataset.section, item.dataset.slug, (response.edited || 0) > 0);
                     });
                     const toolbarCount = document.querySelector('[data-canned-count="all"]');
                     if (toolbarCount) toolbarCount.textContent = '0';
                     const allBtn = document.querySelector('.aios-delete-all-btn');
                     if (allBtn) allBtn.disabled = true;
                 } else {
-                    applyCannedDeleteUi(section, slug);
+                    applyCannedDeleteUi(section, slug, (response.edited || 0) > 0);
                 }
 
                 refreshCannedCounts();
 
                 Swal.fire({
-                    title: name + ' deleted',
-                    text: response.message || 'Canned content removed.',
+                    title: 'Deleted',
+                    text: response.message || 'Unmodified canned content was removed. Edited items were kept.',
                     icon: 'success',
                     timer: 2500,
                     showConfirmButton: false,
