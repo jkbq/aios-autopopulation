@@ -25,30 +25,44 @@ class DeleteCannedContent
         if ($section === 'all') {
             $results = \AIOS\AUTOPOPULATE\Helpers\Helpers::delete_all_canned_content();
             $deleted = array_sum(array_column($results, 'deleted'));
+            $edited  = array_sum(array_column($results, 'edited'));
+
+            $message = sprintf('Deleted %d unmodified canned content item(s).', $deleted);
+            if ($edited > 0) {
+                $message .= sprintf(' Preserved %d edited item(s).', $edited);
+            }
 
             return rest_ensure_response([
                 'status'  => 'success',
-                'message' => sprintf('Deleted %d canned content item(s).', $deleted),
+                'message' => $message,
                 'deleted' => $deleted,
+                'edited'  => $edited,
                 'results' => $results,
             ]);
         }
 
         $result = \AIOS\AUTOPOPULATE\Helpers\Helpers::delete_canned_content_section($section);
 
-        if ($result['count'] === 0 && $result['deleted'] === 0) {
+        if ($result['unmodified'] === 0 && $result['deleted'] === 0) {
             return rest_ensure_response([
                 'status'  => 'success',
-                'message' => 'No tracked canned content found for this section.',
+                'message' => 'No unmodified canned content found for this section.',
                 'deleted' => 0,
+                'edited'  => (int) $result['edited'],
                 'section' => $section,
             ]);
         }
 
+        $message = sprintf('Deleted %d unmodified canned content item(s).', $result['deleted']);
+        if ($result['edited'] > 0) {
+            $message .= sprintf(' Preserved %d edited item(s).', $result['edited']);
+        }
+
         return rest_ensure_response([
             'status'  => 'success',
-            'message' => sprintf('Deleted %d canned content item(s).', $result['deleted']),
+            'message' => $message,
             'deleted' => $result['deleted'],
+            'edited'  => (int) $result['edited'],
             'section' => $section,
         ]);
     }
