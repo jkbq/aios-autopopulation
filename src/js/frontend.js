@@ -4,7 +4,7 @@ const requestQueue = [];
 let queueIsRunning = false;
 let isProcessing = false;
 let completedSteps = 0;
-const totalSteps = 18;
+const totalSteps = 19;
 let startTime = null;
 let elapsedInterval = null;
 
@@ -235,6 +235,7 @@ const apiRequests = [
     { name: 'About and Contact',      endpoint: 'about-contact',       showReRunButton: false, description: 'Populating about & contact...' },
     { name: 'Slideshow',              endpoint: 'slider',              showReRunButton: false, description: 'Configuring slideshow...' },
     { name: 'Menu',                   endpoint: 'menu',                showReRunButton: false, description: 'Building navigation menus...' },
+    { name: 'Trust Badges',           endpoint: 'trust-badges',        showReRunButton: false, description: 'Creating award sections...' },
     { name: 'Widgets',                endpoint: 'widgets',             showReRunButton: true,  description: 'Configuring sidebar widgets...' },
     { name: 'Finalizing Installation',endpoint: 'deactivate',          showReRunButton: true,  description: 'Finalizing your installation...' },
 ];

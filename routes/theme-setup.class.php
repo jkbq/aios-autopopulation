@@ -30,10 +30,14 @@ class ThemeSetup
 
         \AIOS\AUTOPOPULATE\Services\PopulateService::clearCache();
 
+        $config = \AIOS\AUTOPOPULATE\Services\PopulateService::getConfig();
+        if ($config) {
+            \AIOS\AUTOPOPULATE\Services\TrustBadgesPopulator::ensureFromConfig($config);
+        }
+
         $widgetsResult = \AIOS\AUTOPOPULATE\Services\PluginSettingsPopulator::run(true, $date);
 
-        $config = \AIOS\AUTOPOPULATE\Services\PopulateService::getConfig();
-        $sPath  = \AIOS\AUTOPOPULATE\Services\PopulateService::getThemeUri();
+        $sPath = \AIOS\AUTOPOPULATE\Services\PopulateService::getThemeUri();
 
         if (! $config) {
             return \AIOS\AUTOPOPULATE\Services\PopulateService::respond(false, 'Error fetching theme config', $date);

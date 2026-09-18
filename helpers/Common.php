@@ -82,6 +82,7 @@ class Helpers
             "About and Contact" => [ "status" => get_option($p . 'about_contact_generate'),     "date" => get_option($p . 'about_contact_generate_date'), "endpoint" => "about-contact" ],
             "Slideshow"         => [ "status" => get_option($p . 'slider'),                     "date" => get_option($p . 'slider_date'),                  "endpoint" => "slider" ],
             "Menu"              => [ "status" => get_option($p . 'menu'),                       "date" => get_option($p . 'menu_date'),                    "endpoint" => "menu" ],
+            "Trust Badges"      => [ "status" => get_option($p . 'trust_badges'),               "date" => get_option($p . 'trust_badges_date'),            "endpoint" => "trust-badges" ],
             "Widgets"           => [ "status" => get_option($p . 'widgets'),                    "date" => get_option($p . 'widgets_date'),                 "endpoint" => "widgets" ],
         ];
 

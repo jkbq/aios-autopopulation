@@ -50,6 +50,8 @@ class PluginSettingsPopulator
 
         $all_widget_opts = [];
 
+        TrustBadgesPopulator::ensureFromConfig($config);
+
         foreach ($config->widgets as $widget_info) {
             if (isset($widget_info->args->pbcw_category)) {
                 $widget_info->args->pbcw_category = get_cat_ID('Blog');
@@ -59,6 +61,7 @@ class PluginSettingsPopulator
             foreach ($widget_info->args as $arg_key => $arg_value) {
                 $widget_args[$arg_key] = $arg_value;
             }
+            $widget_args = TrustBadgesPopulator::replacePlaceholdersInArgs($widget_args);
 
             self::widgetGeneratorBatch(
                 $sidebars_widgets,
@@ -109,6 +112,8 @@ class PluginSettingsPopulator
 
     private static function applyPluginSettings(object $config, string $sPath): void
     {
+        TrustBadgesPopulator::applyPluginSettings($config);
+
         $communitiesConfig  = $config->config[0]->plugins->aios_communities;
         $agentsConfig       = $config->config[0]->plugins->aios_agents;
         $client_info        = $config->config[0]->site_info;
