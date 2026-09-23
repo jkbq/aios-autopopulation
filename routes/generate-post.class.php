@@ -49,6 +49,20 @@ class PostPopulate
                 $response_data['message'] = 'Error fetching JSON data';
             } else {
 
+            // Posts can link to an Author entry (author_ref index into contents.json's
+            // "author" section), so make sure Authors exist before posts reference them.
+            if ( ! get_option('aios_auto_population_author', false) ) {
+                ( new \AIOS\AUTOPOPULATE\Routes\AuthorPopulate() )->aios_populate_author_populate($data);
+            }
+            $author_ids = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_canned_content_ids('aios_auto_population_author_ids');
+
+            // Posts can embed an [aios-faq-section] shortcode via faq_ref (index into
+            // contents.json's "aios-faqs" section), so FAQs must exist before posts reference them.
+            if ( ! get_option('aios_auto_population_faqs', false) ) {
+                ( new \AIOS\AUTOPOPULATE\Routes\FaqsPopulate() )->aios_populate_faqs_populate($data);
+            }
+            $faq_ids = \AIOS\AUTOPOPULATE\Helpers\Helpers::get_canned_content_ids('aios_auto_population_faqs_ids');
+
             $generated_ids = [];
 
             $cid = wp_insert_term(
@@ -69,7 +83,7 @@ class PostPopulate
                             $post_data = [
                                 'post_type'    => sanitize_key($value->post_type),
                                 'post_title'   => sanitize_text_field($value->post_title),
-                                'post_content' => wp_kses_post($value->post_content),
+                                'post_content' => wp_kses_post($value->post_content ?? ''),
                                 'post_status'  => 'publish',
                                 'post_author'  => 1,
                             ];
@@ -115,6 +129,42 @@ class PostPopulate
                                 }
 
                                 \AIOS\AUTOPOPULATE\Helpers\Helpers::mark_canned_content_baseline( (int) $insert_post );
+
+                                if (isset($value->sections)) {
+                                    $author_ref = isset($value->author_ref) ? (int) $value->author_ref : null;
+                                    $author_id  = ($author_ref !== null && isset($author_ids[$author_ref])) ? $author_ids[$author_ref] : 0;
+
+                                    $sections_json = json_encode($value->sections);
+
+                                    $faq_ref = isset($value->faq_ref) ? (int) $value->faq_ref : null;
+                                    if ($faq_ref !== null && isset($faq_ids[$faq_ref])) {
+                                        $sections_json = str_replace('{{FAQ_REF}}', (string) $faq_ids[$faq_ref], $sections_json);
+                                    }
+
+                                    update_post_meta($insert_post, '_aios_post_content_details', [
+                                        'is_featured_post'      => '',
+                                        'editor_mode'            => 'new',
+                                        'sections'               => json_decode($sections_json, true),
+                                        'has_author'             => ! empty($value->has_author) && $author_id > 0,
+                                        'author_id_field'        => ! empty($value->author_id_field) && $author_id > 0,
+                                        'author_id'              => $author_id,
+                                        'has_partner_links'      => ! empty($value->has_partner_links),
+                                        'partner_links_label'    => sanitize_text_field($value->partner_links_label ?? ''),
+                                        'partner_links_content'  => wp_kses_post($value->partner_links_content ?? ''),
+                                    ]);
+
+                                    // Mirrors PostContentSaveService::syncPostContent() so feeds/REST/search
+                                    // (which read post_content directly) see the same body as the editor does.
+                                    if (class_exists(\AIOSNexus\Helper\PostContentRenderer::class)) {
+                                        global $wpdb;
+                                        $wpdb->update(
+                                            $wpdb->posts,
+                                            ['post_content' => \AIOSNexus\Helper\PostContentRenderer::content($insert_post)],
+                                            ['ID' => $insert_post]
+                                        );
+                                        clean_post_cache($insert_post);
+                                    }
+                                }
 
                                 // Debugging: Check if post is inserted successfully
                                 error_log('Post inserted with ID: ' . $insert_post);
