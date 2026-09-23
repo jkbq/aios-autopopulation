@@ -72,6 +72,7 @@ class Helpers
             "Forms"             => [ "status" => get_option($p . 'form'),                        "date" => get_option($p . 'form_date'),                    "endpoint" => "form" ],
             "Page"              => [ "status" => get_option($p . 'page'),                        "date" => get_option($p . 'page_date'),                    "endpoint" => "page-populate" ],
             "Post"              => [ "status" => get_option($p . 'post'),                        "date" => get_option($p . 'post_date'),                    "endpoint" => "post-populate" ],
+            "Author"            => [ "status" => get_option($p . 'author'),                      "date" => get_option($p . 'author_date'),                  "endpoint" => "author-populate" ],
             "Testimonials"      => [ "status" => get_option($p . 'testimonials'),               "date" => get_option($p . 'testimonials_date'),            "endpoint" => "testimonials" ],
             "Communities"       => [ "status" => get_option($p . 'communities'),                "date" => get_option($p . 'communities_date'),             "endpoint" => "communities" ],
             "Agents"            => [ "status" => get_option($p . 'agents'),                     "date" => get_option($p . 'agents_date'),                  "endpoint" => "agents" ],
@@ -260,6 +261,13 @@ class Helpers
                 'date_option'   => $p . 'post_date',
                 'post_type'     => 'post',
             ],
+            'Author' => [
+                'slug'          => 'author',
+                'ids_option'    => $p . 'author_ids',
+                'status_option' => $p . 'author',
+                'date_option'   => $p . 'author_date',
+                'post_type'     => 'aios_author',
+            ],
             'Testimonials' => [
                 'slug'          => 'testimonials',
                 'ids_option'    => $p . 'testimonials_ids',
@@ -287,6 +295,13 @@ class Helpers
                 'status_option' => $p . 'listings',
                 'date_option'   => $p . 'listings_date',
                 'post_type'     => 'aios-listings',
+            ],
+            'Faqs' => [
+                'slug'          => 'faqs',
+                'ids_option'    => $p . 'faqs_ids',
+                'status_option' => $p . 'faqs',
+                'date_option'   => $p . 'faqs_date',
+                'post_type'     => 'aios-faqs-section',
             ],
         ];
     }

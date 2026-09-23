@@ -122,6 +122,7 @@ class PluginSettingsPopulator
         $listingsConfig     = $config->config[0]->plugins->aios_listings;
         $ihfConfig          = $config->config[0]->plugins->aios_custom_ihf;
         $homevaluation      = $config->config[0]->plugins->aios_homevaluation;
+        $contentTemplates   = $config->config[0]->plugins->aios_content_templates ?? null;
 
         $home_valuation_settings = get_option('aios_home_valuation_settings', []);
 
@@ -291,6 +292,14 @@ class PluginSettingsPopulator
         if (! empty($ihfConfig->results_page)) {
             update_option('aios-custom-ihomefinder-templates-results-page', $ihfConfig->results_page . '-core');
             update_option('aios-custom-ihomefinder-templates-details-page', $ihfConfig->details_page . '-core');
+        }
+
+        if ($contentTemplates) {
+            $content_templates_settings = get_option('aios_content_templates_settings', []);
+            foreach ($contentTemplates as $key => $value) {
+                $content_templates_settings[$key] = $value;
+            }
+            update_option('aios_content_templates_settings', $content_templates_settings);
         }
 
         update_option('permalink_structure', '/%category%/%postname%/');
