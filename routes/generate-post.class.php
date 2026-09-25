@@ -159,7 +159,7 @@ class PostPopulate
                                         global $wpdb;
                                         $wpdb->update(
                                             $wpdb->posts,
-                                            ['post_content' => \AIOSNexus\Helper\PostContentRenderer::content($insert_post)],
+                                            ['post_content' => apply_filters('aios-content-templates/strip_hidden_titles', \AIOSNexus\Helper\PostContentRenderer::content($insert_post))],
                                             ['ID' => $insert_post]
                                         );
                                         clean_post_cache($insert_post);
