@@ -297,6 +297,12 @@ class Settings
             if ( class_exists( 'Pojo_Accessibility' ) ) {
                 update_option( 'pojo_a11y_focusable', 'enable' );
                 update_option( 'pojo_a11y_toolbar', 'visible-desktop' );
+
+                // merge so other customizer keys are preserved
+                $pojo_customizer = get_option( 'pojo_a11y_customizer_options', [] );
+                $pojo_customizer = is_array( $pojo_customizer ) ? $pojo_customizer : [];
+                $pojo_customizer['a11y_focus_outline_style'] = 'initial';
+                update_option( 'pojo_a11y_customizer_options', $pojo_customizer );
             }
 
             $response = [
